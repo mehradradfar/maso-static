@@ -1,0 +1,420 @@
+/* ==========================================================================
+   Maso — stylesheet source
+   --------------------------------------------------------------------------
+   This file is compiled by Tailwind CSS into ../main.css (`npm run build`).
+   The compiled file is committed, so the site runs without any build step;
+   only rebuild after changing classes in the HTML/JS or this file.
+
+   Utility classes (bg-surface-low, text-16, …) are generated from the
+   design tokens below, which mirror the Figma variables 1:1.
+   ========================================================================== */
+@import "tailwindcss";
+
+/* Files scanned for class names */
+@source "../../../*.html";
+@source "../../../partials/*.html";
+@source "../../js";
+
+/* ==========================================================================
+   Font — Yekan Bakh VF (licensed, self-hosted: no Google Fonts / CDNs, which
+   are unreliable from Iran). One variable file covers every weight:
+   325 Regular · 450 SemiBold · 600 Bold.
+   ========================================================================== */
+@font-face {
+  font-family: "Yekan Bakh";
+  src: url("../fonts/YekanBakh-VF.woff2") format("woff2");
+  font-weight: 1 1000;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Metric-matched fallback: less layout shift while the web font loads */
+@font-face {
+  font-family: "Yekan Bakh Fallback";
+  src: local("Arial");
+  ascent-override: 101.12%;
+  descent-override: 55.62%;
+  line-gap-override: 0%;
+  size-adjust: 98.89%;
+}
+
+/* ==========================================================================
+   Design tokens — taken 1:1 from the Figma variables of the Maso file.
+   Tailwind turns every `--color-*`, `--text-*`, … into utilities.
+   ========================================================================== */
+@theme {
+  /* --- Breakpoints: the four Figma frames are 402 / 768 / 1266 / 1440 --- */
+  --breakpoint-md: 48rem; /* 768px  → tablet frame */
+  --breakpoint-lg: 64rem; /* 1024px → desktop layout starts (1266 frame) */
+  --breakpoint-xl: 79.125rem; /* 1266px → small desktop frame */
+  --breakpoint-2xl: 90rem; /* 1440px → large desktop frame */
+
+  /* --- Colors --- */
+  --color-primary: #001026; /* main/primary */
+  --color-on-primary: #ffffff; /* main/on-primary */
+  --color-surface: #ffffff; /* bg/surf-container-lowest */
+  --color-surface-low: #f3f3f3; /* bg/surf-container-low */
+  --color-on-surface: #1b1b1b; /* text-border/on-surface */
+  --color-on-surface-var: #44474e; /* text-border/on-surface-var */
+  --color-outline: #74777e; /* text-border/outline */
+  --color-outline-var: #c4c6ce; /* text-border/outline-var */
+  --color-black-10: #0000001a; /* black/10 — dividers */
+  --color-black-20: #00000033; /* black/20 — accordion dividers */
+  --color-black-30: #0000004d; /* black/30 — dialog backdrops */
+  --color-white-20: #ffffff33; /* white/20 — dividers on dark */
+
+  /* Shop pages (PLP, PDP, cart…) use the second text mode of the library */
+  --color-ink: #000000; /* text-border/on-surface (shop) */
+  --color-ink-var: #4d4d4d; /* text-border/on-surface-var (shop) */
+  --color-ink-muted: #999999; /* struck-through prices, control borders */
+  --color-hairline: #e6e6e6; /* text-border/outline-var (shop) — list dividers */
+  --color-surf-container: #eeeeee; /* bg/surf-container */
+  --color-surf-container-highest: #cccccc; /* sheet drag handle */
+  --color-skeleton: #f2f2f2; /* loading placeholders */
+  --color-promo: #111111; /* dark promo band on the PLP */
+  --color-error: #ff343b; /* actions/error */
+  --color-on-error: #fde6e6; /* actions/on-error */
+  --color-error-container: #ffd6d8; /* actions/error-container */
+  --color-on-error-container: #cc2a2f; /* actions/on-error-container */
+  --color-success: #33cf5a; /* actions/success */
+  --color-success-container: #d6f5de; /* actions/success-container */
+  --color-on-success-container: #29a648; /* actions/on-success-container */
+  --color-secondary: #0074ff; /* main/secondary — text links */
+  --color-warning-text: #cc702a; /* actions/on-warning-container — "انتخاب نشده" */
+  --color-warning-container: #ffe8d6; /* actions/warning-container — shipping notices */
+  --color-divider: #e2e2e2; /* bg/surf-container-highest (checkout) — thick section rules */
+  --color-installment: #008efb; /* instalment amount on the payment step */
+  --color-field: #f2f2f2; /* bg/surf-container-low (login) — borderless inputs */
+  --color-dim: #b3b3b3; /* bg/surface-dim — inactive dots, switch track */
+  --color-ink-strong: #212121; /* active gallery dot */
+
+  /* --- Typography ---
+     Figma uses "line-height: auto" (font metrics). To stay pixel-exact no
+     matter which font file is loaded, the resulting line boxes are pinned
+     here (10→16, 13→20, 16→25, 20→31, 25→39, 31→48, 39→60). */
+  --font-sans: "Yekan Bakh", "Yekan Bakh Fallback", Tahoma, sans-serif;
+  --font-weight-normal: 325; /* "Regular" in Yekan Bakh VF */
+  --font-weight-semibold: 450; /* "SemiBold" in Yekan Bakh VF (dialog titles) */
+  --font-weight-bold: 600; /* "Bold" in Yekan Bakh VF */
+
+  --text-10: 10px;
+  --text-10--line-height: 16px;
+  --text-13: 13px;
+  --text-13--line-height: 20px;
+  --text-14: 14px;
+  --text-14--line-height: 22px;
+  --text-16: 16px;
+  --text-16--line-height: 25px;
+  --text-20: 20px;
+  --text-20--line-height: 31px;
+  --text-25: 25px;
+  --text-25--line-height: 39px;
+  --text-31: 31px;
+  --text-31--line-height: 48px;
+  --text-39: 39px;
+  --text-39--line-height: 60px;
+
+  /* --- Radius --- */
+  --radius-button: 16px;
+
+  /* --- Motion --- */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Keeps anchor jumps clear of the fixed header */
+    scroll-padding-top: 6rem;
+  }
+
+  /* Freeze the page behind any modal (sheets, search overlay) */
+  html:has(dialog:modal) {
+    overflow: hidden;
+  }
+
+  body {
+    @apply bg-surface font-sans text-16 font-normal text-on-surface;
+  }
+
+  /* Form controls don't inherit the font by default */
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  /* Elements rendered by JavaScript stay hidden until their data is in */
+  [hidden] {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Header modes
+   The header markup is the same on every page (partials/header.html); the
+   page picks a mode with `data-mode` and JavaScript (assets/js/core/ui.js)
+   flips `data-solid` / `data-scrolled` as the page scrolls.
+     overlay  home: fixed + transparent over the hero, solid once scrolled past it
+     page     the rest: sticky, white, frosted glass once the page is scrolled
+   ========================================================================== */
+@layer components {
+  .site-header {
+    position: sticky;
+    inset-inline: 0;
+    top: 0;
+    z-index: 50;
+    height: 80px;
+    padding-inline: 24px;
+    color: var(--color-primary);
+    background-color: var(--color-surface);
+    transition:
+      background-color 0.5s var(--ease-out-expo),
+      color 0.5s var(--ease-out-expo),
+      box-shadow 0.5s var(--ease-out-expo),
+      backdrop-filter 0.5s var(--ease-out-expo);
+  }
+  @media (width >= 48rem) {
+    .site-header {
+      padding-inline: 48px;
+    }
+  }
+  @media (width >= 64rem) {
+    .site-header {
+      height: 97px;
+    }
+    /* Desktop hairline, centred and capped at 1266px */
+    .site-header::after {
+      content: "";
+      position: absolute;
+      inset-inline: 0;
+      bottom: 0;
+      margin-inline: auto;
+      height: 1px;
+      max-width: 1266px;
+      background: var(--color-black-10);
+    }
+    /* Cart & checkout draw it edge to edge (it meets the summary column's border) */
+    .site-header[data-rule="full"]::after {
+      max-width: none;
+      background: var(--color-outline-var);
+    }
+    .site-header[data-rule="none"]::after {
+      content: none;
+    }
+  }
+  .site-header[data-scrolled] {
+    background-color: rgb(255 255 255 / 0.5);
+    backdrop-filter: blur(30px);
+  }
+
+  /* Home: floats over the hero video/image with white content */
+  .site-header[data-mode="overlay"] {
+    position: fixed;
+    color: var(--color-on-primary);
+    background-color: transparent;
+    backdrop-filter: none;
+  }
+  @media (width >= 48rem) {
+    .site-header[data-mode="overlay"] {
+      padding-inline: 49px;
+    }
+  }
+  .site-header[data-mode="overlay"]::after {
+    content: none;
+  }
+  .site-header[data-mode="overlay"][data-solid] {
+    color: var(--color-primary);
+    background-color: var(--color-surface);
+    box-shadow: 0 1px 0 var(--color-black-10);
+  }
+
+  /* The payment result is a full-screen page on phones and tablets (no header) */
+  @media (width < 64rem) {
+    .site-header[data-bare] {
+      display: none;
+    }
+  }
+}
+
+/* ==========================================================================
+   Motion
+   One global IntersectionObserver (assets/js/core/ui.js) sets
+   `data-revealed` on every `[data-reveal]` element. No per-element JS.
+   ========================================================================== */
+@layer components {
+  [data-reveal] {
+    opacity: 0;
+    translate: 0 24px;
+    transition:
+      opacity 0.8s var(--ease-out-expo),
+      translate 0.8s var(--ease-out-expo);
+    transition-delay: calc(var(--reveal-index, 0) * 90ms);
+  }
+
+  [data-reveal="fade"] {
+    translate: none;
+  }
+
+  [data-reveal][data-revealed] {
+    opacity: 1;
+    translate: none;
+  }
+
+  /* Page enter animation used by the hero copy */
+  .animate-rise {
+    animation: rise 1s var(--ease-out-expo) both;
+    animation-delay: var(--rise-delay, 0ms);
+  }
+
+  /* Lighter entrance for lists that appear on interaction (search results, …) */
+  .animate-fade-up {
+    animation: fade-up 0.5s var(--ease-out-expo) both;
+    animation-delay: var(--rise-delay, 0ms);
+  }
+
+  /* Gradient title used on the home category tiles */
+  .text-gradient-primary {
+    background-image: linear-gradient(to bottom, #001026, rgb(0 16 38 / 0.4));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Rich text coming from the WordPress editor (product description, posts) */
+  .prose-maso {
+    font-size: 16px;
+    line-height: 25px;
+    color: var(--color-ink-var);
+  }
+  .prose-maso :where(ul) {
+    list-style: disc;
+    padding-inline-start: 24px;
+  }
+  .prose-maso :where(ol) {
+    list-style: decimal;
+    padding-inline-start: 24px;
+  }
+  .prose-maso :where(a) {
+    text-decoration: underline;
+    text-underline-position: from-font;
+  }
+  .prose-maso :where(a:hover) {
+    color: var(--color-ink);
+  }
+  .prose-maso :where(strong, b) {
+    font-weight: var(--font-weight-bold);
+  }
+  .prose-maso :where(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 16px;
+  }
+
+  /* Smoothly animated <details> where the browser supports it (Chrome 131+) */
+  .details-animate {
+    interpolate-size: allow-keywords;
+  }
+  .details-animate::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition:
+      block-size 0.4s var(--ease-out-expo),
+      content-visibility 0.4s allow-discrete;
+  }
+  .details-animate[open]::details-content {
+    block-size: auto;
+  }
+
+  /* Hides scrollbars on horizontal carousels while keeping them scrollable */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Leaflet ships its own stylesheet; keep its attribution small and RTL-safe */
+  .leaflet-container {
+    font-family: inherit;
+    background: var(--color-surface-low);
+  }
+  .leaflet-control-attribution {
+    direction: ltr;
+    font-size: 10px;
+  }
+}
+
+/* Slow settle of the hero media on first paint */
+@keyframes hero-zoom {
+  from {
+    scale: 1.08;
+  }
+  to {
+    scale: 1;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 32px;
+  }
+  to {
+    opacity: 1;
+    translate: none;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+}
+
+/* Endless horizontal strip (custom-order showcase): the list holds two copies */
+@keyframes marquee {
+  to {
+    translate: -50% 0;
+  }
+}
+
+/* Cross-fade between pages (browsers with cross-document View Transitions) */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.35s;
+  animation-timing-function: var(--ease-in-out-soft);
+}
+
+/* Users who ask for less motion get none */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-reveal] {
+    opacity: 1;
+    translate: none;
+  }
+}

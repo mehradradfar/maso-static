@@ -1,0 +1,168 @@
+<!doctype html>
+<!--
+  404 (Figma "Errors"): one centred message, a primary pill, and the legal
+  links at the bottom. The server should answer unknown URLs with this page
+  (see .htaccess). Links are root-relative so it works from any depth.
+-->
+<html lang="fa" dir="rtl">
+  <head>
+    <!-- Served for any URL (e.g. /blog/x): resolve assets from the site root. Not when opened from disk. -->
+    <script>if (location.protocol !== "file:") document.write('<base href="/" />');</script>
+    <!-- @include head {"title":"صفحه پیدا نشد","noindex":true} -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>صفحه پیدا نشد | ماسو</title>
+<meta name="description" content="ماسو؛ چوب، در والاترین شکل خود. مبلمان دست‌ساز بدون استفاده از میخ و پیچ." />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="theme-color" content="#001026" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="fa_IR" />
+<meta property="og:site_name" content="ماسو" />
+<meta property="og:title" content="صفحه پیدا نشد | ماسو" />
+<link rel="icon" href="favicon.ico" sizes="any" />
+<!-- Self-hosted brand font, requested before the stylesheet needs it -->
+<link rel="preload" href="assets/fonts/YekanBakh-VF.woff2" as="font" type="font/woff2" crossorigin />
+<!-- Opened from disk (file://), browsers block font files: use an embedded copy instead -->
+<script>if (location.protocol === "file:") document.write('<script src="assets/fonts/yekan-bakh-local-preview.js"><\/script>');</script>
+<link rel="stylesheet" href="assets/css/main.css" />
+<!-- Without JavaScript nothing should stay hidden by the scroll animations -->
+<noscript><style>[data-reveal]{opacity:1!important;translate:none!important}</style></noscript>
+<!-- /@include -->
+  </head>
+  <body>
+    <!-- @include header -->
+<!-- MASO wordmark (Figma "Group 16"), defined once and reused with <use href="#maso-logo"> -->
+<svg width="0" height="0" class="absolute" aria-hidden="true" focusable="false"><symbol id="maso-logo" viewBox="0 0 100 32"><path d="M53.3124 0.0693289C54.9642 -0.0410687 57.1244 0.0494163 58.8077 0.035509C60.4011 0.0223374 62.6132 -0.0285926 64.1436 0.185677C66.3787 0.498594 68.4525 1.94673 69.7473 3.78782C70.9931 5.55914 71.4675 7.99685 71.1314 10.1397C70.9347 11.0646 70.6631 12.5159 69.8931 13.1346C69.5166 13.4371 68.3251 13.442 68.0635 12.9476C67.5212 11.9225 68.3371 10.8745 68.5453 9.859C68.8619 8.27339 68.5434 6.62654 67.658 5.27454C65.367 1.8364 61.5785 2.77983 58.0781 2.65407C57.6042 2.63704 57.0684 2.64 56.5951 2.65119C55.3852 2.67981 54.0799 2.55829 52.8904 2.75551C52.0291 2.89098 51.2082 3.21517 50.4861 3.705C46.3809 6.49792 47.353 12.9845 52.071 14.4421C53.2315 14.8006 54.4614 14.7309 55.6598 14.7313L60.42 14.7248C61.5301 14.7233 63.1105 14.6891 64.1786 14.8811C66.8301 15.349 69.1026 17.0503 70.3025 19.4657C70.74 20.3529 71.0595 21.3456 71.5159 22.2145C77.4666 33.5556 94.3424 30.8149 96.5695 18.3376C97.1602 14.8486 96.3732 11.266 94.3749 8.34841C92.4509 5.58912 89.2167 3.45308 85.9015 2.86381C84.8284 2.67147 83.7369 2.60136 82.6483 2.6548C78.6406 2.88012 75.5846 4.63327 72.9506 7.58338L72.8946 7.57087C72.7613 7.21611 72.2555 5.06991 72.219 4.72595C72.2744 4.62201 72.3488 4.48985 72.4297 4.40702C74.7811 1.99796 78.7974 0.349437 82.0446 0.101107C86.3879 -0.232223 90.6817 1.2045 93.9544 4.08609C94.685 4.7186 95.776 5.96915 96.3488 6.77492C100.565 12.71 100.179 21.013 95.3441 26.4778C92.4529 29.7455 88.6874 31.6046 84.3456 31.8709C81.0514 32.0729 77.554 31.3023 74.8161 29.4372C72.7049 28.051 71.2663 26.6567 69.8746 24.5241C68.83 22.9233 68.457 21.2869 67.4773 19.7014C65.8619 17.361 63.3821 17.2801 60.802 17.3097C59.294 17.3347 57.786 17.3454 56.278 17.3421C53.0952 17.3384 50.8476 17.399 48.2288 15.1933C44.6553 12.1833 44.3097 6.47906 47.3806 2.99152C48.8997 1.27632 51.0294 0.227023 53.3124 0.0693289Z"/><path d="M1.17665 0.00832069C2.32592 -0.118577 2.67198 1.23582 3.03862 2.03522C3.93253 3.98425 4.71815 6.00319 5.5882 7.95742C8.52374 14.5913 11.4033 21.25 14.2264 27.9327C14.8804 26.317 15.5558 24.868 16.232 23.287L21.4654 11.1675C22.1754 9.53746 22.8475 7.89726 23.5806 6.27007C24.3404 4.58388 25.0121 2.82492 25.7934 1.1426C26.1894 0.339834 26.4695 -0.143233 27.463 0.107133C28.7261 0.42545 28.4239 2.16475 28.4247 3.21232L28.4315 6.77036L28.4402 11.0881C28.443 13.3393 28.5817 13.3605 27.6425 15.4344C27.2409 16.311 26.8526 17.1936 26.4778 18.0821C26.2172 18.6927 26.0085 19.0902 25.8322 19.7386C25.7734 18.7894 25.7956 17.6596 25.7951 16.7038L25.792 11.0786C25.7916 9.99937 25.8205 8.80171 25.7635 7.73467C25.1285 9.37622 24.3162 11.0036 23.6719 12.7286C23.3656 13.4825 22.917 14.3285 22.5809 15.1076L18.9642 23.5285L16.86 28.446C16.4499 29.4146 16.0397 30.4332 15.5839 31.3678C15.2356 31.988 14.0217 32.0549 13.4522 31.8427C12.7319 31.5742 12.2514 30.0459 11.9562 29.3386C11.5805 28.4175 11.1886 27.5032 10.7806 26.5959C10.0763 25.0365 9.46765 23.5078 8.7892 21.9495L5.29194 13.9312C4.46998 11.9995 3.52305 9.57259 2.62717 7.70844C2.56241 9.34689 2.63641 11.5617 2.63639 13.2426L2.61609 23.7316L2.64273 28.1845C2.64654 29.1331 2.7436 30.6424 2.40405 31.4899C1.71747 32.1178 0.206963 32.1545 0.0904763 31.1115C-0.0529101 29.8275 0.0161391 28.3884 0.0198492 27.0799L0.0305502 19.9766L0.0232498 6.89968C0.0265005 5.04063 0.00401008 3.18179 0.020034 1.32325C0.0264356 0.581157 0.444875 0.0998617 1.17665 0.00832069Z"/><path d="M36.0445 0.0613684C37.6473 -0.0228812 37.8168 1.338 38.3677 2.54032C38.8491 3.59075 39.2491 4.70548 39.707 5.76912L45.5039 19.0562L47.4943 23.7203C48.6233 26.3238 49.5791 28.7476 52.7424 29.2559C54.202 29.4904 56.2214 29.4609 57.7349 29.4122C61.1653 29.3019 65.1291 30.1835 67.4835 26.9913C67.7052 26.6908 68.299 25.4823 68.4478 25.3788C68.9017 25.9215 69.7321 27.0444 70.0681 27.6301C69.6607 28.591 68.3579 29.8825 67.5055 30.4891C66.4983 31.206 65.0942 31.662 63.8763 31.8297C62.6329 32.0009 61.4415 31.8699 60.2141 31.936C58.6207 32.058 57.0543 31.9743 55.4613 31.9398C53.824 31.9045 52.3215 32.0155 50.748 31.3795C48.8421 30.6273 47.2658 29.2189 46.3024 27.407C45.93 26.7223 45.4767 25.6063 45.1653 24.8723L43.7293 21.5329C43.4069 20.8737 43.0906 20.0407 42.7947 19.3578L40.4804 13.9578C40.1055 13.0837 36.4427 4.76934 36.3854 4.72675C36.2478 4.91071 36.011 5.6891 35.8722 5.98542C35.3848 7.02534 34.9513 8.08803 34.4977 9.13936L27.5307 25.2378C27.0039 26.4463 25.1964 31.0609 24.5416 31.7688C24.0972 31.9472 23.6384 32.0117 23.1806 31.8261C22.8883 31.7109 22.6556 31.4811 22.5364 31.1899C22.1697 30.3024 23.2497 28.7049 23.5915 27.8144C24.15 26.3597 24.8555 24.9226 25.4649 23.4906L31.5021 9.3562C31.6032 9.11989 31.7139 8.87883 31.8269 8.64467C33.1138 5.97931 34.0766 3.12649 35.4533 0.516767C35.567 0.301266 35.8285 0.150452 36.0445 0.0613684Z"/></symbol></svg>
+
+<!-- Lets the header know when the page has been scrolled (no scroll listeners) -->
+<div data-top-sentinel aria-hidden="true" class="absolute top-0 h-px w-px"></div>
+
+<!--
+  Site header (Figma "Frame 2" / "Frame 12795").
+   mobile & tablet: logo on the right; search, bag, menu (right → left) — 80px tall
+   desktop:         logo on the right; text links, divider, bag, search, account — 97px tall
+  Mode and scroll states: see "Header modes" in assets/css/src/main.css.
+-->
+<header class="site-header group/header">
+  <!-- 1000px wide over the home hero, 900px on content pages (as in each frame) -->
+  <div class="mx-auto flex h-full max-w-[900px] items-center justify-between group-data-[mode=overlay]/header:max-w-[1000px]">
+    <a href="index.html" aria-label="ماسو - صفحه اصلی" class="shrink-0">
+      <svg viewBox="0 0 100 32" width="99.26" height="32" fill="currentColor" role="img" aria-label="ماسو"><use href="#maso-logo" /></svg>
+    </a>
+
+    <!-- Desktop -->
+    <nav aria-label="منوی اصلی" class="hidden items-center gap-8 lg:flex">
+      <ul class="flex">
+        <li><a href="shop.html" class="relative flex h-12 w-[139px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">محصولات</a></li>
+        <li><a href="shop.html" class="relative flex h-12 w-[139px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">فروشگاه</a></li>
+      </ul>
+      <span aria-hidden="true" class="h-[27px] w-px bg-current opacity-20"></span>
+      <a href="cart.html" aria-label="سبد خرید" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 10.5v-5a3 3 0 0 1 6 0v5"/><rect x="5" y="7.5" width="14" height="14" rx="3"/></svg>
+      </a>
+      <a href="search.html" data-open-search aria-label="جستجو" aria-haspopup="dialog" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-6-6M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0"/></svg>
+      </a>
+      <a href="login.html" aria-label="حساب کاربری" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"/><path d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>
+      </a>
+    </nav>
+
+    <!-- Mobile & tablet: search, bag, menu (menu outermost) -->
+    <div class="flex items-center lg:hidden">
+      <a href="search.html" data-open-search aria-label="جستجو" aria-haspopup="dialog" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-6-6M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0"/></svg>
+      </a>
+      <a href="cart.html" aria-label="سبد خرید" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 10.5v-5a3 3 0 0 1 6 0v5"/><rect x="5" y="7.5" width="14" height="14" rx="3"/></svg>
+      </a>
+      <button type="button" data-open-menu aria-label="باز کردن منو" aria-haspopup="dialog" class="flex size-12 items-center justify-center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!--
+  Mobile / tablet navigation drawer on the native <dialog>: focus trapping,
+  Esc-to-close and the inert background come for free. Enter/exit is pure CSS.
+-->
+<dialog
+  id="mobile-menu"
+  aria-label="منوی اصلی"
+  class="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none translate-x-8 bg-surface p-0 text-on-surface opacity-0 transition-[opacity,translate,display,overlay] transition-discrete duration-500 ease-out-expo backdrop:bg-black/40 open:translate-x-0 open:opacity-100 starting:open:translate-x-8 starting:open:opacity-0"
+>
+  <div class="flex h-20 items-center justify-between px-6 md:px-[49px]">
+    <a href="index.html" aria-label="ماسو - صفحه اصلی" class="text-on-surface">
+      <svg viewBox="0 0 100 32" width="99.26" height="32" fill="currentColor" role="img" aria-label="ماسو"><use href="#maso-logo" /></svg>
+    </a>
+    <button type="button" data-close-menu aria-label="بستن منو" class="flex size-12 items-center justify-center">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <nav class="px-6 md:px-[49px]">
+    <ul>
+      <li class="border-b border-black-10"><a href="shop.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">فروشگاه</a></li>
+      <li class="border-b border-black-10"><a href="custom-order.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">سفارش اختصاصی</a></li>
+      <li class="border-b border-black-10"><a href="blog.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">بلاگ</a></li>
+      <li class="border-b border-black-10"><a href="profile-orders.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">پیگیری سفارش</a></li>
+      <li class="border-b border-black-10"><a href="about.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">درباره ما</a></li>
+      <li class="border-b border-black-10"><a href="contact.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">تماس با ما</a></li>
+    </ul>
+  </nav>
+</dialog>
+
+<!--
+  Search overlay (Figma "Search"): frosted glass over the page and a 900px
+  column. The panel inside is drawn by assets/js/core/search.js on opening.
+-->
+<dialog
+  id="search-dialog"
+  aria-label="جستجو"
+  class="group fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto overscroll-contain bg-white/80 p-0 text-ink opacity-0 backdrop-blur-[50px] transition-[opacity,display,overlay] transition-discrete duration-500 ease-out-expo backdrop:bg-transparent open:opacity-100 starting:open:opacity-0"
+>
+  <div class="mx-auto flex min-h-full max-w-[900px] translate-y-4 flex-col gap-2.5 transition-[translate] duration-700 ease-out-expo group-open:translate-y-0 starting:group-open:translate-y-4">
+    <div class="flex h-20 shrink-0 items-center justify-end px-6">
+      <button type="button" data-close-search aria-label="بستن جستجو" class="flex size-12 items-center justify-center transition-opacity hover:opacity-70">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="p-8"><div id="search-overlay-panel"></div></div>
+  </div>
+</dialog>
+<!-- /@include -->
+
+    <main id="main">
+      <!-- Vertically centred in whatever height is left under the header -->
+      <div class="flex min-h-[calc(100dvh-80px)] flex-col lg:min-h-[calc(100dvh-97px)]">
+        <div class="animate-rise flex flex-1 flex-col items-center justify-center gap-8 px-8 text-center">
+          <div class="flex flex-col gap-3">
+            <h1 class="max-w-[256px] text-25 text-on-surface">صفحه‌ای که دنبالش می‌گردید پیدا نشد.</h1>
+          </div>
+          <a href="index.html" class="inline-flex h-12 items-center justify-center rounded-full bg-primary px-3 text-16 text-on-primary transition-[background-color,transform] duration-300 ease-out-expo hover:bg-primary/90 active:scale-[0.98]">بازگشت به سایت</a>
+        </div>
+        <div class="flex shrink-0 justify-center py-6">
+          <!-- "شرایط استفاده | شرایط بازگشت | قوانین و مقررات" — 10px, underlined -->
+          <ul class="flex items-center gap-1 text-10 text-on-surface-var">
+            <li class="flex items-center gap-1"><a href="terms-of-use.html" class="underline underline-offset-2 hover:text-on-surface">شرایط استفاده</a></li>
+            <li class="flex items-center gap-1"><span aria-hidden="true" class="h-4 w-px bg-on-surface-var"></span><a href="returns.html" class="underline underline-offset-2 hover:text-on-surface">شرایط بازگشت</a></li>
+            <li class="flex items-center gap-1"><span aria-hidden="true" class="h-4 w-px bg-on-surface-var"></span><a href="terms.html" class="underline underline-offset-2 hover:text-on-surface">قوانین و مقررارت</a></li>
+          </ul>
+        </div>
+      </div>
+    </main>
+
+    <!-- @include scripts -->
+<!-- Core scripts (order matters: config → data → helpers → features) -->
+<script src="assets/js/config.js" defer></script>
+<script src="assets/js/data/mock.js" defer></script>
+<script src="assets/js/core/utils.js" defer></script>
+<script src="assets/js/core/icons.js" defer></script>
+<script src="assets/js/core/store.js" defer></script>
+<script src="assets/js/core/api.js" defer></script>
+<script src="assets/js/core/components.js" defer></script>
+<script src="assets/js/core/ui.js" defer></script>
+<script src="assets/js/core/search.js" defer></script>
+<!-- /@include -->
+  </body>
+</html>

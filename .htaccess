@@ -1,0 +1,47 @@
+# Maso — Apache / LiteSpeed settings (cPanel hosts such as Host Iran)
+# Upload this file together with the site.
+
+# Unknown URLs show the designed 404 page
+ErrorDocument 404 /404.html
+
+# Pretty URLs for the main pages: /shop → shop.html, /cart → cart.html …
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # --- Maintenance mode -------------------------------------------------
+  # Uncomment the three lines below to show maintenance.html for every page.
+  # Replace 1.2.3.4 with your own IP to keep browsing the site yourself.
+  # RewriteCond %{REMOTE_ADDR} !^1\.2\.3\.4$
+  # RewriteCond %{REQUEST_URI} !^/(maintenance\.html|assets/|favicon\.ico)
+  # RewriteRule ^ /maintenance.html [R=503,L]
+
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME}.html -f
+  RewriteRule ^(.+?)/?$ $1.html [L]
+</IfModule>
+ErrorDocument 503 /maintenance.html
+
+# Compression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml
+</IfModule>
+
+# Caching: pages always fresh, assets for a week (rename a file to force an update)
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType text/javascript "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+  ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType font/woff2 .woff2
+  AddType image/webp .webp
+</IfModule>

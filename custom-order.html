@@ -1,0 +1,323 @@
+<!doctype html>
+<!--
+  custom-order.html (Figma "Custom Order"): photo, name, mobile and an
+  optional message in a 400px column, then the before/after strip.
+  On "ارسال" the photos are shrunk in the browser and posted to WordPress
+  (POST /maso/v1/forms/custom-order); the form is then replaced by the
+  confirmation with the request number. Behaviour: assets/js/pages/custom-order.js
+-->
+<html lang="fa" dir="rtl">
+  <head>
+    <!-- @include head {"title":"سفارش اختصاصی","description":"عکس مبلمان مورد نظرتان را بفرستید؛ کارشناسان ماسو برای ساخت اختصاصی آن با شما تماس می‌گیرند."} -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سفارش اختصاصی | ماسو</title>
+<meta name="description" content="عکس مبلمان مورد نظرتان را بفرستید؛ کارشناسان ماسو برای ساخت اختصاصی آن با شما تماس می‌گیرند." />
+<meta name="theme-color" content="#001026" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="fa_IR" />
+<meta property="og:site_name" content="ماسو" />
+<meta property="og:title" content="سفارش اختصاصی | ماسو" />
+<link rel="icon" href="favicon.ico" sizes="any" />
+<!-- Self-hosted brand font, requested before the stylesheet needs it -->
+<link rel="preload" href="assets/fonts/YekanBakh-VF.woff2" as="font" type="font/woff2" crossorigin />
+<!-- Opened from disk (file://), browsers block font files: use an embedded copy instead -->
+<script>if (location.protocol === "file:") document.write('<script src="assets/fonts/yekan-bakh-local-preview.js"><\/script>');</script>
+<link rel="stylesheet" href="assets/css/main.css" />
+<!-- Without JavaScript nothing should stay hidden by the scroll animations -->
+<noscript><style>[data-reveal]{opacity:1!important;translate:none!important}</style></noscript>
+<!-- /@include -->
+  </head>
+  <body>
+    <!-- @include header {"rule":"none"} -->
+<!-- MASO wordmark (Figma "Group 16"), defined once and reused with <use href="#maso-logo"> -->
+<svg width="0" height="0" class="absolute" aria-hidden="true" focusable="false"><symbol id="maso-logo" viewBox="0 0 100 32"><path d="M53.3124 0.0693289C54.9642 -0.0410687 57.1244 0.0494163 58.8077 0.035509C60.4011 0.0223374 62.6132 -0.0285926 64.1436 0.185677C66.3787 0.498594 68.4525 1.94673 69.7473 3.78782C70.9931 5.55914 71.4675 7.99685 71.1314 10.1397C70.9347 11.0646 70.6631 12.5159 69.8931 13.1346C69.5166 13.4371 68.3251 13.442 68.0635 12.9476C67.5212 11.9225 68.3371 10.8745 68.5453 9.859C68.8619 8.27339 68.5434 6.62654 67.658 5.27454C65.367 1.8364 61.5785 2.77983 58.0781 2.65407C57.6042 2.63704 57.0684 2.64 56.5951 2.65119C55.3852 2.67981 54.0799 2.55829 52.8904 2.75551C52.0291 2.89098 51.2082 3.21517 50.4861 3.705C46.3809 6.49792 47.353 12.9845 52.071 14.4421C53.2315 14.8006 54.4614 14.7309 55.6598 14.7313L60.42 14.7248C61.5301 14.7233 63.1105 14.6891 64.1786 14.8811C66.8301 15.349 69.1026 17.0503 70.3025 19.4657C70.74 20.3529 71.0595 21.3456 71.5159 22.2145C77.4666 33.5556 94.3424 30.8149 96.5695 18.3376C97.1602 14.8486 96.3732 11.266 94.3749 8.34841C92.4509 5.58912 89.2167 3.45308 85.9015 2.86381C84.8284 2.67147 83.7369 2.60136 82.6483 2.6548C78.6406 2.88012 75.5846 4.63327 72.9506 7.58338L72.8946 7.57087C72.7613 7.21611 72.2555 5.06991 72.219 4.72595C72.2744 4.62201 72.3488 4.48985 72.4297 4.40702C74.7811 1.99796 78.7974 0.349437 82.0446 0.101107C86.3879 -0.232223 90.6817 1.2045 93.9544 4.08609C94.685 4.7186 95.776 5.96915 96.3488 6.77492C100.565 12.71 100.179 21.013 95.3441 26.4778C92.4529 29.7455 88.6874 31.6046 84.3456 31.8709C81.0514 32.0729 77.554 31.3023 74.8161 29.4372C72.7049 28.051 71.2663 26.6567 69.8746 24.5241C68.83 22.9233 68.457 21.2869 67.4773 19.7014C65.8619 17.361 63.3821 17.2801 60.802 17.3097C59.294 17.3347 57.786 17.3454 56.278 17.3421C53.0952 17.3384 50.8476 17.399 48.2288 15.1933C44.6553 12.1833 44.3097 6.47906 47.3806 2.99152C48.8997 1.27632 51.0294 0.227023 53.3124 0.0693289Z"/><path d="M1.17665 0.00832069C2.32592 -0.118577 2.67198 1.23582 3.03862 2.03522C3.93253 3.98425 4.71815 6.00319 5.5882 7.95742C8.52374 14.5913 11.4033 21.25 14.2264 27.9327C14.8804 26.317 15.5558 24.868 16.232 23.287L21.4654 11.1675C22.1754 9.53746 22.8475 7.89726 23.5806 6.27007C24.3404 4.58388 25.0121 2.82492 25.7934 1.1426C26.1894 0.339834 26.4695 -0.143233 27.463 0.107133C28.7261 0.42545 28.4239 2.16475 28.4247 3.21232L28.4315 6.77036L28.4402 11.0881C28.443 13.3393 28.5817 13.3605 27.6425 15.4344C27.2409 16.311 26.8526 17.1936 26.4778 18.0821C26.2172 18.6927 26.0085 19.0902 25.8322 19.7386C25.7734 18.7894 25.7956 17.6596 25.7951 16.7038L25.792 11.0786C25.7916 9.99937 25.8205 8.80171 25.7635 7.73467C25.1285 9.37622 24.3162 11.0036 23.6719 12.7286C23.3656 13.4825 22.917 14.3285 22.5809 15.1076L18.9642 23.5285L16.86 28.446C16.4499 29.4146 16.0397 30.4332 15.5839 31.3678C15.2356 31.988 14.0217 32.0549 13.4522 31.8427C12.7319 31.5742 12.2514 30.0459 11.9562 29.3386C11.5805 28.4175 11.1886 27.5032 10.7806 26.5959C10.0763 25.0365 9.46765 23.5078 8.7892 21.9495L5.29194 13.9312C4.46998 11.9995 3.52305 9.57259 2.62717 7.70844C2.56241 9.34689 2.63641 11.5617 2.63639 13.2426L2.61609 23.7316L2.64273 28.1845C2.64654 29.1331 2.7436 30.6424 2.40405 31.4899C1.71747 32.1178 0.206963 32.1545 0.0904763 31.1115C-0.0529101 29.8275 0.0161391 28.3884 0.0198492 27.0799L0.0305502 19.9766L0.0232498 6.89968C0.0265005 5.04063 0.00401008 3.18179 0.020034 1.32325C0.0264356 0.581157 0.444875 0.0998617 1.17665 0.00832069Z"/><path d="M36.0445 0.0613684C37.6473 -0.0228812 37.8168 1.338 38.3677 2.54032C38.8491 3.59075 39.2491 4.70548 39.707 5.76912L45.5039 19.0562L47.4943 23.7203C48.6233 26.3238 49.5791 28.7476 52.7424 29.2559C54.202 29.4904 56.2214 29.4609 57.7349 29.4122C61.1653 29.3019 65.1291 30.1835 67.4835 26.9913C67.7052 26.6908 68.299 25.4823 68.4478 25.3788C68.9017 25.9215 69.7321 27.0444 70.0681 27.6301C69.6607 28.591 68.3579 29.8825 67.5055 30.4891C66.4983 31.206 65.0942 31.662 63.8763 31.8297C62.6329 32.0009 61.4415 31.8699 60.2141 31.936C58.6207 32.058 57.0543 31.9743 55.4613 31.9398C53.824 31.9045 52.3215 32.0155 50.748 31.3795C48.8421 30.6273 47.2658 29.2189 46.3024 27.407C45.93 26.7223 45.4767 25.6063 45.1653 24.8723L43.7293 21.5329C43.4069 20.8737 43.0906 20.0407 42.7947 19.3578L40.4804 13.9578C40.1055 13.0837 36.4427 4.76934 36.3854 4.72675C36.2478 4.91071 36.011 5.6891 35.8722 5.98542C35.3848 7.02534 34.9513 8.08803 34.4977 9.13936L27.5307 25.2378C27.0039 26.4463 25.1964 31.0609 24.5416 31.7688C24.0972 31.9472 23.6384 32.0117 23.1806 31.8261C22.8883 31.7109 22.6556 31.4811 22.5364 31.1899C22.1697 30.3024 23.2497 28.7049 23.5915 27.8144C24.15 26.3597 24.8555 24.9226 25.4649 23.4906L31.5021 9.3562C31.6032 9.11989 31.7139 8.87883 31.8269 8.64467C33.1138 5.97931 34.0766 3.12649 35.4533 0.516767C35.567 0.301266 35.8285 0.150452 36.0445 0.0613684Z"/></symbol></svg>
+
+<!-- Lets the header know when the page has been scrolled (no scroll listeners) -->
+<div data-top-sentinel aria-hidden="true" class="absolute top-0 h-px w-px"></div>
+
+<!--
+  Site header (Figma "Frame 2" / "Frame 12795").
+   mobile & tablet: logo on the right; search, bag, menu (right → left) — 80px tall
+   desktop:         logo on the right; text links, divider, bag, search, account — 97px tall
+  Mode and scroll states: see "Header modes" in assets/css/src/main.css.
+-->
+<header class="site-header group/header" data-rule="none">
+  <!-- 1000px wide over the home hero, 900px on content pages (as in each frame) -->
+  <div class="mx-auto flex h-full max-w-[900px] items-center justify-between group-data-[mode=overlay]/header:max-w-[1000px]">
+    <a href="index.html" aria-label="ماسو - صفحه اصلی" class="shrink-0">
+      <svg viewBox="0 0 100 32" width="99.26" height="32" fill="currentColor" role="img" aria-label="ماسو"><use href="#maso-logo" /></svg>
+    </a>
+
+    <!-- Desktop -->
+    <nav aria-label="منوی اصلی" class="hidden items-center gap-8 lg:flex">
+      <ul class="flex">
+        <li><a href="shop.html" class="relative flex h-12 w-[139px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">محصولات</a></li>
+        <li><a href="shop.html" class="relative flex h-12 w-[139px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">فروشگاه</a></li>
+      </ul>
+      <span aria-hidden="true" class="h-[27px] w-px bg-current opacity-20"></span>
+      <a href="cart.html" aria-label="سبد خرید" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 10.5v-5a3 3 0 0 1 6 0v5"/><rect x="5" y="7.5" width="14" height="14" rx="3"/></svg>
+      </a>
+      <a href="search.html" data-open-search aria-label="جستجو" aria-haspopup="dialog" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-6-6M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0"/></svg>
+      </a>
+      <a href="login.html" aria-label="حساب کاربری" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"/><path d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>
+      </a>
+    </nav>
+
+    <!-- Mobile & tablet: search, bag, menu (menu outermost) -->
+    <div class="flex items-center lg:hidden">
+      <a href="search.html" data-open-search aria-label="جستجو" aria-haspopup="dialog" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-6-6M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0"/></svg>
+      </a>
+      <a href="cart.html" aria-label="سبد خرید" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 10.5v-5a3 3 0 0 1 6 0v5"/><rect x="5" y="7.5" width="14" height="14" rx="3"/></svg>
+      </a>
+      <button type="button" data-open-menu aria-label="باز کردن منو" aria-haspopup="dialog" class="flex size-12 items-center justify-center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!--
+  Mobile / tablet navigation drawer on the native <dialog>: focus trapping,
+  Esc-to-close and the inert background come for free. Enter/exit is pure CSS.
+-->
+<dialog
+  id="mobile-menu"
+  aria-label="منوی اصلی"
+  class="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none translate-x-8 bg-surface p-0 text-on-surface opacity-0 transition-[opacity,translate,display,overlay] transition-discrete duration-500 ease-out-expo backdrop:bg-black/40 open:translate-x-0 open:opacity-100 starting:open:translate-x-8 starting:open:opacity-0"
+>
+  <div class="flex h-20 items-center justify-between px-6 md:px-[49px]">
+    <a href="index.html" aria-label="ماسو - صفحه اصلی" class="text-on-surface">
+      <svg viewBox="0 0 100 32" width="99.26" height="32" fill="currentColor" role="img" aria-label="ماسو"><use href="#maso-logo" /></svg>
+    </a>
+    <button type="button" data-close-menu aria-label="بستن منو" class="flex size-12 items-center justify-center">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <nav class="px-6 md:px-[49px]">
+    <ul>
+      <li class="border-b border-black-10"><a href="shop.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">فروشگاه</a></li>
+      <li class="border-b border-black-10"><a href="custom-order.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">سفارش اختصاصی</a></li>
+      <li class="border-b border-black-10"><a href="blog.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">بلاگ</a></li>
+      <li class="border-b border-black-10"><a href="profile-orders.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">پیگیری سفارش</a></li>
+      <li class="border-b border-black-10"><a href="about.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">درباره ما</a></li>
+      <li class="border-b border-black-10"><a href="contact.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">تماس با ما</a></li>
+    </ul>
+  </nav>
+</dialog>
+
+<!--
+  Search overlay (Figma "Search"): frosted glass over the page and a 900px
+  column. The panel inside is drawn by assets/js/core/search.js on opening.
+-->
+<dialog
+  id="search-dialog"
+  aria-label="جستجو"
+  class="group fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto overscroll-contain bg-white/80 p-0 text-ink opacity-0 backdrop-blur-[50px] transition-[opacity,display,overlay] transition-discrete duration-500 ease-out-expo backdrop:bg-transparent open:opacity-100 starting:open:opacity-0"
+>
+  <div class="mx-auto flex min-h-full max-w-[900px] translate-y-4 flex-col gap-2.5 transition-[translate] duration-700 ease-out-expo group-open:translate-y-0 starting:group-open:translate-y-4">
+    <div class="flex h-20 shrink-0 items-center justify-end px-6">
+      <button type="button" data-close-search aria-label="بستن جستجو" class="flex size-12 items-center justify-center transition-opacity hover:opacity-70">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="p-8"><div id="search-overlay-panel"></div></div>
+  </div>
+</dialog>
+<!-- /@include -->
+
+    <main id="main">
+      <div id="custom-order">
+        <form novalidate class="animate-fade-up mx-auto flex w-full max-w-[448px] flex-col items-center gap-6 p-6">
+          <!--
+            Photo drop zone (139px, "عکس محصول مورد نظر"). Click or drop up to
+            three photos; thumbnails show what will be sent.
+          -->
+          <div data-field="images" data-id="f-images" class="w-full">
+            <div
+              data-dropzone
+              data-shell
+              class="relative flex min-h-[139px] w-full flex-col items-center justify-center gap-5 overflow-hidden rounded-[24px] border border-black-10 bg-surface-low px-4 py-2 transition-[border-color,background-color] duration-300"
+            >
+              <ul data-thumbs class="flex gap-3 pt-2" hidden></ul>
+              <label data-pick class="flex cursor-pointer flex-col items-center gap-5 text-16 text-on-surface-var transition-opacity hover:opacity-70">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="text-on-surface"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                <span data-pick-label>عکس محصول مورد نظر</span>
+                <input type="file" name="images" accept="image/*" multiple class="sr-only" />
+              </label>
+            </div>
+          </div>
+
+          <div data-field="name" data-id="f-name" class="min-w-0 flex-1 w-full">
+            <label data-shell class="relative flex h-14 w-full items-center rounded-[24px] border border-black-10 bg-surface-low px-4 transition-[border-color,box-shadow] duration-300 focus-within:border-primary/40">
+              <input name="name" autocomplete="name" placeholder=" " class="peer h-full w-full bg-transparent pt-4 text-16 text-on-surface outline-none [&[dir=ltr]]:text-right" />
+              <span class="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 text-16 text-outline transition-all duration-200 ease-out-expo peer-focus:top-[15px] peer-[:not(:placeholder-shown)]:top-[15px] peer-focus:text-10 peer-focus:text-on-surface-var peer-[:not(:placeholder-shown)]:text-10 peer-[:not(:placeholder-shown)]:text-on-surface-var">نام و نام خانوادگی</span>
+            </label>
+          </div>
+
+          <div data-field="mobile" data-id="f-mobile" class="min-w-0 flex-1 w-full">
+            <label data-shell class="relative flex h-14 w-full items-center rounded-[24px] border border-black-10 bg-surface-low px-4 transition-[border-color,box-shadow] duration-300 focus-within:border-primary/40">
+              <input name="mobile" type="tel" inputmode="tel" autocomplete="tel-national" dir="ltr" placeholder=" " class="peer h-full w-full bg-transparent pt-4 text-16 text-on-surface outline-none [&[dir=ltr]]:text-right" />
+              <span class="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 text-16 text-outline transition-all duration-200 ease-out-expo peer-focus:top-[15px] peer-[:not(:placeholder-shown)]:top-[15px] peer-focus:text-10 peer-focus:text-on-surface-var peer-[:not(:placeholder-shown)]:text-10 peer-[:not(:placeholder-shown)]:text-on-surface-var">شماره همراه</span>
+            </label>
+          </div>
+
+          <div data-field="message" data-id="f-message" class="min-w-0 flex-1 w-full">
+            <label data-shell class="relative flex h-[95px] w-full items-start rounded-[24px] border border-black-10 bg-surface-low px-4 py-0 transition-[border-color,box-shadow] duration-300 focus-within:border-primary/40">
+              <textarea name="message" maxlength="1500" placeholder=" " class="peer no-scrollbar h-full w-full resize-none bg-transparent pt-6 pb-2 text-16 text-on-surface outline-none"></textarea>
+              <span class="pointer-events-none absolute start-4 top-4 text-16 text-outline transition-all duration-200 ease-out-expo peer-focus:top-2 peer-[:not(:placeholder-shown)]:top-2 peer-focus:text-10 peer-focus:text-on-surface-var peer-[:not(:placeholder-shown)]:text-10 peer-[:not(:placeholder-shown)]:text-on-surface-var">پیام یا توضیحات تکمیلی (اختیاری)</span>
+            </label>
+          </div>
+
+          <p data-form-error role="alert" hidden class="w-full rounded-[16px] bg-error-container p-4 text-13 text-on-error-container"></p>
+
+          <button
+            type="submit"
+            class="inline-flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-6 text-16 text-on-primary transition-[background-color,transform,opacity] duration-300 ease-out-expo hover:bg-primary/90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-40"
+          >
+            ارسال
+          </button>
+        </form>
+
+        <!--
+          Before/after strip (Figma: 293×195 cards, 29px radius, customer picture
+          on the left, Maso's piece on the right). Drawn from WordPress content;
+          scrolls slowly on its own as an endless CSS marquee, pauses on hover.
+        -->
+        <section id="showcase" aria-label="نمونه سفارش‌های اختصاصی" class="flex h-[366px] items-center overflow-hidden"></section>
+      </div>
+    </main>
+
+    <!-- @include footer -->
+<!--
+  Site footer — three layouts from the design:
+   mobile  (<768):   wide logo, stacked links, contact, legal — centred text
+   tablet  (768+):   wide logo, links | divider | contact in one row
+   desktop (1024+):  vertical logo on the right of the same row, 900px wide
+  A muted copy of the hero picture fades in underneath (alpha-gradient mask).
+-->
+<footer class="relative isolate overflow-hidden bg-linear-to-b from-surface to-surface-low lg:bg-surface lg:bg-none">
+  <!-- Wide logo (mobile / tablet only) -->
+  <div class="flex flex-col items-center gap-8 px-12 py-8 lg:hidden">
+    <hr class="w-full border-0 border-t border-black-10" />
+    <img src="assets/images/brand/logo-wide.svg" alt="ماسو" width="266" height="86" loading="lazy" class="h-[85.754px] w-[266px]" />
+  </div>
+
+  <div class="relative z-10 flex flex-col items-center gap-12 px-12 py-8">
+    <div class="w-full max-w-[900px]"><hr class="w-full border-0 border-t border-black-10" /></div>
+
+    <div class="flex w-full max-w-[900px] items-center gap-20">
+      <!-- Vertical logo (desktop) -->
+      <img src="assets/images/brand/logo-vertical.svg" alt="ماسو" width="132" height="408" loading="lazy" class="hidden h-[408px] w-[131.533px] shrink-0 lg:block" />
+
+      <div class="flex min-w-0 flex-1 flex-col gap-4 text-on-surface">
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:gap-8">
+          <!-- Links — mobile: one list (left column first, as in the design); md+: two columns -->
+          <nav aria-label="پیوندهای پایین صفحه" class="md:flex md:flex-1 md:gap-8 md:self-stretch">
+            <ul class="md:hidden">
+              <li><a href="contact.html" class="flex h-14 items-center text-16 transition-colors duration-300 hover:text-primary">تماس با ما</a></li>
+              <li><a href="custom-order.html" class="flex h-14 items-center text-16 transition-colors duration-300 hover:text-primary">سفارش اختصاصی</a></li>
+              <li><a href="blog.html" class="flex h-14 items-center text-16 transition-colors duration-300 hover:text-primary">بلاگ</a></li>
+              <li><a href="shop.html" class="flex h-14 items-center text-16 transition-colors duration-300 hover:text-primary">فروشگاه</a></li>
+              <li><a href="profile-orders.html" class="flex h-14 items-center text-16 transition-colors duration-300 hover:text-primary">پیگیری سفارش</a></li>
+              <li><a href="about.html" class="flex h-14 items-center text-16 transition-colors duration-300 hover:text-primary">درباره ما</a></li>
+            </ul>
+            <ul class="hidden flex-1 md:block">
+              <li><a href="shop.html" class="flex h-14 items-center text-16 transition-colors duration-300 hover:text-primary">فروشگاه</a></li>
+              <li><a href="profile-orders.html" class="flex h-14 items-center text-16 transition-colors duration-300 hover:text-primary">پیگیری سفارش</a></li>
+              <li><a href="about.html" class="flex h-14 items-center text-16 transition-colors duration-300 hover:text-primary">درباره ما</a></li>
+            </ul>
+            <ul class="hidden flex-1 md:block">
+              <li><a href="contact.html" class="flex h-14 items-center text-16 transition-colors duration-300 hover:text-primary">تماس با ما</a></li>
+              <li><a href="custom-order.html" class="flex h-14 items-center text-16 transition-colors duration-300 hover:text-primary">سفارش اختصاصی</a></li>
+              <li><a href="blog.html" class="flex h-14 items-center text-16 transition-colors duration-300 hover:text-primary">بلاگ</a></li>
+            </ul>
+          </nav>
+          <span aria-hidden="true" class="h-px w-full bg-black-10 md:h-auto md:w-px md:self-stretch"></span>
+
+          <address class="flex h-[353px] flex-col items-start justify-between not-italic md:h-[257px] md:flex-1">
+            <div class="flex w-full items-start gap-2">
+              <span class="flex size-5 shrink-0 items-center justify-center text-on-surface-var">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13.8431C9.79312 13.8431 9.58907 13.795 9.404 13.7025L6.596 12.2985C6.41094 12.206 6.20689 12.1579 6 12.1579C5.79312 12.1579 5.58907 12.206 5.404 12.2985L2.96467 13.5185C2.8629 13.5694 2.74982 13.5933 2.63617 13.5881C2.52253 13.5829 2.41211 13.5487 2.31541 13.4888C2.21872 13.4288 2.13898 13.3452 2.08377 13.2457C2.02856 13.1462 1.99972 13.0343 2 12.9205V4.41185C2.00007 4.28807 2.03459 4.16676 2.0997 4.0615C2.16482 3.95623 2.25795 3.87118 2.36867 3.81585L5.404 2.29785C5.58907 2.20537 5.79312 2.15723 6 2.15723C6.20689 2.15723 6.41094 2.20537 6.596 2.29785L9.404 3.70185C9.58907 3.79433 9.79312 3.84247 10 3.84247M10 3.84247C10.2069 3.84247 10.4109 3.79433 10.596 3.70185L13.0353 2.48185C13.1371 2.43102 13.2501 2.40705 13.3637 2.41223C13.4773 2.4174 13.5876 2.45154 13.6843 2.5114C13.781 2.57126 13.8607 2.65486 13.916 2.75424C13.9713 2.85361 14.0002 2.96547 14 3.07918V11.5885C13.9999 11.7123 13.9654 11.8336 13.9003 11.9389C13.8352 12.0441 13.7421 12.1292 13.6313 12.1845L10.596 13.7025C10.4109 13.795 10.2069 13.8431 10 13.8431M10 3.84247V13.8431M6 2.15723V12.1572"/></svg>
+              </span>
+              <div class="flex min-w-0 flex-1 flex-col">
+                <span class="text-13">آدرس دفتر مرکزی</span>
+                <span class="text-16">استان گلستان- شهرستان کردکوی - ابتدای جاده کردکوی -بندرترکمن</span>
+              </div>
+            </div>
+            <div class="flex w-full items-start gap-2">
+              <span class="flex size-5 shrink-0 items-center justify-center text-on-surface-var">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.22125 11.0453C9.35894 11.1085 9.51405 11.1229 9.66105 11.0862C9.80804 11.0495 9.93814 10.9638 10.0299 10.8433L10.2666 10.5333C10.3908 10.3677 10.5518 10.2333 10.737 10.1407C10.9221 10.0481 11.1263 9.99992 11.3333 9.99992H13.3333C13.6869 9.99992 14.026 10.1404 14.2761 10.3904C14.5261 10.6405 14.6666 10.9796 14.6666 11.3333V13.3333C14.6666 13.6869 14.5261 14.026 14.2761 14.2761C14.026 14.5261 13.6869 14.6666 13.3333 14.6666C10.1507 14.6666 7.09841 13.4023 4.84797 11.1519C2.59753 8.90143 1.33325 5.84918 1.33325 2.66659C1.33325 2.31296 1.47373 1.97382 1.72378 1.72378C1.97382 1.47373 2.31296 1.33325 2.66659 1.33325H4.66659C5.02021 1.33325 5.35935 1.47373 5.60939 1.72378C5.85944 1.97382 5.99992 2.31296 5.99992 2.66659V4.66659C5.99992 4.87358 5.95173 5.07773 5.85915 5.26287C5.76658 5.44801 5.63218 5.60906 5.46658 5.73325L5.15458 5.96725C5.0322 6.0607 4.94593 6.19364 4.91045 6.34349C4.87496 6.49333 4.89244 6.65084 4.95992 6.78925C5.87104 8.63983 7.36953 10.1364 9.22125 11.0453Z"/></svg>
+              </span>
+              <div class="flex min-w-0 flex-1 flex-col">
+                <span class="text-13">مشاوره و فروش</span>
+                <!-- Numbers read left-to-right, so the whole line is an LTR island -->
+                <span class="text-16"><span dir="ltr"><a href="tel:09199900671" class="hover:text-primary">09199900671</a> | <a href="tel:01734341679" class="hover:text-primary">017-34341679</a></span></span>
+              </div>
+            </div>
+            <!-- The mail glyph sits in a 16px box in the design (not 20px like the others) -->
+            <div class="flex w-full items-start gap-2">
+              <span class="shrink-0 text-on-surface-var">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.6666 4.66675L8.67258 8.48475C8.46918 8.60289 8.23814 8.66512 8.00292 8.66512C7.76769 8.66512 7.53666 8.60289 7.33325 8.48475L1.33325 4.66675"/><rect x="1.333" y="2.667" width="13.333" height="10.667" rx="1.333"/></svg>
+              </span>
+              <div class="flex min-w-0 flex-1 flex-col">
+                <span class="text-13">ایمیل</span>
+                <span class="text-16"><a href="mailto:Info@masogroup.co" class="hover:text-primary">Info@masogroup.co</a></span>
+              </div>
+            </div>
+            <div class="flex items-center gap-8 text-primary">
+              <a href="https://wa.me/989199900671" aria-label="واتس‌اپ" target="_blank" rel="noopener" class="transition-opacity hover:opacity-60">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.9961 21.9829C20.9961 22.1155 21.0488 22.2427 21.1425 22.3365C21.2363 22.4302 21.3635 22.4829 21.4961 22.4829C21.6287 22.4829 21.7559 22.4302 21.8496 22.3365C21.9434 22.2427 21.9961 22.1155 21.9961 21.9829V20.9829C21.9961 20.8503 21.9434 20.7231 21.8496 20.6294C21.7559 20.5356 21.6287 20.4829 21.4961 20.4829C21.3635 20.4829 21.2363 20.5356 21.1425 20.6294C21.0488 20.7231 20.9961 20.8503 20.9961 20.9829V21.9829ZM20.9961 21.9829C20.9961 23.309 21.5229 24.5808 22.4606 25.5184C23.3982 26.4561 24.67 26.9829 25.9961 26.9829M25.9961 26.9829H26.9961C27.1287 26.9829 27.2559 26.9302 27.3496 26.8365C27.4434 26.7427 27.4961 26.6155 27.4961 26.4829C27.4961 26.3503 27.4434 26.2231 27.3496 26.1294C27.2559 26.0356 27.1287 25.9829 26.9961 25.9829H25.9961C25.8635 25.9829 25.7363 26.0356 25.6425 26.1294C25.5488 26.2231 25.4961 26.3503 25.4961 26.4829C25.4961 26.6155 25.5488 26.7427 25.6425 26.8365C25.7363 26.9302 25.8635 26.9829 25.9961 26.9829ZM14.9961 32.9831L16.6461 29.1831C15.3838 27.3912 14.8188 25.2002 15.0571 23.0212C15.2955 20.8423 16.3209 18.8253 17.9408 17.3486C19.5607 15.872 21.6638 15.0373 23.8555 15.0012C26.0471 14.9651 28.1766 15.7301 29.8443 17.1525C31.512 18.5749 32.6032 20.5571 32.9133 22.727C33.2233 24.8969 32.7308 27.1053 31.5282 28.9379C30.3256 30.7705 28.4955 32.1011 26.3815 32.6802C24.2674 33.2593 22.0147 33.047 20.0461 32.0831L14.9961 32.9831Z"/></svg>
+              </a>
+              <a href="https://t.me/" aria-label="تلگرام" target="_blank" rel="noopener" class="transition-opacity hover:opacity-60">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M27 22L23 26L24 27M24 27L29 32L33 16L15 23L19 25L21 31L24 27Z"/></svg>
+              </a>
+              <a href="https://instagram.com/" aria-label="اینستاگرام" target="_blank" rel="noopener" class="transition-opacity hover:opacity-60">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M28.5 19.5V19.51M16 20C16 18.9391 16.4214 17.9217 17.1716 17.1716C17.9217 16.4214 18.9391 16 20 16H28C29.0609 16 30.0783 16.4214 30.8284 17.1716C31.5786 17.9217 32 18.9391 32 20V28C32 29.0609 31.5786 30.0783 30.8284 30.8284C30.0783 31.5786 29.0609 32 28 32H20C18.9391 32 17.9217 31.5786 17.1716 30.8284C16.4214 30.0783 16 29.0609 16 28V20ZM21 24C21 24.7956 21.3161 25.5587 21.8787 26.1213C22.4413 26.6839 23.2044 27 24 27C24.7956 27 25.5587 26.6839 26.1213 26.1213C26.6839 25.5587 27 24.7956 27 24C27 23.2044 26.6839 22.4413 26.1213 21.8787C25.5587 21.3161 24.7956 21 24 21C23.2044 21 22.4413 21.3161 21.8787 21.8787C21.3161 22.4413 21 23.2044 21 24Z"/></svg>
+              </a>
+            </div>
+          </address>
+        </div>
+
+        <hr class="w-full border-0 border-t border-black-10" />
+        <p class="text-center text-10 text-on-surface-var lg:text-start">تمامی کپی رایت © این سایت مربوط به برند ماسو می‌باشد | ۱۴۰۵ هر گونه استفاده بدون اجازه از محتوا منجر به پیگرد قانونی خواهد شد.</p>
+        <p class="text-center text-13 text-outline lg:text-start">لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است، و برای شرایط فعلی تکنولوژی مورد نیاز، و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد، کتابهای زیادی در شصت و سه درصد گذشته حال و آینده، شناخت فراوان جامعه و متخصصان را می طلبد، تا با نرم افزارها شناخت بیشتری را برای طراحان رایانه ای علی الخصوص طراحان خلاقی، و فرهنگ پیشرو در زبان فارسی ایجاد کرد، در این صورت می توان امید داشت که تمام و دشواری موجود در ارائه راهکارها، و شرایط سخت تایپ به پایان رسد و زمان مورد نیاز شامل حروفچینی دستاوردهای اصلی، و جوابگوی سوالات پیوسته اهل دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.</p>
+        <ul class="flex items-start justify-center gap-2 lg:justify-start">
+          <li><a href="terms-of-use.html" class="text-10 text-on-surface-var underline transition-colors hover:text-primary">شرایط استفاده</a></li>
+          <li><a href="returns.html" class="text-10 text-on-surface-var underline transition-colors hover:text-primary">شرایط بازگشت</a></li>
+          <li><a href="terms.html" class="text-10 text-on-surface-var underline transition-colors hover:text-primary">قوانین و مقررارت</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fading picture strip — overlaps the bottom padding by the same amount as in each frame.
+       Swap the <img> for a muted, looping <video> when the clip is available. -->
+  <div class="relative h-[413px] [mask-image:linear-gradient(to_bottom,transparent,black)] md:-mt-[58px] lg:-mt-[69px]">
+    <img src="assets/images/home/hero-poster.jpg" alt="" width="1440" height="900" loading="lazy" decoding="async" class="absolute inset-0 size-full object-cover" />
+    <div class="absolute inset-0 bg-black/50"></div>
+  </div>
+</footer>
+<!-- /@include -->
+
+    <!-- @include scripts -->
+<!-- Core scripts (order matters: config → data → helpers → features) -->
+<script src="assets/js/config.js" defer></script>
+<script src="assets/js/data/mock.js" defer></script>
+<script src="assets/js/core/utils.js" defer></script>
+<script src="assets/js/core/icons.js" defer></script>
+<script src="assets/js/core/store.js" defer></script>
+<script src="assets/js/core/api.js" defer></script>
+<script src="assets/js/core/components.js" defer></script>
+<script src="assets/js/core/ui.js" defer></script>
+<script src="assets/js/core/search.js" defer></script>
+<!-- /@include -->
+    <script src="assets/js/core/fields.js" defer></script>
+    <script src="assets/js/pages/custom-order.js" defer></script>
+  </body>
+</html>
