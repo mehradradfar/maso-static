@@ -15,6 +15,12 @@
   const Maso = window.Maso;
   const { $, $$, ready } = Maso.dom;
 
+  /* Keyboard vs pointer: focus rings only while the keyboard is in use */
+  const root = document.documentElement;
+  const NAV_KEYS = new Set(["Tab", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home", "End"]);
+  addEventListener("keydown", (e) => NAV_KEYS.has(e.key) && root.setAttribute("data-keyboard", ""), true);
+  addEventListener("pointerdown", () => root.removeAttribute("data-keyboard"), true);
+
   /* ------------------------------------------------------------------ */
   /* Scroll reveal: one IntersectionObserver for the whole site          */
   /*   <div data-reveal>              fade + rise                        */
@@ -162,6 +168,35 @@
     if (!signedIn) return;
     $$("[data-account-link]").forEach((a) => (a.href = "profile.html"));
     $$("[data-account-label]").forEach((el) => (el.textContent = "حساب کاربری"));
+  }
+
+  /**
+   * Number of pieces in the cart on the header's bag icons; follows every
+   * cart change (other tabs included) and pops when it grows.
+   */
+  function initCartBadge() {
+    const links = $$("[data-cart-link]");
+    if (!links.length || !Maso.cart) return;
+    let last = null;
+    const paint = () => {
+      const n = Maso.cart.count();
+      const label = n ? `سبد خرید، ${Maso.fmt.digits(n)} کالا` : "سبد خرید";
+      links.forEach((a) => {
+        a.setAttribute("aria-label", label);
+        const badge = $("[data-cart-count]", a);
+        if (!badge) return;
+        badge.hidden = !n;
+        badge.innerHTML = `<span>${n > 99 ? "+۹۹" : Maso.fmt.digits(n)}</span>`;
+        if (last !== null && n > last) {
+          badge.removeAttribute("data-bump");
+          void badge.offsetWidth; // restart the animation
+          badge.setAttribute("data-bump", "");
+        }
+      });
+      last = n;
+    };
+    paint();
+    Maso.cart.subscribe(paint);
   }
 
   /* ------------------------------------------------------------------ */
@@ -347,7 +382,7 @@
     };
 
     $("[data-sheet-close]", dialog).addEventListener("click", api.close);
-    dialog.addEventListener("click", (e) => e.target === dialog && api.close());
+    Maso.dom.onBackdropClick(dialog, api.close);
     dialog.addEventListener("close", (e) => {
       if (e.target !== dialog) return;
       onClose?.();
@@ -365,6 +400,7 @@
     initMegaMenu();
     initMobileMenu();
     initAccountLinks();
+    initCartBadge();
     initVideos();
     initCenteredScrollers();
     $$("[data-rail]").forEach(Maso.rail);

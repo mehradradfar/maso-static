@@ -79,7 +79,7 @@
   }
 
   /**
-   * Product card (Figma "Frame 1000004115"): 375px picture with a 4px primary
+   * Product card (Figma "Frame 1000004115"): 375px picture (244px on phones) with a 4px primary
    * underline, then name/capacity, divider, short description, and the
    * swatches + price row. Width comes from the grid.
    * variant "rounded" (blog's suggested products): 32px-radius picture, no
@@ -90,8 +90,8 @@
     return html`
       <article data-reveal style="--reveal-index:${index % 3}" class="group relative flex flex-col gap-4">
         <div class="${cx(
-          "relative h-[375px] overflow-hidden bg-linear-to-b from-[#677b9c] to-[#e0ebff]",
-          rounded ? "rounded-[32px]" : "border-b-4 border-primary",
+          "relative overflow-hidden bg-linear-to-b from-[#677b9c] to-[#e0ebff]",
+          rounded ? "h-[375px] rounded-[32px]" : "h-[244px] border-b-4 border-primary md:h-[375px]",
         )}">
           ${img(product.image, {
             alt: product.image.alt || product.name,
@@ -164,7 +164,7 @@
   function productCardSkeleton() {
     return html`
       <div aria-hidden="true" class="flex flex-col gap-4">
-        <div class="h-[375px] animate-pulse bg-skeleton"></div>
+        <div class="h-[244px] animate-pulse bg-skeleton md:h-[375px]"></div>
         <div class="flex flex-col gap-4 px-6">
           <div class="flex items-center justify-between">${block("h-[39px] w-[150px]")} ${block("h-5 w-16")}</div>
           ${block("h-10 w-full")}

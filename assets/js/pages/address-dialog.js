@@ -1,16 +1,24 @@
 /**
  * "افزودن آدرس جدید" (Figma: full screen on phones, 440×800 card with a 32px
- * radius on tablet/desktop). Two steps:
- *   1. map  — the shopper drags the map under the Maso pin; the address
- *             under the pin's needle is looked up (reverse geocoding)
- *   2. form — personal details and address, prefilled from step 1
+ * radius on tablet/desktop). Two steps (Figma comments #4–#8, edits 14–15):
+ *   1. form — personal details and address
+ *   2. map  — only for the cities Maso serves itself (Tehran, Karaj; see
+ *             assets/js/data/service-areas.js): the shopper drags the map
+ *             under the Maso pin. The map is limited to that city — it stops
+ *             at the city's box, everything outside the outline is covered,
+ *             and a point outside can't be saved.
  *
- *   const dialog = Maso.addressDialog({ provinces, onSaved(address) })
+ *   const dialog = Maso.addressDialog({ provinces, onSaved(address), verify? })
  *   dialog.open()          // every opening starts a clean flow
- *   dialog.open(address)   // "ویرایش آدرس": opens on the form, prefilled; keeps the id
+ *   dialog.open(address)   // "ویرایش آدرس": prefilled; keeps the id
  *
- * Leaflet (assets/vendor/leaflet) is only downloaded the first time the map
- * is shown, so no other page pays for it.
+ * `verify(address)` (optional) runs before saving and may return a promise;
+ * false keeps the dialog open — checkout uses it to confirm a signed-out
+ * shopper's number with a one-time code (edit 16).
+ *
+ * The map is MapTiler (SDK from their CDN, style "positron"), downloaded the
+ * first time the map is shown. It needs MASO_CONFIG.MAPTILER_KEY; without a
+ * key — or if the map can't load — the address is saved without a position.
  */
 (function () {
   "use strict";
@@ -18,31 +26,70 @@
   const Maso = window.Maso;
   const { html, icon, cx, dom, api, text, fields, co } = Maso;
   const CONFIG = window.MASO_CONFIG || {};
+  const AREAS = window.MASO_SERVICE_AREAS || [];
 
-  /** Tehran, used when the shopper has no saved position */
-  const DEFAULT_CENTER = { lat: 35.6997, lng: 51.338 };
   /** The 60×91 pin is centred on the map, so its needle tip sits this many px below the centre */
   const TIP = 45;
 
   /* ------------------------------------------------------------------ */
-  /* Leaflet on demand                                                   */
+  /* MapTiler SDK on demand                                              */
   /* ------------------------------------------------------------------ */
 
-  let leafletPromise = null;
-  function loadLeaflet() {
-    if (window.L) return Promise.resolve(window.L);
-    leafletPromise ??= new Promise((resolve, reject) => {
+  const SDK = "https://cdn.maptiler.com/maptiler-sdk-js/v4.1.0/maptiler-sdk";
+  let sdkPromise = null;
+  function loadMapTiler() {
+    if (window.maptilersdk) return Promise.resolve(window.maptilersdk);
+    sdkPromise ??= new Promise((resolve, reject) => {
       const css = document.createElement("link");
       css.rel = "stylesheet";
-      css.href = "assets/vendor/leaflet/leaflet.css";
+      css.href = `${SDK}.css`;
       document.head.append(css);
       const script = document.createElement("script");
-      script.src = "assets/vendor/leaflet/leaflet.js";
-      script.onload = () => resolve(window.L);
-      script.onerror = reject;
+      script.src = `${SDK}.umd.min.js`;
+      script.onload = () => (window.maptilersdk ? resolve(window.maptilersdk) : reject(new Error("maptilersdk missing")));
+      script.onerror = () => {
+        sdkPromise = null; // try again next time
+        reject(new Error("MapTiler SDK did not load"));
+      };
       document.head.append(script);
     });
-    return leafletPromise;
+    return sdkPromise;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Service areas                                                       */
+  /* ------------------------------------------------------------------ */
+
+  /** The service area of a province/city pair (by name), or undefined */
+  function serviceArea(provinceName, cityName) {
+    if (!provinceName || !cityName) return undefined;
+    const p = text.matchKey(provinceName);
+    const c = text.matchKey(cityName);
+    return AREAS.find((a) => text.matchKey(a.province) === p && text.matchKey(a.city) === c);
+  }
+
+  /** Ray casting: is [lng, lat] inside the ring? */
+  function inside(ring, lng, lat) {
+    let hit = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i];
+      const [xj, yj] = ring[j];
+      if (yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) hit = !hit;
+    }
+    return hit;
+  }
+
+  /** Twice the signed area (> 0 = counter-clockwise) */
+  const winding = (ring) => ring.reduce((sum, [x1, y1], i) => {
+    const [x2, y2] = ring[(i + 1) % ring.length];
+    return sum + (x1 * y2 - x2 * y1);
+  }, 0);
+
+  /** The whole world with the city cut out — painted over everything else on the map */
+  function outsideOf(area) {
+    const world = [[-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85]];
+    const hole = winding(area.ring) > 0 ? [...area.ring].reverse() : area.ring;
+    return { type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: [world, hole] } };
   }
 
   /* ------------------------------------------------------------------ */
@@ -166,29 +213,37 @@
 
   const EMPTY = { firstName: "", lastName: "", mobile: "", provinceId: "", cityId: "", street: "", plaque: "", unit: "", postalCode: "" };
 
-  Maso.addressDialog = function addressDialog({ provinces, onSaved }) {
+  Maso.addressDialog = function addressDialog({ provinces, onSaved, verify }) {
     const dialog = dom.create(html`<dialog aria-label="افزودن آدرس جدید" class="${DIALOG_CLASSES}"></dialog>`);
     document.body.append(dialog);
-    dialog.addEventListener("click", (e) => e.target === dialog && dialog.close());
+    dom.onBackdropClick(dialog, () => dialog.close());
 
     const provinceSheet = optionSheet("انتخاب استان");
     const citySheet = optionSheet("انتخاب شهر");
 
     /* --- Flow state (reset on every opening) --- */
-    let step = "map";
+    let step = "form";
+    /** Position under the needle ({ lat, lng }) */
     let center = null;
     /** id of the address being edited (null = new address) */
     let editingId = null;
     const title = () => (editingId ? "ویرایش آدرس" : "افزودن آدرس جدید");
-    /** Reverse-geocoded place for `center`: { key, label, province?, city?, street? } */
+    /** Reverse-geocoded place for `center`: { key, label } */
     let place = null;
     let values = { ...EMPTY };
     let errors = {};
+    /** The checked address waiting for its map position */
+    let pending = null;
     let map = null;
+    /** "loading" → "ready" (map shown) or "none" (no key / didn't load: saved without a position) */
+    let mapState = "loading";
+    let busy = false;
 
     const keyOf = (p) => (p ? `${p.lat.toFixed(5)},${p.lng.toFixed(5)}` : "");
     const province = () => provinces.find((p) => p.id === values.provinceId);
     const city = () => province()?.cities.find((c) => c.id === values.cityId);
+    const area = () => serviceArea(province()?.name, city()?.name);
+    const inArea = (a, p) => Boolean(a && p && inside(a.ring, p.lng, p.lat));
 
     /** Back (right) · title · close (left, tablet/desktop) */
     const header = () => html`
@@ -196,8 +251,8 @@
         <button
           type="button"
           data-action="back"
-          aria-label="${step === "form" ? "بازگشت به نقشه" : "بستن"}"
-          class="${cx("-m-3 flex size-12 items-center justify-center justify-self-start text-on-surface", step === "map" && "md:invisible")}"
+          aria-label="${step === "map" ? "بازگشت به فرم آدرس" : "بستن"}"
+          class="${cx("-m-3 flex size-12 items-center justify-center justify-self-start text-on-surface", step === "form" && "md:invisible")}"
         >
           ${icon("chevronLeft", { cls: "-scale-x-100" })}
         </button>
@@ -212,169 +267,15 @@
       </header>
     `;
 
-    /* ---------------- Step 1: map ---------------- */
-
-    function showMap() {
-      step = "map";
-      dom.render(
-        dialog,
-        html`<div class="flex h-full flex-col">
-          ${header()}
-          <div class="flex min-h-0 flex-1 flex-col">
-            <!-- Place search (64px band) -->
-            <div class="relative z-[1000] shrink-0 p-4">
-              ${fields.searchBox({ placeholder: "استان، شهر، کشور و ...", label: "جستجوی مکان" })}
-              <ul data-places hidden class="absolute inset-x-4 top-full -mt-2 max-h-64 overflow-y-auto rounded-[16px] bg-surface py-2 shadow-[0_8px_24px_rgba(0,0,0,0.12)]"></ul>
-            </div>
-            <!-- Map + centre pin + "my location" -->
-            <div class="relative min-h-0 flex-1 bg-surface-low">
-              <div data-map class="absolute inset-0" aria-label="نقشه" role="application"></div>
-              <div
-                data-pin
-                aria-hidden="true"
-                class="pointer-events-none absolute top-1/2 left-1/2 z-[500] flex -translate-1/2 flex-col items-center drop-shadow-[0_0_8px_rgba(0,0,0,0.25)] transition-transform duration-300 ease-out-expo"
-              >
-                <span class="flex size-[60px] items-center justify-center rounded-full border-4 border-primary bg-white text-primary">${icon("logo", { size: 44 })}</span>
-                <span class="h-[31px] w-1 rounded-b-full bg-primary"></span>
-              </div>
-              <button
-                type="button"
-                data-action="locate"
-                aria-label="موقعیت فعلی من"
-                class="absolute right-4 bottom-4 z-[500] flex size-12 items-center justify-center rounded-full bg-surface-low text-on-surface shadow-[0_1px_3px_rgba(0,0,0,0.15),0_1px_2px_rgba(0,0,0,0.3)] transition-transform hover:scale-105"
-              >
-                ${icon("gps")}
-              </button>
-            </div>
-          </div>
-          <div class="flex shrink-0 flex-col gap-4 p-4 md:p-6">
-            <p data-place aria-live="polite" class="min-h-5 text-center text-13 text-on-surface-var">در حال یافتن آدرس…</p>
-            <hr class="border-dashed border-on-surface-var" />
-            <button type="button" data-action="confirm" ${center ? "" : html`disabled`} class="${cx(co.CTA, "w-full")}">ذخیره</button>
-          </div>
-        </div>`,
-      );
-      paintPlace();
-      startMap();
-      wirePlaceSearch();
-    }
-
-    function paintPlace() {
-      const el = dom.$("[data-place]", dialog);
-      if (!el) return;
-      el.textContent = place && place.key === keyOf(center) ? place.label || "موقعیت روی نقشه" : "در حال یافتن آدرس…";
-      const confirm = dom.$('[data-action="confirm"]', dialog);
-      if (confirm) confirm.disabled = !center;
-    }
-
-    /** Address under the pin, debounced; answers for old positions are dropped */
-    const lookup = dom.debounce(async (point) => {
-      const key = keyOf(point);
-      const result = await api.reverseGeocode(point);
-      if (key !== keyOf(center)) return;
-      place = { key, ...result };
-      paintPlace();
-    }, 300);
-
-    function setCenter(point) {
-      center = point;
-      paintPlace();
-      lookup(point);
-    }
-
-    async function startMap() {
-      const el = dom.$("[data-map]", dialog);
-      el.classList.add("animate-pulse");
-      const L = await loadLeaflet().catch(() => null);
-      el.classList.remove("animate-pulse");
-      if (!L || !el.isConnected) return;
-      map?.remove();
-      const start = center || DEFAULT_CENTER;
-      const zoom = center ? 17 : 13;
-      map = L.map(el, { zoomControl: false, attributionControl: true });
-      // View centre = the point TIP px above the target, so the target lands under the needle
-      map.setView(map.unproject(map.project([start.lat, start.lng], zoom).subtract([0, TIP]), zoom), zoom);
-      map.attributionControl.setPrefix(false);
-      L.tileLayer(CONFIG.MAP_TILES, { maxZoom: 19, attribution: CONFIG.MAP_ATTRIBUTION, detectRetina: true }).addTo(map);
-      const pin = dom.$("[data-pin]", dialog);
-      map.on("movestart", () => pin.classList.add("-translate-y-[calc(50%+10px)]"));
-      map.on("moveend", () => {
-        pin.classList.remove("-translate-y-[calc(50%+10px)]");
-        const tip = map.containerPointToLatLng(map.getSize().divideBy(2).add([0, TIP]));
-        setCenter({ lat: tip.lat, lng: tip.lng });
-      });
-      setCenter(start);
-    }
-
-    /** Fly so that `p` ends up under the needle tip */
-    function flyTo(p, zoom = 17) {
-      if (!map) return;
-      map.flyTo(map.unproject(map.project([p.lat, p.lng], zoom).subtract([0, TIP]), zoom), zoom, { duration: 0.8 });
-    }
-
-    /** Place search above the map, debounced and biased to the current view */
-    function wirePlaceSearch() {
-      const input = dom.$("input[type=search]", dialog);
-      const list = dom.$("[data-places]", dialog);
-      let results = [];
-      const run = dom.debounce(async (q) => {
-        const c = map?.getCenter();
-        const found = await api.searchPlaces(q, c ? { lat: c.lat, lng: c.lng } : undefined);
-        if (input.value.trim() !== q) return;
-        results = found;
-        list.hidden = !found.length;
-        dom.render(
-          list,
-          found.map(
-            (r, i) => html`<li>
-              <button type="button" data-place-index="${i}" class="flex w-full flex-col items-start gap-0.5 px-4 py-2 text-start hover:bg-surface-low">
-                <span class="text-16 text-on-surface">${r.title}</span>
-                <span class="line-clamp-1 text-13 text-on-surface-var">${r.address}</span>
-              </button>
-            </li>`,
-          ),
-        );
-      }, 400);
-      input.addEventListener("input", () => {
-        const q = input.value.trim();
-        if (q.length < 2) {
-          list.hidden = true;
-          return;
-        }
-        run(q);
-      });
-      list.addEventListener("click", (e) => {
-        const btn = e.target.closest("[data-place-index]");
-        if (!btn) return;
-        flyTo(results[Number(btn.dataset.placeIndex)].location);
-        input.value = "";
-        list.hidden = true;
-      });
-    }
-
-    /** Map → form: prefill province, city and street from the reverse lookup */
-    function confirmLocation() {
-      if (place && place.key === keyOf(center)) {
-        const pv = place.province ? provinces.find((p) => text.matchKey(p.name) === text.matchKey(place.province)) : undefined;
-        const ct = pv && place.city ? pv.cities.find((c) => text.matchKey(c.name) === text.matchKey(place.city)) : undefined;
-        values = {
-          ...values,
-          provinceId: pv?.id ?? values.provinceId,
-          cityId: ct?.id ?? (pv && pv.id !== values.provinceId ? "" : values.cityId),
-          street: place.street ? [ct?.name, place.street].filter(Boolean).join("، ") : values.street,
-        };
-      }
-      showForm();
-    }
-
-    /* ---------------- Step 2: form ---------------- */
+    /* ---------------- Step 1: form ---------------- */
 
     const section = (title, body) => html`<section class="flex flex-col gap-4 p-6">${co.blockTitle(title)}${body}</section>`;
+    /** "ادامه" when a map step follows, otherwise "ذخیره" */
+    const submitLabel = () => (area() ? "ادامه" : "ذخیره");
 
     function showForm() {
       step = "form";
-      map?.remove();
-      map = null;
+      stopMap();
       const f = (name, label, attrs) => fields.text({ name, label, value: values[name], error: errors[name], attrs });
       dom.render(
         dialog,
@@ -394,9 +295,9 @@
                 ${f("postalCode", "کد پستی (۱۰ رقمی)", { inputmode: "numeric", autocomplete: "postal-code", dir: "ltr", maxlength: 12 })}`,
             )}
           </div>
-          <!-- Pinned save button over a white fade -->
+          <!-- Pinned button over a white fade -->
           <div class="shrink-0 bg-gradient-to-b from-white/0 to-white p-4 backdrop-blur-[2px] md:px-5 md:py-6">
-            <button type="submit" class="${cx(co.CTA, "mx-auto flex w-full max-w-[400px]")}">ذخیره</button>
+            <button type="submit" data-submit class="${cx(co.CTA, "mx-auto flex w-full max-w-[400px]")}">${submitLabel()}</button>
           </div>
         </form>`,
       );
@@ -414,11 +315,11 @@
       });
       form.addEventListener("submit", (e) => {
         e.preventDefault();
-        submit();
+        submitForm();
       });
     }
 
-    /** Province / city fields (redrawn when either changes) */
+    /** Province / city fields (redrawn when either changes), and the button label that depends on them */
     function paintSelects() {
       const box = dom.$("[data-selects]", dialog);
       if (!box) return;
@@ -427,15 +328,13 @@
         html`${fields.select({ name: "provinceId", label: "استان", value: province()?.name, error: errors.provinceId })}
         ${fields.select({ name: "cityId", label: "شهر", value: city()?.name, error: errors.cityId, disabled: !province() })}`,
       );
+      const submit = dom.$("[data-submit]", dialog);
+      if (submit) submit.textContent = submitLabel();
     }
 
-    function submit() {
-      const found = validateAddress({
-        ...values,
-        provinceName: province()?.name ?? "",
-        cityName: city()?.name ?? "",
-        location: center ?? undefined,
-      });
+    /** Checks the form; Tehran/Karaj go on to the map, everything else is saved */
+    function submitForm() {
+      const found = validateAddress({ ...values, provinceName: province()?.name ?? "", cityName: city()?.name ?? "" });
       errors = found.errors;
       if (Object.keys(errors).length) {
         // Show every message in place, then focus the first problem
@@ -447,15 +346,293 @@
         requestAnimationFrame(() => dom.$('[aria-describedby$="-err"]', dialog)?.focus());
         return;
       }
-      const id = editingId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
-      onSaved({ id, ...found.address });
-      dialog.close();
+      pending = found.address;
+      const a = area();
+      if (a) {
+        // A position from another city (or from before the city changed) doesn't count
+        if (!inArea(a, center)) center = null;
+        showMap(a);
+      } else {
+        finish(pending);
+      }
+    }
+
+    /** verify (e.g. one-time code) → onSaved → close */
+    async function finish(address) {
+      if (busy) return;
+      busy = true;
+      try {
+        if (verify && !(await verify(address))) return;
+        onSaved({ id: editingId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())), ...address });
+        dialog.close();
+      } finally {
+        busy = false;
+      }
+    }
+
+    /* ---------------- Step 2: map (Tehran & Karaj) ---------------- */
+
+    function showMap(a) {
+      step = "map";
+      place = null;
+      mapState = "loading";
+      dom.render(
+        dialog,
+        html`<div class="animate-fade-up flex h-full flex-col">
+          ${header()}
+          <div class="flex min-h-0 flex-1 flex-col">
+            <!-- Place search (64px band), limited to the city -->
+            <div class="relative z-[1000] shrink-0 p-4">
+              ${fields.searchBox({ placeholder: `جستجو در ${a.city}…`, label: `جستجوی مکان در ${a.city}` })}
+              <ul data-places hidden class="absolute inset-x-4 top-full -mt-2 max-h-64 overflow-y-auto rounded-[16px] bg-surface py-2 shadow-[0_8px_24px_rgba(0,0,0,0.12)]"></ul>
+            </div>
+            <!-- Map + centre pin + "my location" -->
+            <div class="relative min-h-0 flex-1 overflow-hidden bg-surface-low">
+              <!-- inline position: the map library's own CSS sets .maplibregl-map to relative -->
+              <div data-map style="position: absolute; inset: 0" aria-label="${`نقشه ${a.city}`}" role="application"></div>
+              <p data-map-note hidden class="absolute inset-x-6 top-1/2 z-[1] -translate-y-1/2 text-center text-13 text-on-surface-var"></p>
+              <div
+                data-pin
+                aria-hidden="true"
+                class="pointer-events-none absolute top-1/2 left-1/2 z-[2] flex -translate-1/2 flex-col items-center drop-shadow-[0_0_8px_rgba(0,0,0,0.25)] transition-transform duration-300 ease-out-expo"
+              >
+                <span class="flex size-[60px] items-center justify-center rounded-full border-4 border-primary bg-white text-primary">${icon("logo", { size: 44 })}</span>
+                <span class="h-[31px] w-1 rounded-b-full bg-primary"></span>
+              </div>
+              <button
+                type="button"
+                data-action="locate"
+                aria-label="موقعیت فعلی من"
+                class="absolute right-4 bottom-4 z-[2] flex size-12 items-center justify-center rounded-full bg-surface-low text-on-surface shadow-[0_1px_3px_rgba(0,0,0,0.15),0_1px_2px_rgba(0,0,0,0.3)] transition-transform hover:scale-105"
+              >
+                ${icon("gps")}
+              </button>
+            </div>
+          </div>
+          <div class="flex shrink-0 flex-col gap-4 p-4 md:p-6">
+            <p data-place aria-live="polite" class="min-h-5 text-center text-13 text-on-surface-var">در حال بارگذاری نقشه…</p>
+            <hr class="border-dashed border-on-surface-var" />
+            <button type="button" data-action="confirm" disabled class="${cx(co.CTA, "w-full")}">ذخیره</button>
+          </div>
+        </div>`,
+      );
+      startMap(a);
+      wirePlaceSearch(a);
+    }
+
+    /** Status line + save button for the position under the needle */
+    function paintPlace() {
+      const el = dom.$("[data-place]", dialog);
+      const confirm = dom.$('[data-action="confirm"]', dialog);
+      if (!el || !confirm) return;
+      const a = area();
+      if (mapState !== "ready") {
+        // Still loading → wait; no map at all → the address is saved without a position
+        confirm.disabled = mapState === "loading";
+        return;
+      }
+      const ok = inArea(a, center);
+      confirm.disabled = !ok;
+      el.classList.toggle("text-error", Boolean(center) && !ok);
+      el.textContent = !center
+        ? "در حال یافتن آدرس…"
+        : !ok
+          ? `این نقطه خارج از محدوده ${a.city} است. پین را داخل ${a.city} قرار دهید.`
+          : place && place.key === keyOf(center)
+            ? place.label || "موقعیت روی نقشه"
+            : "در حال یافتن آدرس…";
+    }
+
+    /** Address under the pin, debounced; answers for old positions are dropped */
+    const lookup = dom.debounce(async (point) => {
+      const key = keyOf(point);
+      const result = await api.reverseGeocode(point);
+      if (key !== keyOf(center)) return;
+      place = { key, label: result.label };
+      paintPlace();
+    }, 300);
+
+    function setCenter(point) {
+      center = point;
+      paintPlace();
+      if (inArea(area(), point)) lookup(point);
+    }
+
+    /** No map: say so and let the address be saved without a position */
+    function mapUnavailable(message) {
+      stopMap();
+      mapState = "none";
+      const note = dom.$("[data-map-note]", dialog);
+      if (!note) return;
+      dom.$("[data-map]", dialog)?.classList.remove("animate-pulse");
+      dom.$("[data-pin]", dialog)?.setAttribute("hidden", "");
+      dom.$('[data-action="locate"]', dialog)?.setAttribute("hidden", "");
+      note.hidden = false;
+      note.textContent = message;
+      const status = dom.$("[data-place]", dialog);
+      if (status) status.textContent = "آدرس بدون موقعیت روی نقشه ذخیره می‌شود.";
+      paintPlace();
+    }
+
+    function stopMap() {
+      map?.remove();
+      map = null;
+    }
+
+    async function startMap(a) {
+      const el = dom.$("[data-map]", dialog);
+      if (!CONFIG.MAPTILER_KEY) {
+        mapUnavailable("نقشه هنوز راه‌اندازی نشده است (کلید MapTiler در تنظیمات سایت).");
+        return;
+      }
+      el.classList.add("animate-pulse");
+      const sdk = await loadMapTiler().catch(() => null);
+      if (!el.isConnected || step !== "map") return;
+      if (!sdk) {
+        mapUnavailable("نقشه بارگذاری نشد. اتصال اینترنت را بررسی کنید.");
+        return;
+      }
+      stopMap();
+      sdk.config.apiKey = CONFIG.MAPTILER_KEY;
+
+      const [w, s, e, n] = a.bbox;
+      // Room around the city so the whole outline fits on a tall phone screen too;
+      // what lies beyond the outline is covered by the mask anyway
+      const padX = (e - w) * 0.25;
+      const padY = (e - w) * 0.6;
+      const start = center || { lng: a.center[0], lat: a.center[1] };
+      const instance = new sdk.Map({
+        container: el,
+        style: CONFIG.MAP_STYLE || "positron",
+        language: "fa",
+        center: [start.lng, start.lat],
+        zoom: center ? 17 : 11,
+        minZoom: 8,
+        maxZoom: 19,
+        // Panning stops at the city's box; the outline mask hides the rest of the box
+        maxBounds: [
+          [w - padX, s - padY],
+          [e + padX, n + padY],
+        ],
+        dragRotate: false,
+        pitchWithRotate: false,
+        touchPitch: false,
+        navigationControl: false,
+        geolocateControl: false,
+        scaleControl: false,
+        fullscreenControl: false,
+        terrainControl: false,
+        projectionControl: false,
+        space: false,
+        halo: false,
+        attributionControl: { compact: true },
+      });
+      map = instance;
+      instance.touchZoomRotate?.disableRotation();
+
+      let loaded = false;
+      const fail = () => !loaded && map === instance && mapUnavailable("نقشه بارگذاری نشد.");
+      // A bad key or a blocked style (tile errors carry a source and don't count)
+      instance.on("error", (e) => !e.sourceId && !e.tile && fail());
+      const giveUp = setTimeout(fail, 20000);
+      instance.on("load", () => {
+        loaded = true;
+        clearTimeout(giveUp);
+        mapState = "ready";
+        el.classList.remove("animate-pulse");
+        // Everything outside the city: covered, with the city's outline on top
+        instance.addSource("maso-outside", { type: "geojson", data: outsideOf(a) });
+        instance.addLayer({ id: "maso-outside", type: "fill", source: "maso-outside", paint: { "fill-color": "#ffffff", "fill-opacity": 0.94 } });
+        instance.addLayer({
+          id: "maso-outline",
+          type: "line",
+          source: "maso-outside",
+          paint: { "line-color": "#001026", "line-width": 1.5, "line-opacity": 0.6, "line-dasharray": [3, 2] },
+        });
+        // Zooming out stops at the whole city
+        const whole = instance.cameraForBounds([[w, s], [e, n]], { padding: 16 });
+        if (whole) instance.setMinZoom(Math.max(8, whole.zoom - 0.25));
+        if (!center) instance.fitBounds([[w, s], [e, n]], { padding: 16, duration: 0 });
+        // Keep the target under the needle tip, not the map centre
+        instance.panBy([0, -TIP], { duration: 0 });
+        setCenter(tipPosition());
+      });
+
+      const pin = dom.$("[data-pin]", dialog);
+      instance.on("movestart", () => pin.classList.add("-translate-y-[calc(50%+10px)]"));
+      instance.on("moveend", () => {
+        pin.classList.remove("-translate-y-[calc(50%+10px)]");
+        if (loaded) setCenter(tipPosition());
+      });
+    }
+
+    /** Map position under the needle tip */
+    function tipPosition() {
+      const el = map.getContainer();
+      const p = map.unproject([el.clientWidth / 2, el.clientHeight / 2 + TIP]);
+      return { lat: p.lat, lng: p.lng };
+    }
+
+    /** Fly so that `p` ends up under the needle tip */
+    function flyTo(p, zoom = 17) {
+      map?.flyTo({ center: [p.lng, p.lat], zoom, offset: [0, TIP], duration: 800 });
+    }
+
+    /** Place search above the map: limited to the city's box, results outside its outline dropped */
+    function wirePlaceSearch(a) {
+      const input = dom.$("input[type=search]", dialog);
+      const list = dom.$("[data-places]", dialog);
+      let results = [];
+      const run = dom.debounce(async (q) => {
+        const near = center || { lng: a.center[0], lat: a.center[1] };
+        const found = (await api.searchPlaces(q, near, a.bbox)).filter((r) => inside(a.ring, r.location.lng, r.location.lat));
+        if (input.value.trim() !== q) return;
+        results = found;
+        list.hidden = false;
+        dom.render(
+          list,
+          found.length
+            ? found.map(
+                (r, i) => html`<li>
+                  <button type="button" data-place-index="${i}" class="flex w-full flex-col items-start gap-0.5 px-4 py-2 text-start hover:bg-surface-low">
+                    <span class="text-16 text-on-surface">${r.title}</span>
+                    <span class="line-clamp-1 text-13 text-on-surface-var">${r.address}</span>
+                  </button>
+                </li>`,
+              )
+            : html`<li class="px-4 py-2 text-13 text-on-surface-var">${`موردی در ${a.city} پیدا نشد.`}</li>`,
+        );
+      }, 400);
+      input.addEventListener("input", () => {
+        const q = input.value.trim();
+        if (q.length < 2) {
+          list.hidden = true;
+          return;
+        }
+        run(q);
+      });
+      list.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-place-index]");
+        if (!btn) return;
+        flyTo(results[Number(btn.dataset.placeIndex)].location);
+        input.value = "";
+        list.hidden = true;
+      });
+    }
+
+    /** Map → save, with the position when there is a map */
+    function confirmLocation() {
+      if (!pending) return showForm();
+      if (mapState === "loading" || (mapState === "ready" && !inArea(area(), center))) return;
+      const address = { ...pending };
+      if (mapState === "ready") address.location = { lat: center.lat, lng: center.lng };
+      finish(address);
     }
 
     /* ---------------- Clicks ---------------- */
 
     dom.actions(dialog, {
-      back: () => (step === "form" ? showMap() : dialog.close()),
+      back: () => (step === "map" ? showForm() : dialog.close()),
       close: () => dialog.close(),
       confirm: confirmLocation,
       locate(btn) {
@@ -490,23 +667,22 @@
 
     dialog.addEventListener("close", (e) => {
       if (e.target !== dialog) return;
-      map?.remove();
-      map = null;
+      stopMap();
     });
 
     return {
       open(existing) {
         editingId = existing?.id ?? null;
-        step = "map";
+        step = "form";
         center = existing?.location ?? null;
         place = null;
+        pending = null;
         values = { ...EMPTY };
         if (existing) for (const key of Object.keys(EMPTY)) values[key] = existing[key] ?? "";
         errors = {};
         dialog.setAttribute("aria-label", title());
         dialog.showModal();
-        if (existing) showForm();
-        else showMap();
+        showForm();
       },
     };
   };

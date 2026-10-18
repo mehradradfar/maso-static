@@ -207,7 +207,155 @@
     };
   }
 
+  /**
+   * "کد یکبارمصرف" bottom sheet (Figma: same sheet as the profile's number
+   * change): texts a code to `mobile` and signs the shopper in once the code
+   * is right. Resolves true when verified, false when the sheet is closed.
+   * Sample data: the code is 12345.
+   */
+  function confirmMobile(mobile) {
+    return new Promise((resolve) => {
+      let done = false;
+      let codeLength = 5;
+      let resendAt = 0;
+      let timer = 0;
+      let busy = false;
+      const sheet = Maso.sheet({
+        title: "تایید شماره همراه",
+        cardRadius: 32,
+        removeOnClose: true,
+        onClose() {
+          clearInterval(timer);
+          resolve(done);
+        },
+      });
+
+      dom.render(
+        sheet.body,
+        html`<form novalidate class="flex flex-col gap-6 p-6">
+          <button type="button" data-close-otp class="flex items-center gap-1 self-start text-13 text-on-surface transition-opacity hover:opacity-70">
+            ${icon("chevronRight", { size: 18 })} بازگشت
+          </button>
+          <div class="flex flex-col gap-2">
+            <h3 class="text-20 font-bold text-on-surface">کد یکبارمصرف</h3>
+            <p class="text-13 text-on-surface-var">کد یکبار مصرف ارسال شده به شماره <span class="text-on-surface">${fmt.digits(mobile)}</span></p>
+          </div>
+          <div>
+            <label data-ring class="relative flex h-14 w-full cursor-text items-center justify-center rounded-[16px] bg-field ring-1 ring-transparent transition-shadow">
+              <input inputmode="numeric" autocomplete="one-time-code" aria-label="کد یکبار مصرف" class="absolute inset-0 size-full bg-transparent text-transparent caret-transparent outline-none" />
+              <span data-slots dir="ltr" aria-hidden="true" class="pointer-events-none flex w-[190px] justify-between text-16"></span>
+            </label>
+            <p data-error role="alert" hidden class="mt-1 ps-4 text-13 text-error"></p>
+          </div>
+          <button type="button" data-resend class="mx-auto flex h-12 items-center justify-center rounded-[12px] px-4 text-13 text-ink transition-opacity"></button>
+          <button type="submit" class="${CTA}">ادامه</button>
+        </form>`,
+      );
+      const form = dom.$("form", sheet.body);
+      const input = dom.$("input", form);
+      const slots = dom.$("[data-slots]", form);
+      const resend = dom.$("[data-resend]", form);
+      const submit = dom.$("button[type=submit]", form);
+
+      const showError = (message) => {
+        const line = dom.$("[data-error]", form);
+        line.textContent = message || "";
+        line.hidden = !message;
+        dom.$("[data-ring]", form).classList.toggle("ring-error", Boolean(message));
+      };
+      const paintSlots = () => {
+        input.maxLength = codeLength;
+        const focused = document.activeElement === input;
+        dom.render(
+          slots,
+          Array.from({ length: codeLength }, (_, i) => {
+            const digit = input.value[i];
+            return html`<span class="${cx("w-2.5 text-center", digit ? "text-on-surface" : "text-ink-muted", focused && i === input.value.length && "animate-pulse text-primary")}"
+              >${digit ? fmt.digits(digit) : "-"}</span
+            >`;
+          }),
+        );
+      };
+      const paintResend = () => {
+        const left = Math.max(0, Math.ceil((resendAt - Date.now()) / 1000));
+        resend.disabled = left > 0;
+        resend.classList.toggle("opacity-30", left > 0);
+        resend.classList.toggle("text-secondary", !left);
+        resend.textContent = left > 0 ? `ارسال مجدد در ${fmt.digits(`${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`)}` : "ارسال مجدد کد";
+        if (!left) clearInterval(timer);
+      };
+
+      async function send() {
+        resendAt = Date.now() + 120 * 1000;
+        paintResend();
+        try {
+          const result = await api.requestOtp(mobile);
+          codeLength = result.length || codeLength;
+          resendAt = Date.now() + (result.resendIn || 120) * 1000;
+          paintSlots();
+        } catch (err) {
+          resendAt = 0;
+          showError(err?.status === 429 ? "تعداد درخواست‌ها زیاد است. کمی بعد دوباره تلاش کنید." : "ارسال کد انجام نشد. کمی بعد دوباره تلاش کنید.");
+        }
+        clearInterval(timer);
+        timer = setInterval(paintResend, 1000);
+        paintResend();
+      }
+
+      async function verify() {
+        if (busy) return;
+        const code = Maso.text.latinDigits(input.value).replace(/\D/g, "");
+        if (code.length < codeLength) return showError("کد را کامل وارد کنید.");
+        busy = true;
+        submit.disabled = true;
+        try {
+          const session = await api.verifyOtp(mobile, code);
+          if (!session) {
+            input.value = "";
+            paintSlots();
+            return showError("کد وارد شده صحیح نیست.");
+          }
+          // The verified number signs the shopper in (same as the login page)
+          Maso.session.set({ token: session.token, customer: session.customer });
+          done = true;
+          sheet.close();
+        } catch {
+          showError("تایید انجام نشد. لطفا دوباره تلاش کنید.");
+        } finally {
+          busy = false;
+          submit.disabled = false;
+        }
+      }
+
+      input.addEventListener("input", () => {
+        input.value = input.value.replace(/[^\d۰-۹]/g, "").slice(0, codeLength);
+        showError(null);
+        paintSlots();
+        if (input.value.length === codeLength) verify();
+      });
+      input.addEventListener("focus", paintSlots);
+      input.addEventListener("blur", paintSlots);
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        verify();
+      });
+      dom.$("[data-close-otp]", form).addEventListener("click", () => sheet.close());
+      resend.addEventListener("click", () => {
+        input.value = "";
+        showError(null);
+        paintSlots();
+        send();
+      });
+
+      paintSlots();
+      sheet.open();
+      send();
+      requestAnimationFrame(() => input.focus());
+    });
+  }
+
   Maso.co = {
+    confirmMobile,
     CTA,
     CTA_OUTLINE,
     frame,

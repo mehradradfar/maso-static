@@ -16,6 +16,8 @@
   const CONFIG = window.MASO_CONFIG || {};
   const WP = (CONFIG.WP_URL || "").replace(/\/+$/, "");
   const USE_MOCK = !WP;
+  /** Sample data: the one-time code that works everywhere (login, number change, checkout) */
+  const MOCK_OTP = "12345";
   const MOCK = window.MASO_MOCK;
 
   /* ------------------------------------------------------------------ */
@@ -308,11 +310,11 @@
     /** Totals for { lines, provinceId?, cityId?, coupon? } — priced by WordPress */
     quote(input) {
       if (!USE_MOCK) return request("/maso/v1/checkout/quote", { method: "POST", body: input });
-      const { lines, provinceId, coupon } = input;
+      const { lines, provinceId, cityId, coupon } = input;
       const items = lines.reduce((sum, l) => sum + mockLinePrice(l) * l.qty, 0);
       const count = lines.reduce((n, l) => n + l.qty, 0);
       const shipping = provinceId
-        ? MOCK.shippingMethods[MOCK.serviceProvinces.includes(provinceId) ? "maso" : "freight"]
+        ? MOCK.shippingMethods[MOCK.serviceCities.includes(cityId) ? "maso" : "freight"]
         : undefined;
       const rows = mockQuoteRows(items, count, shipping?.id === "freight" ? "پس کرایه" : "رایگان");
       const code = coupon?.trim().toUpperCase();
@@ -365,11 +367,11 @@
       }, 0);
     },
 
-    /* --- Login (SMS one-time code; sample code: 1234) --- */
+    /* --- Login (SMS one-time code; sample data: every code on the site is 12345) --- */
 
     requestOtp(mobile) {
       if (!USE_MOCK) return request("/maso/v1/auth/otp", { method: "POST", body: { mobile } });
-      return later({ resendIn: 120, length: 4 }, 400);
+      return later({ resendIn: 120, length: MOCK_OTP.length }, 400);
     },
 
     /** → { token, customer, isNew }, or null for a wrong/expired code */
@@ -382,7 +384,7 @@
           throw e;
         }
       }
-      return later(code === "1234" ? { token: `mock.${mobile}`, customer: { id: "1", mobile }, isNew: false } : null, 400);
+      return later(code === MOCK_OTP ? { token: `mock.${mobile}`, customer: { id: "1", mobile }, isNew: false } : null, 400);
     },
 
     /* --- Account (needs the login token; 401 = signed out) --- */
@@ -404,7 +406,7 @@
       /** Texts a code to the new number → { resendIn, length } */
       requestMobileChange(mobile) {
         if (!USE_MOCK) return request("/maso/v1/account/mobile", { method: "POST", body: { mobile } });
-        return later({ resendIn: 120, length: 4 }, 400);
+        return later({ resendIn: 120, length: MOCK_OTP.length }, 400);
       },
 
       /** → customer with the new number, or null for a wrong code */
@@ -417,7 +419,7 @@
             throw e;
           }
         }
-        if (code !== "1234") return later(null, 400);
+        if (code !== MOCK_OTP) return later(null, 400);
         mockAccountStore.set({ ...mockAccountStore.get(), mobile });
         const session = Maso.session.get();
         if (session) Maso.session.set({ ...session, customer: { ...session.customer, mobile } });
@@ -550,6 +552,17 @@
           const street = uniq([d.neighbourhood, d.route_name]).join("، ");
           return { label: uniq([province, d.city, street]).join("، ") || d.formatted_address || "", province, city: d.city, street };
         }
+        if (CONFIG.MAPTILER_KEY) {
+          const res = await fetch(`https://api.maptiler.com/geocoding/${ln},${la}.json?language=fa&limit=1&key=${encodeURIComponent(CONFIG.MAPTILER_KEY)}`);
+          if (!res.ok) return { label: "" };
+          const f = (await res.json()).features?.[0];
+          if (!f) return { label: "" };
+          const ctx = (type) => f.context?.find((c) => c.id?.startsWith(`${type}.`))?.text;
+          const province = ctx("region")?.replace(/^استان\s+/, "");
+          const city = ctx("municipality") ?? ctx("county");
+          const street = uniq([ctx("neighbourhood") ?? ctx("municipal_district"), f.place_type?.includes("road") || f.place_type?.includes("street") ? f.text : ""]).join("، ");
+          return { label: uniq([province, city, street]).join("، ") || f.place_name || "", province, city, street };
+        }
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&accept-language=fa&lat=${la}&lon=${ln}`);
         if (!res.ok) return { label: "" };
         const data = await res.json();
@@ -563,8 +576,8 @@
       }
     },
 
-    /** Place search above the map → [{ title, address, location }] */
-    async searchPlaces(query, near) {
+    /** Place search above the map, optionally inside bbox [w, s, e, n] → [{ title, address, location }] */
+    async searchPlaces(query, near, bbox) {
       const q = query.trim();
       if (q.length < 2) return [];
       try {
@@ -577,8 +590,18 @@
           const data = await res.json();
           return (data.items || []).slice(0, 6).map((i) => ({ title: i.title, address: i.address, location: { lat: i.location.y, lng: i.location.x } }));
         }
+        if (CONFIG.MAPTILER_KEY) {
+          const params = new URLSearchParams({ language: "fa", country: "ir", limit: "6", key: CONFIG.MAPTILER_KEY });
+          if (near) params.set("proximity", `${near.lng},${near.lat}`);
+          if (bbox) params.set("bbox", bbox.join(","));
+          const res = await fetch(`https://api.maptiler.com/geocoding/${encodeURIComponent(q)}.json?${params}`);
+          if (!res.ok) return [];
+          const data = await res.json();
+          return (data.features || []).map((f) => ({ title: f.text, address: f.place_name, location: { lat: f.center[1], lng: f.center[0] } }));
+        }
+        const box = bbox ? `&viewbox=${bbox.join(",")}&bounded=1` : "";
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=ir&accept-language=fa&limit=6&q=${encodeURIComponent(q)}`,
+          `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=ir&accept-language=fa&limit=6${box}&q=${encodeURIComponent(q)}`,
         );
         if (!res.ok) return [];
         const data = await res.json();

@@ -111,7 +111,12 @@
     draw();
 
     /* --- Add address --- */
-    const dialog = Maso.addressDialog({ provinces, onSaved: Maso.checkout.saveAddress });
+    // Signed-out shoppers confirm the address's mobile number with a one-time code first (Figma edit 16)
+    const dialog = Maso.addressDialog({
+      provinces,
+      onSaved: Maso.checkout.saveAddress,
+      verify: (address) => Boolean(Maso.session.get()) || co.confirmMobile(address.mobile),
+    });
 
     /* --- Choose between saved addresses (not in the design; styled like the city picker) --- */
     const chooser = Maso.sheet({ title: "انتخاب آدرس", variant: "sheet", cardRadius: 32 });

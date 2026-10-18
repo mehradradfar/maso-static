@@ -86,8 +86,9 @@
         <li data-dim><a href="custom-order.html" class="relative flex h-12 w-[150px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">سفارش اختصاصی</a></li>
       </ul>
       <span aria-hidden="true" class="h-[27px] w-px bg-current opacity-20"></span>
-      <a href="cart.html" aria-label="سبد خرید" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70" data-dim>
+      <a href="cart.html" data-cart-link aria-label="سبد خرید" class="relative flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70" data-dim>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 10.5v-5a3 3 0 0 1 6 0v5"/><rect x="5" y="7.5" width="14" height="14" rx="3"/></svg>
+        <span data-cart-count class="cart-badge" aria-hidden="true" hidden></span>
       </a>
       <a href="search.html" data-open-search aria-label="جستجو" aria-haspopup="dialog" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70" data-dim>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-6-6M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0"/></svg>
@@ -102,8 +103,9 @@
       <a href="search.html" data-open-search aria-label="جستجو" aria-haspopup="dialog" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-6-6M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0"/></svg>
       </a>
-      <a href="cart.html" aria-label="سبد خرید" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
+      <a href="cart.html" data-cart-link aria-label="سبد خرید" class="relative flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 10.5v-5a3 3 0 0 1 6 0v5"/><rect x="5" y="7.5" width="14" height="14" rx="3"/></svg>
+        <span data-cart-count class="cart-badge" aria-hidden="true" hidden></span>
       </a>
       <button type="button" data-open-menu aria-label="باز کردن منو" aria-haspopup="dialog" class="flex size-12 items-center justify-center">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>
@@ -220,6 +222,7 @@
 <!-- /@include -->
     <script src="assets/js/core/fields.js" defer></script>
     <script src="assets/js/pages/checkout-common.js" defer></script>
+    <script src="assets/js/data/service-areas.js" defer></script>
     <script src="assets/js/pages/address-dialog.js" defer></script>
     <script src="assets/js/pages/profile.js" defer></script>
   </body>

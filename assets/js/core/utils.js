@@ -219,6 +219,20 @@
       );
     },
 
+    /**
+     * Click on a modal <dialog>'s backdrop → fn(). Only when the press also
+     * started there, so dragging a map or selecting text and letting go
+     * outside the card doesn't close it.
+     */
+    onBackdropClick(dialog, fn) {
+      let fromBackdrop = false;
+      dialog.addEventListener("pointerdown", (e) => (fromBackdrop = e.target === dialog));
+      dialog.addEventListener("click", (e) => {
+        if (e.target === dialog && fromBackdrop) fn();
+        fromBackdrop = false;
+      });
+    },
+
     /** Calls `fn` at most once per `ms` of quiet */
     debounce(fn, ms) {
       let timer;

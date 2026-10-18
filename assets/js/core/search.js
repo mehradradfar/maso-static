@@ -259,7 +259,7 @@
     );
     dom.$$("[data-close-search]", dialog).forEach((btn) => btn.addEventListener("click", () => dialog.close()));
     // Clicks on the glass itself (outside the column) close the overlay
-    dialog.addEventListener("click", (e) => e.target === dialog && dialog.close());
+    Maso.dom.onBackdropClick(dialog, () => dialog.close());
   }
 
   dom.ready(initOverlay);

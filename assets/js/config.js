@@ -10,14 +10,19 @@
 window.MASO_CONFIG = {
   WP_URL: "",
 
-  /** Map tiles for the address picker (CARTO's light basemap matches the design) */
-  MAP_TILES: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png",
-  MAP_ATTRIBUTION: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CARTO',
+  /**
+   * Map in the address form (Tehran & Karaj only): MapTiler, style "positron".
+   * Paste the key from https://cloud.maptiler.com/account/keys/ and, in the
+   * MapTiler dashboard, allow this site's domain on the key. Without a key the
+   * map step says so and the address is saved without a map position.
+   */
+  MAPTILER_KEY: "",
+  MAP_STYLE: "positron",
 
   /**
    * Geocoding (address under the map pin, place search). A Neshan *web* key
-   * gives accurate Persian street names; without one, OpenStreetMap's
-   * Nominatim is used.
+   * gives the best Persian street names; otherwise MapTiler's geocoding is
+   * used when MAPTILER_KEY is set, and OpenStreetMap's Nominatim as a last resort.
    */
   NESHAN_WEB_KEY: "",
 };

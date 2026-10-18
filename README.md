@@ -15,7 +15,8 @@ version so far.
   `npm run serve` → <http://localhost:8080> (needs Node 18+; any web server works too).
 
 It runs on built-in sample data until WordPress is connected. Try:
-login code **1234** (also for changing the number in the profile) · coupons
+one-time code **12345** everywhere (login, changing the number in the profile,
+confirming the number at checkout) · coupons
 **MASO10** / **WELCOME** · coupon **FAIL** → failed-payment page.
 
 ## Pages
@@ -49,15 +50,15 @@ yet; it shows the 404 page until the file exists.
 assets/
   css/main.css         the stylesheet (compiled — this is what pages load)
   css/src/main.css     its source: design tokens (Figma variables), base, motion
-  js/config.js         ← the only file to edit when going live (WordPress URL, map)
+  js/config.js         ← the only file to edit when going live (WordPress URL, map key)
   js/data/mock.js      sample content in the exact WordPress JSON shapes
+  js/data/service-areas.js  Tehran & Karaj outlines (where the map step and Maso delivery apply)
   js/core/             shared: helpers, icons, storage (cart…), data layer (api.js),
                        header/menu/sheets (ui.js), search, form fields
   js/pages/            one script per page (shop.js, product.js, cart.js, …)
   fonts/               Yekan Bakh (self-hosted)
   images/              all pictures and logos
   video/               background clips (hero, footer, bed category)
-  vendor/leaflet/      map library for the address picker (self-hosted)
 partials/              header, footer, <head> and script list shared by all pages
 scripts/build.mjs      copies the partials into the pages + compiles the CSS
 docs/WORDPRESS_API.md  the REST contract for the WordPress developer
@@ -111,8 +112,14 @@ replaces what's between the markers. Options are explained at the top of
 2. Set `WP_URL` in `assets/js/config.js`, e.g. `"https://cms.masogroup.co"`.
 3. If WordPress is on another domain, it must send CORS headers (§10 of the doc).
 
-Optional: a Neshan **web** key in `config.js` gives accurate Persian street
-names on the address map (otherwise OpenStreetMap is used).
+**Map key:** the address form shows a map only for Tehran and Karaj (form
+first, then the map, which can't leave the chosen city). It uses MapTiler
+(style "positron"): put the key in `MAPTILER_KEY` in `config.js` and allow
+the site's domain on that key in the MapTiler dashboard. Without a key the
+map step says so and the address is saved without a position.
+
+Optional: a Neshan **web** key in `config.js` gives the most accurate Persian
+street names under the map pin (otherwise MapTiler's geocoding, then OpenStreetMap).
 
 To turn the pages into a WordPress theme instead, the HTML files are the
 templates: keep the markup and classes, print the fixed content from PHP,
@@ -137,8 +144,9 @@ Upload everything **except** `node_modules/`, `partials/`, `scripts/`,
 
 * The site should live at the root of its domain (the 404 and maintenance
   pages load their files from `/`).
-* Everything is self-hosted (fonts, icons, map library); only the map tiles
-  and geocoding are fetched from outside (configurable in `config.js`).
+* Everything is self-hosted (fonts, icons, images, videos); only the map
+  (MapTiler's script, styles and tiles) and geocoding come from outside
+  (configured in `config.js`). City outlines: geoBoundaries (CC BY 4.0).
 
 ## Notes
 

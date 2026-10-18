@@ -3,7 +3,7 @@
  *   step 1: mobile number → POST /maso/v1/auth/otp
  *   step 2: 4-digit code (submits itself on the last digit), resend countdown
  *           → POST /maso/v1/auth/verify → session token, then back to ?next=
- * Sample data: any valid number, code 1234.
+ * Sample data: any valid number, code 12345.
  */
 (function () {
   "use strict";
@@ -135,7 +135,7 @@
 
     /**
      * One real input (numeric keyboard, SMS autofill via `one-time-code`,
-     * paste works) drawn as four "-" slots spread over 190px, left to right.
+     * paste works) drawn as one "-" slot per digit spread over 190px, left to right.
      */
     function codeStep() {
       dom.render(

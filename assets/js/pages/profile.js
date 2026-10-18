@@ -262,7 +262,7 @@
     requestAnimationFrame(() => input.focus());
   }
 
-  /** "تغییر شماره": new number → SMS code (sample code 1234) */
+  /** "تغییر شماره": new number → SMS code (sample code 12345) */
   function mobileSheet(state, rerender) {
     const sheet = Maso.sheet({ title: "تغییر شماره", cardRadius: 32, removeOnClose: true, onClose: () => clearInterval(timer) });
     let mobile = "";

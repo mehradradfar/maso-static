@@ -113,8 +113,8 @@
     <div class="hidden shrink-0 items-start gap-2 lg:flex">
       ${pill("sort", "مرتب سازی", "sort")} ${pill("filter", "فیلتر", "filter")}
     </div>
-    <div class="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex h-[129px] items-end justify-center bg-linear-to-b from-white/0 to-white pb-5 lg:hidden">
-      <div class="pointer-events-auto flex h-[68px] w-[295px] items-center gap-2.5 rounded-full border border-hairline bg-white/50 p-4 shadow-[0_0_12px_rgba(0,0,0,0.08)] backdrop-blur-md">
+    <div class="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex h-[98px] items-end justify-center bg-linear-to-b from-white/0 to-white pb-4 lg:hidden">
+      <div class="pointer-events-auto flex h-14 w-[295px] items-center gap-2.5 rounded-full border border-hairline bg-white/50 px-4 shadow-[0_0_12px_rgba(0,0,0,0.08)] backdrop-blur-md">
         ${barButton("sort", "مرتب سازی", "sort")}
         <span aria-hidden="true" class="h-9 w-px shrink-0 bg-black-10"></span>
         ${barButton("filter", "فیلتر", "filter")}
@@ -124,17 +124,18 @@
 
   /**
    * Dark promo band between product rows (Figma "Frame 1000004188").
-   *  phone/tablet: 793px tall, copy on top, picture below bleeding off the edge
-   *  desktop:      397px tall, copy on the right, picture on the left, 124px gap
+   *  phone:   500px tall, 25px title, 238×178 picture under the button
+   *  tablet:  793px tall, copy on top, picture below bleeding off the edge
+   *  desktop: 397px tall, copy on the right, picture on the left, 124px gap
    * 32px above/below instead of the 48px row gap → -16px margins.
    * Order slots: after 1 row on phones (2 cards), 2 rows on tablet and desktop.
    */
   const promoBand = (promo) => html`
     <section data-reveal class="order-3 col-span-full -my-4 md:order-7 lg:order-11">
-      <div class="relative mx-auto flex h-[793px] max-w-[1100px] flex-col items-end overflow-hidden bg-promo px-8 py-12 md:items-center lg:h-[397px] lg:flex-row lg:items-start lg:justify-center lg:gap-[124px]">
+      <div class="relative mx-auto flex h-[500px] max-w-[1100px] flex-col items-end overflow-hidden bg-promo px-8 py-12 md:h-[793px] md:items-center lg:h-[397px] lg:flex-row lg:items-start lg:justify-center lg:gap-[124px]">
         <div class="relative z-10 flex w-full flex-col items-start gap-6 md:w-[324px]">
           <div class="flex w-full flex-col gap-3 text-start">
-            <h2 class="text-39 font-bold text-outline-var">${promo.title}</h2>
+            <h2 class="text-25 font-bold text-outline-var md:text-39">${promo.title}</h2>
             <p class="text-13 text-outline">${promo.description}</p>
           </div>
           <a
@@ -146,7 +147,7 @@
           </a>
         </div>
         ${ui.img(promo.image, {
-          cls: "absolute top-[397px] left-[calc(50%-130px)] h-[339px] w-[452px] max-w-none md:left-[calc(50%-226px)] lg:static lg:shrink-0",
+          cls: "absolute top-[322px] left-[calc(50%-119px)] h-[178px] w-[238px] max-w-none object-contain md:top-[397px] md:left-[calc(50%-226px)] md:h-[339px] md:w-[452px] lg:static lg:shrink-0",
         })}
       </div>
     </section>

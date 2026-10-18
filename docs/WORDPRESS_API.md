@@ -197,11 +197,16 @@ own httpOnly cookie in the verify response and ignore the header.
 
 | Endpoint | Body | Response |
 | --- | --- | --- |
-| `POST /maso/v1/auth/otp` | `{ "mobile": "09123456789" }` | `{ "resendIn": 120, "length": 4 }` · `429` when rate-limited |
-| `POST /maso/v1/auth/verify` | `{ "mobile": "09123456789", "code": "1234" }` | `{ "token": "…", "customer": { "id", "mobile", "firstName?", "lastName?" }, "isNew": false }` · **`422`** for a wrong/expired code |
+| `POST /maso/v1/auth/otp` | `{ "mobile": "09123456789" }` | `{ "resendIn": 120, "length": 5 }` · `429` when rate-limited |
+| `POST /maso/v1/auth/verify` | `{ "mobile": "09123456789", "code": "12345" }` | `{ "token": "…", "customer": { "id", "mobile", "firstName?", "lastName?" }, "isNew": false }` · **`422`** for a wrong/expired code |
 
 Please rate-limit both per number and per IP, expire codes after ~2 minutes,
-and allow ~5 attempts per code.
+and allow ~5 attempts per code. `length` is the number of digits the site
+draws (the sample data uses 5; every sample code is `12345`).
+
+The same two endpoints are used at checkout: a signed-out shopper who adds a
+delivery address confirms that address's mobile number with a code, and the
+verify response signs them in (the site stores the token as after a login).
 
 `POST /maso/v1/auth/logout` (with the token) ends the session; the site calls
 it from "خروج از حساب کاربری" and forgets the token either way. The profile
@@ -252,7 +257,9 @@ The cart lives in the browser. For pricing and ordering the site sends only
 ```
 
 Which cities get **"سرویس ویژه ماسو"** (in-house delivery) vs freight/train is
-your business rule; the site just shows what the quote returns.
+your business rule; the site just shows what the quote returns. The design
+limits it to **Tehran city and Karaj** (the sample data does the same), and
+only addresses there carry a map `location` (below).
 
 ### `PaymentMethod`
 
@@ -273,9 +280,13 @@ For instalment methods the site shows `payable / installments` per instalment.
   "id": "…", "firstName": "مهراد", "lastName": "…", "mobile": "09123456789",
   "provinceId": "gil", "cityId": "gil-1", "provinceName": "گیلان", "cityName": "رشت",
   "street": "رشت، بلوار گیلان، خ ۱۲۲", "plaque": "12", "unit": "3", "postalCode": "1234567890",
-  "location": { "lat": 37.28, "lng": 49.58 }       // pin from the map (optional)
+  "location": { "lat": 35.70, "lng": 51.39 }       // pin from the map — Tehran & Karaj only
 }
 ```
+
+The address form asks for a map position only when the city is Tehran
+(province تهران) or Karaj (province البرز), and the map can't leave that city
+(outlines in `assets/js/data/service-areas.js`). Elsewhere `location` is absent.
 
 Create the WooCommerce order, then return `redirectUrl`:
 

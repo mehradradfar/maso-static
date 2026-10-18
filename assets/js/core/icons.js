@@ -71,9 +71,14 @@
     discountActive: (size = 24, cls = "") =>
       `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${cls ? ` class="${cls}"` : ""}><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" fill="#FFD6D8" stroke="#CC2A2F"/><path d="m15 9-6 6M9 9h.01M15 15h.01" stroke="#CC2A2F"/></svg>`,
 
-    /** Empty address list illustration (240×240 in the design) */
+    /**
+     * Empty address list illustration (240×240 in the design, where it is an
+     * animated GIF): the pin bobs over its shadow, the sparkles twinkle and the
+     * dashed route drifts. Motion lives in main.css (.loc-*) and stops for
+     * reduced motion.
+     */
     locationEmpty: (size = 240) =>
-      `<svg width="${size}" height="${size}" viewBox="0 0 240 240" fill="none" aria-hidden="true"><path d="M34 168c26-18 44 16 70 12M136 180c28 6 40-30 72-22" stroke="#CFD3D9" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 6"/><circle cx="34" cy="168" r="4" fill="#CFD3D9"/><circle cx="208" cy="158" r="4" fill="#CFD3D9"/><ellipse cx="120" cy="182" rx="18" ry="5" fill="#003A80"/><path d="M120 180s-36-40-36-70a36 36 0 0 1 72 0c0 30-36 70-36 70Z" fill="#0074FF"/><path opacity=".35" d="M120 74a36 36 0 0 1 36 36c0 30-36 70-36 70s16-40 16-70c1.12-6.906.203-13.989-2.639-20.383A35.7 35.7 0 0 0 120 74Z" fill="#003A80"/><circle cx="120" cy="110" r="15" fill="#fff"/><path opacity=".55" d="M96 96a28 28 0 0 1 14-14" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="m58 84 3 7 7 3-7 3-3 7-3-7-7-3 7-3 3-7Z" fill="#0074FF"/><path d="m184 70 2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Z" fill="#003A80"/><path d="m190 118 2 4 4 2-4 2-2 4-2-4-4-2 4-2 2-4Z" fill="#0074FF"/></svg>`,
+      `<svg width="${size}" height="${size}" viewBox="0 0 240 240" fill="none" aria-hidden="true" class="loc-empty"><path class="loc-route" d="M34 168c26-18 44 16 70 12M136 180c28 6 40-30 72-22" stroke="#CFD3D9" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 6"/><circle cx="34" cy="168" r="4" fill="#CFD3D9"/><circle cx="208" cy="158" r="4" fill="#CFD3D9"/><ellipse class="loc-shadow" cx="120" cy="182" rx="18" ry="5" fill="#003A80"/><g class="loc-pin"><path d="M120 180s-36-40-36-70a36 36 0 0 1 72 0c0 30-36 70-36 70Z" fill="#0074FF"/><path opacity=".35" d="M120 74a36 36 0 0 1 36 36c0 30-36 70-36 70s16-40 16-70c1.12-6.906.203-13.989-2.639-20.383A35.7 35.7 0 0 0 120 74Z" fill="#003A80"/><circle cx="120" cy="110" r="15" fill="#fff"/><path opacity=".55" d="M96 96a28 28 0 0 1 14-14" stroke="#fff" stroke-width="4" stroke-linecap="round"/></g><path class="loc-spark" d="m58 84 3 7 7 3-7 3-3 7-3-7-7-3 7-3 3-7Z" fill="#0074FF"/><path class="loc-spark" style="animation-delay:-.8s" d="m184 70 2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Z" fill="#003A80"/><path class="loc-spark" style="animation-delay:-1.6s" d="m190 118 2 4 4 2-4 2-2 4-2-4-4-2 4-2 2-4Z" fill="#0074FF"/></svg>`,
 
     /** Horizontal MASO wordmark (Figma "Group 16", 99.26×32) */
     logo: (width = 99.26, cls = "") =>

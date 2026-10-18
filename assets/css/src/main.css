@@ -156,6 +156,16 @@
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
+  /*
+   * Rings only for keyboard users: when a sheet or menu opens, the browser
+   * moves focus to its first button, and some browsers (iOS Safari above
+   * all) draw the ring even after a tap. ui.js sets data-keyboard on <html>
+   * while the keyboard is being used to move around.
+   */
+  html:not([data-keyboard]) :focus-visible,
+  dialog:focus-visible {
+    outline: none;
+  }
 
   /* Elements rendered by JavaScript stay hidden until their data is in */
   [hidden] {
@@ -259,6 +269,126 @@
   .site-header[data-mega]::after {
     content: none;
   }
+  /* Empty address illustration (icons.js "locationEmpty"), animated like the design's GIF */
+  .loc-empty .loc-pin {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: loc-bob 2.4s var(--ease-in-out-soft) infinite;
+  }
+  .loc-empty .loc-shadow {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: loc-shadow 2.4s ease-in-out infinite;
+  }
+  .loc-empty .loc-spark {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: loc-twinkle 2.4s ease-in-out infinite;
+  }
+  .loc-empty .loc-route {
+    animation: loc-route 1.2s linear infinite;
+  }
+  @keyframes loc-bob {
+    0%,
+    100% {
+      transform: translateY(0) scale(1, 1);
+    }
+    8% {
+      transform: translateY(0) scale(1.04, 0.95);
+    }
+    45% {
+      transform: translateY(-14px) scale(0.98, 1.02);
+    }
+    80% {
+      transform: translateY(0) scale(1, 1);
+    }
+  }
+  @keyframes loc-shadow {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    45% {
+      transform: scale(0.65);
+      opacity: 0.45;
+    }
+    80% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  @keyframes loc-twinkle {
+    0%,
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(0.45) rotate(45deg);
+      opacity: 0.35;
+    }
+  }
+  @keyframes loc-route {
+    to {
+      stroke-dashoffset: -20;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .loc-empty * {
+      animation: none !important;
+    }
+  }
+
+  /* Cart count on the bag icon: a pill in the header's own colour with the
+     number knocked out, so it reads on white and over the home hero alike */
+  .cart-badge {
+    position: absolute;
+    top: 6px;
+    inset-inline-end: 4px;
+    display: flex;
+    min-width: 18px;
+    height: 18px;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 4px;
+    border-radius: 999px;
+    background-color: currentColor;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .cart-badge[hidden] {
+    display: none;
+  }
+  .cart-badge > span {
+    color: var(--color-surface);
+    transition: color 0.5s var(--ease-out-expo);
+  }
+  .site-header[data-mode="overlay"]:not([data-solid], [data-mega]) .cart-badge > span {
+    color: var(--color-primary);
+  }
+  .cart-badge[data-bump] {
+    animation: badge-bump 0.6s var(--ease-out-expo);
+  }
+  @keyframes badge-bump {
+    0% {
+      transform: scale(0.4);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cart-badge[data-bump] {
+      animation: none;
+    }
+  }
+
   .site-header [data-dim] {
     transition: opacity 0.5s var(--ease-out-expo);
   }

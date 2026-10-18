@@ -357,8 +357,8 @@
     p("yzd", "یزد", ["یزد", "میبد", "اردکان", "بافق", "مهریز", "ابرکوه"]),
   ];
 
-  /** Provinces served by Maso's own delivery & installation team */
-  const serviceProvinces = ["thr", "alb"];
+  /** Cities served by Maso's own delivery & installation team: Tehran and Karaj (other cities: freight) */
+  const serviceCities = ["thr-1", "alb-1"];
 
   const shippingMethods = {
     maso: {
@@ -494,7 +494,7 @@
     promo,
     productDetail,
     provinces,
-    serviceProvinces,
+    serviceCities,
     shippingMethods,
     paymentMethods,
     coupons,
