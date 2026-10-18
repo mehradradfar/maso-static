@@ -56,6 +56,7 @@ assets/
   js/pages/            one script per page (shop.js, product.js, cart.js, …)
   fonts/               Yekan Bakh (self-hosted)
   images/              all pictures and logos
+  video/               background clips (hero, footer, bed category)
   vendor/leaflet/      map library for the address picker (self-hosted)
 partials/              header, footer, <head> and script list shared by all pages
 scripts/build.mjs      copies the partials into the pages + compiles the CSS
@@ -145,8 +146,11 @@ Upload everything **except** `node_modules/`, `partials/`, `scripts/`,
   engines see their content only after JavaScript runs (Google does this).
   The Next.js version renders them on the server; if SEO for product pages
   matters, render them in PHP from the same markup when building the theme.
-* Videos (hero, footer, login background) are pictures for now; each spot
-  has a comment showing where to put a `<video>`.
+* Videos (`assets/video/`): the home hero (plus a portrait crop for phones),
+  the footer strip and the "تخت و سرویس خواب" tile. They are H.264 MP4s
+  without sound, each with its first frame as the poster; the footer and the
+  tile download only when they scroll into view, and "reduce motion" keeps
+  the posters. The login background is still a picture.
 * Pictures for the new pages (about, contact, blog samples) were exported from
   the Figma file at their drawn size. Before launch, replace them with the
   original photos at 2× (same file names in `assets/images/about/`,

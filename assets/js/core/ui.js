@@ -165,6 +165,40 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Background videos ([data-autoplay])                                 */
+  /*   play only while on screen (and only then download, preload=none); */
+  /*   reduced motion keeps the poster                                   */
+  /* ------------------------------------------------------------------ */
+
+  function initVideos() {
+    const videos = $$("video[data-autoplay]");
+    if (!videos.length) return;
+    const still = matchMedia("(prefers-reduced-motion: reduce)");
+    const play = (v) => v.play().catch(() => {}); // blocked autoplay (e.g. low-power mode) → poster stays
+    if (!("IntersectionObserver" in window)) {
+      if (!still.matches) videos.forEach(play);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const { target, isIntersecting } of entries) {
+          if (isIntersecting && !still.matches) play(target);
+          else target.pause();
+        }
+      },
+      { rootMargin: "200px 0px" },
+    );
+    videos.forEach((v) => {
+      if (still.matches) {
+        v.removeAttribute("autoplay");
+        v.pause();
+      }
+      io.observe(v);
+    });
+    still.addEventListener("change", () => videos.forEach((v) => (still.matches ? v.pause() : null)));
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Rows that start with their middle item centred (journal cards)      */
   /* ------------------------------------------------------------------ */
 
@@ -331,6 +365,7 @@
     initMegaMenu();
     initMobileMenu();
     initAccountLinks();
+    initVideos();
     initCenteredScrollers();
     $$("[data-rail]").forEach(Maso.rail);
   });

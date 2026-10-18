@@ -100,10 +100,12 @@
     </div>
   </div>
 
-  <!-- Fading picture strip — overlaps the bottom padding by the same amount as in each frame.
-       Swap the <img> for a muted, looping <video> when the clip is available. -->
+  <!-- Fading video strip — overlaps the bottom padding by the same amount as in each frame.
+       Downloaded and played only while it is on screen (assets/js/core/ui.js). -->
   <div class="relative h-[413px] [mask-image:linear-gradient(to_bottom,transparent,black)] md:-mt-[58px] lg:-mt-[69px]">
-    <img src="assets/images/home/hero-poster.jpg" alt="" width="1440" height="900" loading="lazy" decoding="async" class="absolute inset-0 size-full object-cover" />
+    <video data-autoplay muted loop playsinline preload="none" poster="assets/images/home/footer-poster.jpg" width="1280" height="720" aria-hidden="true" class="absolute inset-0 size-full object-cover">
+      <source src="assets/video/footer.mp4" type="video/mp4" />
+    </video>
     <div class="absolute inset-0 bg-black/50"></div>
   </div>
 </footer>

@@ -22,6 +22,8 @@ const TYPES = {
   ".webp": "image/webp",
   ".ico": "image/x-icon",
   ".woff2": "font/woff2",
+  ".mp4": "video/mp4",
+  ".txt": "text/plain; charset=utf-8",
 };
 
 function fileFor(url) {
@@ -38,8 +40,21 @@ function fileFor(url) {
 
 createServer((req, res) => {
   const file = fileFor(req.url);
-  const status = file ? 200 : 404;
   const target = file ?? join(root, "404.html");
-  res.writeHead(status, { "Content-Type": TYPES[extname(target)] ?? "application/octet-stream" });
+  const type = TYPES[extname(target)] ?? "application/octet-stream";
+  const size = statSync(target).size;
+  // Byte ranges: browsers (Safari above all) fetch videos in pieces
+  const range = file && /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || "");
+  if (range && (range[1] || range[2])) {
+    const start = range[1] ? Number(range[1]) : Math.max(0, size - Number(range[2]));
+    const end = range[1] && range[2] ? Math.min(Number(range[2]), size - 1) : size - 1;
+    if (start >= size || start > end) {
+      res.writeHead(416, { "Content-Range": `bytes */${size}` });
+      return res.end();
+    }
+    res.writeHead(206, { "Content-Type": type, "Content-Length": end - start + 1, "Content-Range": `bytes ${start}-${end}/${size}`, "Accept-Ranges": "bytes" });
+    return createReadStream(target, { start, end }).pipe(res);
+  }
+  res.writeHead(file ? 200 : 404, { "Content-Type": type, "Content-Length": size, "Accept-Ranges": "bytes" });
   createReadStream(target).pipe(res);
 }).listen(port, () => console.log(`Maso preview → http://localhost:${port}`));

@@ -193,8 +193,27 @@
       -->
       <section class="sticky top-0 h-svh min-h-[560px] overflow-hidden text-on-primary">
         <div class="absolute inset-0 animate-[hero-zoom_2.4s_var(--ease-out-expo)_both]">
-          <!-- Swap for <video muted loop playsinline autoplay poster="…"> when the clip is available -->
-          <img src="assets/images/home/hero-poster.jpg" alt="" width="1440" height="900" fetchpriority="high" decoding="async" class="absolute inset-0 size-full object-cover" />
+          <!--
+            Workshop clip (H.264, no sound). Portrait screens get a 810×1080
+            centre crop; browsers without <source media> just take the first one.
+            The poster is its first frame, so nothing jumps when it starts.
+          -->
+          <video
+            data-autoplay
+            autoplay
+            muted
+            loop
+            playsinline
+            preload="auto"
+            poster="assets/images/home/hero-poster.jpg"
+            width="1920"
+            height="1080"
+            aria-hidden="true"
+            class="absolute inset-0 size-full object-cover"
+          >
+            <source src="assets/video/hero.mp4" type="video/mp4" media="(min-aspect-ratio: 4/5)" />
+            <source src="assets/video/hero-portrait.mp4" type="video/mp4" />
+          </video>
         </div>
         <!-- 50% black layer from the Figma fill stack -->
         <div class="absolute inset-0 bg-black/50"></div>
@@ -264,7 +283,20 @@
               <div class="flex min-h-0 flex-1 items-center justify-center">
                 <!-- Wide clip (436:143) that keeps its size and is cropped by the tile on small screens -->
                 <div class="relative aspect-[436/143] h-[245px] shrink-0 transition-transform duration-700 ease-out-expo group-hover:scale-[1.03]">
-                  <img src="assets/images/home/cat-bed-poster.jpg" alt="تخت خواب" width="1494" height="490" loading="lazy" decoding="async" class="absolute inset-0 size-full object-cover" />
+                  <video
+                    data-autoplay
+                    muted
+                    loop
+                    playsinline
+                    preload="none"
+                    poster="assets/images/home/cat-bed-poster.jpg"
+                    width="1494"
+                    height="490"
+                    aria-label="تخت خواب"
+                    class="absolute inset-0 size-full object-cover"
+                  >
+                    <source src="assets/video/category-beds.mp4" type="video/mp4" />
+                  </video>
                 </div>
               </div>
             </a>
@@ -479,10 +511,12 @@
     </div>
   </div>
 
-  <!-- Fading picture strip — overlaps the bottom padding by the same amount as in each frame.
-       Swap the <img> for a muted, looping <video> when the clip is available. -->
+  <!-- Fading video strip — overlaps the bottom padding by the same amount as in each frame.
+       Downloaded and played only while it is on screen (assets/js/core/ui.js). -->
   <div class="relative h-[413px] [mask-image:linear-gradient(to_bottom,transparent,black)] md:-mt-[58px] lg:-mt-[69px]">
-    <img src="assets/images/home/hero-poster.jpg" alt="" width="1440" height="900" loading="lazy" decoding="async" class="absolute inset-0 size-full object-cover" />
+    <video data-autoplay muted loop playsinline preload="none" poster="assets/images/home/footer-poster.jpg" width="1280" height="720" aria-hidden="true" class="absolute inset-0 size-full object-cover">
+      <source src="assets/video/footer.mp4" type="video/mp4" />
+    </video>
     <div class="absolute inset-0 bg-black/50"></div>
   </div>
 </footer>

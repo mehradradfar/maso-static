@@ -10,7 +10,7 @@
 (function () {
   "use strict";
 
-  const heroPoster = { src: "/images/home/hero-poster.jpg", width: 1440, height: 900, alt: "" };
+  const heroPoster = { src: "/images/home/hero-poster.jpg", width: 1920, height: 1080, alt: "" };
 
   /* ------------------------------------------------------------------ */
   /* Site settings (GET /maso/v1/settings)                               */
