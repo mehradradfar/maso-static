@@ -12,7 +12,7 @@ are plain files and the browser calls WordPress directly, so:
 
 * set `WP_URL` in `assets/js/config.js` to switch from sample data to WordPress;
 * the endpoints need **CORS** unless the site and WordPress share a domain
-  (see §10);
+  (see §13);
 * there is no revalidation webhook — use normal HTTP caching (see §1);
 * links in the data (`/shop/beds`) are mapped to the static pages
   (`shop.html?category=beds`) by the site; WordPress keeps sending site paths.
@@ -51,13 +51,14 @@ decide how fresh pages are. Suggested:
 
 | Endpoint group | `Cache-Control` |
 | --- | --- |
-| settings, home, categories, facets, promo, custom-order | `public, max-age=300, stale-while-revalidate=3600` |
+| settings, home, categories, facets, promo, custom-order, blog | `public, max-age=300, stale-while-revalidate=3600` |
 | products, product detail, search | `public, max-age=120, stale-while-revalidate=600` |
 | checkout locations, payment methods | `public, max-age=86400` |
-| quote, coupon, order, auth, forms (POST) and order status | `no-store` |
+| quote, coupon, order, auth, forms (POST), order status and everything under `/account` | `no-store` (account: `private, no-store`) |
 
-A page-cache plugin or a CDN in front of `/wp-json/maso/v1` (GET only) keeps
-WordPress load low. Within one page view the site also reuses each GET answer.
+A page-cache plugin or a CDN in front of `/wp-json/maso/v1` (GET only, never
+`/account`) keeps WordPress load low. Within one page view the site also
+reuses each GET answer (except the account ones).
 
 ---
 
@@ -67,8 +68,8 @@ WordPress load low. Within one page view the site also reuses each GET answer.
 
 ```jsonc
 {
-  "headerNav": [{ "label": "محصولات", "href": "/shop" }, { "label": "فروشگاه", "href": "/shop" }],
-  "mobileNav": [{ "label": "فروشگاه", "href": "/shop" }, { "label": "سفارش اختصاصی", "href": "/custom-order" }],
+  "headerNav": [{ "label": "سفارش اختصاصی", "href": "/custom-order" }],
+  "mobileNav": [{ "label": "سفارش اختصاصی", "href": "/custom-order" }, { "label": "درباره ما", "href": "/about" }, { "label": "تماس با ما", "href": "/contact" }],
   "popularSearches": ["مبل راحتی", "تخت دونفره", "میز ناهارخوری", "صندلی", "کنسول و آینه"],
   "loginBackground": { "src": "", "poster": { /* Media */ } },
   "footer": {
@@ -84,6 +85,12 @@ WordPress load low. Within one page view the site also reuses each GET answer.
   }
 }
 ```
+
+The header's "کتگوری‌ها" mega menu (desktop) and the categories screen of the
+mobile menu list the shop categories — the same `Category[]` as
+`/maso/v1/shop/categories` (name, slug and the small `icon` picture). In this
+static version they are written into `partials/header.html`; a theme renders
+them from the product categories.
 
 ## 3. Home page
 
@@ -196,6 +203,10 @@ own httpOnly cookie in the verify response and ignore the header.
 Please rate-limit both per number and per IP, expire codes after ~2 minutes,
 and allow ~5 attempts per code.
 
+`POST /maso/v1/auth/logout` (with the token) ends the session; the site calls
+it from "خروج از حساب کاربری" and forgets the token either way. The profile
+pages use the token on everything under `/maso/v1/account` (§8).
+
 ## 7. Checkout
 
 The cart lives in the browser. For pricing and ordering the site sends only
@@ -286,11 +297,96 @@ then redirect the shopper to
 }
 ```
 
-On `paid` the site empties the cart. Saved addresses are kept in the browser
-for now; once accounts are live they can move to
-`GET/POST/DELETE /maso/v1/account/addresses` (same `Address` shape).
+On `paid` the site empties the cart. The checkout keeps the shopper's
+addresses in the browser; please also **save the order's address to the
+customer's account** (when signed in) so it shows up under "آدرس‌ها" in the
+profile (§8).
 
-## 8. Custom order ("سفارش اختصاصی")
+## 8. Profile ("حساب کاربری", `profile.html`)
+
+Everything here needs `Authorization: Bearer <token>`. Answer **`401`** when the
+token is missing or expired — the site then sends the shopper to the login
+page and back. Only ever return the signed-in customer's own data.
+
+| Endpoint | Body → Response |
+| --- | --- |
+| `GET /maso/v1/account` | → `{ "customer": Customer, "currentOrder": OrderSummary \| null }` (`currentOrder` = the newest order still in progress — the "سفارش جاری" card) |
+| `PATCH /maso/v1/account` | `{ "firstName"?, "lastName"?, "email"? }` → `Customer` · `422` for an invalid email |
+| `POST /maso/v1/account/mobile` | `{ "mobile": "09…" }` → `{ "resendIn": 120, "length": 4 }` — texts a code to the **new** number · `409` if another account uses it · `429` when rate-limited |
+| `POST /maso/v1/account/mobile/verify` | `{ "mobile", "code" }` → `Customer` (with the new number) · `422` for a wrong/expired code |
+| `GET /maso/v1/account/orders?status=pre\|current\|delivered\|returned` | → `OrderSummary[]`, newest first |
+| `GET /maso/v1/account/orders/<id>` | → `OrderDetail` · `404` if it isn't this customer's |
+| `GET /maso/v1/account/addresses` | → `Address[]` (same shape as at checkout, §7; ids are yours) |
+| `POST /maso/v1/account/addresses` | `Address` without a numeric id → the saved `Address` (with your id) |
+| `PUT /maso/v1/account/addresses/<id>` | `Address` → the saved `Address` |
+| `DELETE /maso/v1/account/addresses/<id>` | → `{ "ok": true }` |
+
+```jsonc
+// Customer
+{ "firstName": "مهراد", "lastName": "رادفر", "mobile": "09123456789", "email": "" }
+
+// OrderSummary — a row in "سفارش‌ها"
+{
+  "id": "40017", "number": "12342341234",
+  "status": "current",                          // pre | current | delivered | returned (the tab it is listed under)
+  "total": 1480000000,                          // "پرداختی"
+  "image": { /* Media — first product */ },
+  "badge": { "caption": "تحویل محصول", "label": "۱۰ کاری روز دیگر", "tone": "warning" }   // optional orange pill;
+                                                // pre-invoices: { "label": "در انتظار تایید شما", "tone": "warning" }
+}
+
+// OrderDetail = OrderSummary + …
+{
+  "step": 1,                                    // 1 در حال آماده سازی · 2 ارسال شده · 3 تحویل گرفته شده
+  "address": "گیلان، رشت، بلوار گیلان، خ ۱۲۲",  // "ارسال به آدرس"
+  "items": [{ "slug": "izo-sofa", "name": "مبدل ایزو", "image": { /* Media */ }, "price": 1480000000, "regularPrice": 1644000000, "qty": 1 }],
+  "receipt": { "orderNumber": "…", "trackingCode": "…", "transactionId": "190-8748923704", "date": "2026-07-27T09:02:00Z" },
+  "receiptUrl": "/checkout/result?order=40017", // optional — "مشاهده رسید پرداخت" (default: that path)
+  "preInvoice": {                               // only for status "pre" — the "پیش فاکتور شما" drawer
+    "image": { /* Media */ }, "description": "…",
+    "customerName": "علی زارع", "trackingCode": "…", "mobile": "09123456789", "date": "…",
+    "downloadUrl": "https://cms.masogroup.co/…/pre-invoice-40021.pdf"   // the "دانلود پیش فاکتور" PDF
+  }
+}
+```
+
+## 9. Blog ("بلاگ")
+
+| Endpoint | Response | Cache |
+| --- | --- | --- |
+| `GET /maso/v1/blog/posts?page=1&per_page=9` | `{ "items": PostSummary[], "page", "totalPages", "total" }`, newest first | cacheable |
+| `GET /maso/v1/blog/posts/<slug>` | `Post` · `404` → the site shows its 404 page | cacheable |
+
+```jsonc
+// PostSummary (cards)
+{ "slug": "minimal-furniture-arrangement", "title": "چند نکته ساده برای چیدمان مینیمال خانه‌تان",
+  "excerpt": "…", "date": "2026-07-27T08:00:00Z", "image": { /* Media, ~square */ } }
+
+// Post = PostSummary + …
+{
+  "heroImage": { /* Media, wide — fades into the page under the header */ },
+  "content": "<p>…</p><figure><img …></figure><h2>…</h2><p>…</p><!--products--><figure>…</figure>…",
+  "products": [/* ProductSummary — "محصولات پیشنهادی" (e.g. an ACF relationship field) */],
+  "related":  [/* PostSummary — "مقالات دیگر" */]
+}
+```
+
+`content` is the editor's HTML (`the_content`), inserted as is — keep it to
+paragraphs, headings (`h2`/`h3`), lists, links and images/figures (the site
+styles those: 356px-tall rounded pictures, 20px bold headings). An HTML comment
+`<!--products-->` in the content marks where the suggested-products band goes;
+without it the band follows the text. Use absolute image URLs.
+
+Links to posts are `/blog/<slug>` (the site maps them to `blog-post.html?slug=<slug>`).
+
+## 10. Contact form ("درخواست تماس")
+
+`POST /maso/v1/forms/contact` with `{ "name", "mobile", "message" }`
+(`message` may be empty; the browser already checks name ≥ 3 characters and
+`09xxxxxxxxx`) → `{ "ok": true }`. Store it and notify sales, like the
+custom-order requests. Never cached.
+
+## 11. Custom order ("سفارش اختصاصی")
 
 | Endpoint | | |
 | --- | --- | --- |
@@ -300,14 +396,15 @@ for now; once accounts are live they can move to
 Store the request (e.g. a CPT or Gravity/Contact Form entry), notify sales,
 and return a human-friendly request number.
 
-## 9. Errors
+## 12. Errors
 
-* `404` from `/shop/products/<slug>` → the site shows its 404 page.
+* `404` from `/shop/products/<slug>` or `/blog/posts/<slug>` → the site shows its 404 page.
+* `401` from `/account…` → the site signs the shopper out and opens the login page.
 * Any other non-2xx or a timeout (15 s, 60 s for uploads) → the site shows
   a friendly error and logs it. Error bodies are not displayed, except the
   `error` strings explicitly listed above (coupon).
 
-## 10. CORS / security
+## 13. CORS / security
 
 The browser calls WordPress directly.
 
@@ -317,10 +414,10 @@ The browser calls WordPress directly.
   `/wp-json/maso/v1/*` with
   `Access-Control-Allow-Origin: https://masogroup.co`,
   `Access-Control-Allow-Headers: Content-Type, Authorization`,
-  `Access-Control-Allow-Methods: GET, POST, OPTIONS`, and handle the
+  `Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS`, and handle the
   `OPTIONS` preflight (`rest_pre_serve_request` / `rest_send_cors_headers`).
 
 Because requests come from shoppers' browsers, rate-limit the POST endpoints
-per IP (auth, coupon, forms), validate every field again on the server, and
+per IP (auth, mobile change, coupon, forms), validate every field again on the server, and
 never trust prices sent by the browser (the site only sends slugs, option ids
 and quantities).

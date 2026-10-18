@@ -2,7 +2,8 @@
  * Shared UI behaviour, wired up on every page:
  *   - scroll-reveal animations ([data-reveal])
  *   - header states (transparent → solid over the home hero, frosted glass when scrolled)
- *   - mobile menu (native <dialog>)
+ *   - desktop mega menu (کتگوری‌ها) and the mobile menu (native <dialog>)
+ *   - account links (login → profile once signed in)
  *   - horizontal rows that start with their middle item centred ([data-center-scroll])
  * and two helpers pages use:
  *   - Maso.sheet(…)        bottom sheet / side drawer on the native <dialog>
@@ -90,16 +91,77 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* Mobile / tablet menu                                                */
+  /* Desktop mega menu (کتگوری‌ها)                                        */
+  /* ------------------------------------------------------------------ */
+
+  function initMegaMenu() {
+    const header = $(".site-header");
+    const panel = $("#mega-menu");
+    const toggle = $("[data-mega-toggle]");
+    if (!header || !panel || !toggle) return;
+    const isOpen = () => panel.hasAttribute("data-open");
+    const set = (open) => {
+      panel.toggleAttribute("data-open", open);
+      panel.inert = !open;
+      header.toggleAttribute("data-mega", open);
+      toggle.setAttribute("aria-expanded", String(open));
+    };
+
+    toggle.addEventListener("click", () => set(!isOpen()));
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape" || !isOpen()) return;
+      set(false);
+      toggle.focus();
+    });
+    // A click anywhere else (including the other header links) closes it
+    document.addEventListener("click", (e) => {
+      if (isOpen() && !panel.contains(e.target) && !toggle.contains(e.target)) set(false);
+    });
+    // Keyboard users tabbing past the last link
+    panel.addEventListener("focusout", (e) => {
+      if (isOpen() && e.relatedTarget && !panel.contains(e.relatedTarget) && e.relatedTarget !== toggle) set(false);
+    });
+    matchMedia("(width < 64rem)").addEventListener("change", (e) => e.matches && set(false));
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Mobile / tablet menu: main list ⇄ categories                         */
   /* ------------------------------------------------------------------ */
 
   function initMobileMenu() {
     const dialog = $("#mobile-menu");
     if (!dialog) return;
-    $$("[data-open-menu]").forEach((btn) => btn.addEventListener("click", () => dialog.showModal()));
+    const views = $$("[data-menu-view]", dialog);
+    const show = (name, focus) => {
+      views.forEach((view) => (view.hidden = view.dataset.menuView !== name));
+      dialog.scrollTop = 0;
+      if (focus) $(`[data-menu-view="${name}"] a, [data-menu-view="${name}"] button`, dialog)?.focus();
+    };
+
+    $$("[data-open-menu]").forEach((btn) =>
+      btn.addEventListener("click", () => {
+        show("main");
+        dialog.showModal();
+      }),
+    );
     $$("[data-close-menu]", dialog).forEach((btn) => btn.addEventListener("click", () => dialog.close()));
-    // Click on the backdrop closes
-    dialog.addEventListener("click", (e) => e.target === dialog && dialog.close());
+    dialog.addEventListener("click", (e) => {
+      const go = e.target.closest("[data-menu-go]");
+      if (go) show(go.dataset.menuGo, e.detail === 0); // move focus only for keyboard clicks
+      else if (e.target === dialog) dialog.close();
+    });
+    matchMedia("(width >= 64rem)").addEventListener("change", (e) => e.matches && dialog.close());
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Account links: login page, or the profile once signed in            */
+  /* ------------------------------------------------------------------ */
+
+  function initAccountLinks() {
+    const signedIn = Boolean(Maso.session?.get());
+    if (!signedIn) return;
+    $$("[data-account-link]").forEach((a) => (a.href = "profile.html"));
+    $$("[data-account-label]").forEach((el) => (el.textContent = "حساب کاربری"));
   }
 
   /* ------------------------------------------------------------------ */
@@ -117,6 +179,68 @@
       list.scrollLeft += itemBox.left + itemBox.width / 2 - (listBox.left + listBox.width / 2);
     });
   }
+
+  /* ------------------------------------------------------------------ */
+  /* Rails: horizontal card rows ([data-rail])                           */
+  /*   - data-more-start / data-more-end tell the CSS where to fade      */
+  /*   - mouse users can drag them like on a phone                       */
+  /* ------------------------------------------------------------------ */
+
+  Maso.rail = function rail(el) {
+    if (!el || el._rail) return;
+    el._rail = true;
+    const update = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      const pos = Math.abs(el.scrollLeft); // RTL scrolls 0 → −max; LTR 0 → max
+      el.toggleAttribute("data-more-start", pos > 2);
+      el.toggleAttribute("data-more-end", max - pos > 2);
+    };
+    el.addEventListener("scroll", update, { passive: true });
+    new ResizeObserver(update).observe(el);
+    update();
+
+    let startX = 0;
+    let startLeft = 0;
+    let down = false;
+    let moved = false;
+    el.addEventListener("pointerdown", (e) => {
+      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      down = true;
+      moved = false;
+      startX = e.clientX;
+      startLeft = el.scrollLeft;
+    });
+    el.addEventListener("pointermove", (e) => {
+      if (!down) return;
+      const dx = e.clientX - startX;
+      if (!moved && Math.abs(dx) > 5) {
+        moved = true;
+        el.setPointerCapture(e.pointerId);
+        el.style.scrollSnapType = "none";
+        el.style.cursor = "grabbing";
+      }
+      if (moved) el.scrollLeft = startLeft - dx;
+    });
+    const end = () => {
+      down = false;
+      el.style.scrollSnapType = "";
+      el.style.cursor = "";
+    };
+    el.addEventListener("pointerup", end);
+    el.addEventListener("pointercancel", end);
+    // The click that ends a drag must not open the card under the pointer
+    el.addEventListener(
+      "click",
+      (e) => {
+        if (!moved) return;
+        e.preventDefault();
+        e.stopPropagation();
+        moved = false;
+      },
+      true,
+    );
+    el.addEventListener("dragstart", (e) => e.preventDefault());
+  };
 
   /* ------------------------------------------------------------------ */
   /* Sheets                                                              */
@@ -204,7 +328,10 @@
   ready(() => {
     initReveal();
     initHeader();
+    initMegaMenu();
     initMobileMenu();
+    initAccountLinks();
     initCenteredScrollers();
+    $$("[data-rail]").forEach(Maso.rail);
   });
 })();

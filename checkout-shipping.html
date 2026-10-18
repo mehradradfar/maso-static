@@ -37,32 +37,57 @@
 <div data-top-sentinel aria-hidden="true" class="absolute top-0 h-px w-px"></div>
 
 <!--
-  Site header (Figma "Frame 2" / "Frame 12795").
+  Site header (Figma "Frame 12798").
    mobile & tablet: logo on the right; search, bag, menu (right → left) — 80px tall
-   desktop:         logo on the right; text links, divider, bag, search, account — 97px tall
+   desktop:         logo on the right; کتگوری‌ها (mega menu), سفارش اختصاصی,
+                    divider, bag, search, account — 97px tall, 1000px wide
   Mode and scroll states: see "Header modes" in assets/css/src/main.css.
+  Items marked data-dim fade to 30% while the mega menu is open.
 -->
 <header class="site-header group/header" data-rule="full">
-  <!-- 1000px wide over the home hero, 900px on content pages (as in each frame) -->
-  <div class="mx-auto flex h-full max-w-[900px] items-center justify-between group-data-[mode=overlay]/header:max-w-[1000px]">
-    <a href="index.html" aria-label="ماسو - صفحه اصلی" class="shrink-0">
+  <div class="mx-auto flex h-full max-w-[1000px] items-center justify-between">
+    <a href="index.html" aria-label="ماسو - صفحه اصلی" class="shrink-0" data-dim>
       <svg viewBox="0 0 100 32" width="99.26" height="32" fill="currentColor" role="img" aria-label="ماسو"><use href="#maso-logo" /></svg>
     </a>
 
     <!-- Desktop -->
     <nav aria-label="منوی اصلی" class="hidden items-center gap-8 lg:flex">
       <ul class="flex">
-        <li><a href="shop.html" class="relative flex h-12 w-[139px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">محصولات</a></li>
-        <li><a href="shop.html" class="relative flex h-12 w-[139px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">فروشگاه</a></li>
+        <li>
+          <button type="button" data-mega-toggle aria-expanded="false" aria-controls="mega-menu" class="relative flex h-12 w-[150px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">کتگوری‌ها</button>
+          <!--
+            Mega menu (Figma "Frame 2", 596px): frosted glass over the top of the
+            page, behind the header's own links. Opened by the button above
+            (assets/js/core/ui.js); Esc or a click outside closes it.
+          -->
+          <div id="mega-menu" class="mega-menu" inert>
+            <div class="flex h-[413px] items-center justify-center pt-px">
+              <ul class="grid w-[648px] grid-cols-4 gap-4" aria-label="کتگوری‌ها">
+            <li><a href="shop.html?category=beds" class="flex h-[133px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 px-4 py-6 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[49px] w-full justify-center"><img src="assets/images/shop/cat-beds-icon.webp" alt="" width="83" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">تخت و سرویس خواب</span></a></li>
+            <li><a href="shop.html?category=living-room" class="flex h-[133px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 px-4 py-6 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[49px] w-full justify-center"><img src="assets/images/shop/cat-living-icon.webp" alt="" width="97" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">پذیرایی و نشیمن</span></a></li>
+            <li><a href="shop.html?category=kids" class="flex h-[133px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 px-4 py-6 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[49px] w-full justify-center"><img src="assets/images/shop/cat-kids-icon.webp" alt="" width="60" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">کودک و نوجوان</span></a></li>
+            <li><a href="shop.html?category=furniture" class="flex h-[133px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 px-4 py-6 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[49px] w-full justify-center"><img src="assets/images/shop/cat-furniture-icon.webp" alt="" width="64" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">مبلمان</span></a></li>
+            <li><a href="shop.html?category=baby" class="flex h-[133px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 px-4 py-6 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[49px] w-full justify-center"><img src="assets/images/shop/cat-baby-icon.webp" alt="" width="79" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">نوزاد</span></a></li>
+            <li><a href="shop.html?category=office" class="flex h-[133px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 px-4 py-6 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[49px] w-full justify-center"><img src="assets/images/shop/cat-office-icon.webp" alt="" width="95" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">اداری و کار</span></a></li>
+            <li><a href="shop.html?category=dining" class="flex h-[133px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 px-4 py-6 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[49px] w-full justify-center"><img src="assets/images/shop/cat-dining-icon.webp" alt="" width="85" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">غذا خوری و بار</span></a></li>
+            <li><a href="shop.html?category=bedroom" class="flex h-[133px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 px-4 py-6 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[49px] w-full justify-center"><img src="assets/images/shop/cat-bedroom-furniture-icon.webp" alt="" width="34" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">مبلمان اتاق خواب</span></a></li>
+              </ul>
+            </div>
+            <div class="flex h-[86px] items-center justify-center">
+              <a href="shop.html" class="flex items-center gap-8 text-20 text-primary transition-opacity duration-300 hover:opacity-70">مشاهده همه محصولات <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a>
+            </div>
+          </div>
+        </li>
+        <li data-dim><a href="custom-order.html" class="relative flex h-12 w-[150px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">سفارش اختصاصی</a></li>
       </ul>
       <span aria-hidden="true" class="h-[27px] w-px bg-current opacity-20"></span>
-      <a href="cart.html" aria-label="سبد خرید" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
+      <a href="cart.html" aria-label="سبد خرید" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70" data-dim>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 10.5v-5a3 3 0 0 1 6 0v5"/><rect x="5" y="7.5" width="14" height="14" rx="3"/></svg>
       </a>
-      <a href="search.html" data-open-search aria-label="جستجو" aria-haspopup="dialog" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
+      <a href="search.html" data-open-search aria-label="جستجو" aria-haspopup="dialog" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70" data-dim>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 21l-6-6M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0"/></svg>
       </a>
-      <a href="login.html" aria-label="حساب کاربری" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70">
+      <a href="login.html" data-account-link aria-label="حساب کاربری" class="flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70" data-dim>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"/><path d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"/></svg>
       </a>
     </nav>
@@ -83,32 +108,62 @@
 </header>
 
 <!--
-  Mobile / tablet navigation drawer on the native <dialog>: focus trapping,
-  Esc-to-close and the inert background come for free. Enter/exit is pure CSS.
+  Mobile / tablet menu (Figma "Group 16"): full-screen frosted glass on the
+  native <dialog> (focus trap, Esc, inert page for free). Two views: the main
+  list and the categories grid; [data-menu-go] switches between them.
 -->
 <dialog
   id="mobile-menu"
   aria-label="منوی اصلی"
-  class="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none translate-x-8 bg-surface p-0 text-on-surface opacity-0 transition-[opacity,translate,display,overlay] transition-discrete duration-500 ease-out-expo backdrop:bg-black/40 open:translate-x-0 open:opacity-100 starting:open:translate-x-8 starting:open:opacity-0"
+  class="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none overflow-y-auto overscroll-contain bg-white/60 p-0 text-primary opacity-0 backdrop-blur-[50px] transition-[opacity,display,overlay] transition-discrete duration-500 ease-out-expo backdrop:bg-transparent open:opacity-100 starting:open:opacity-0"
 >
-  <div class="flex h-20 items-center justify-between px-6 md:px-[49px]">
-    <a href="index.html" aria-label="ماسو - صفحه اصلی" class="text-on-surface">
-      <svg viewBox="0 0 100 32" width="99.26" height="32" fill="currentColor" role="img" aria-label="ماسو"><use href="#maso-logo" /></svg>
-    </a>
-    <button type="button" data-close-menu aria-label="بستن منو" class="flex size-12 items-center justify-center">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
-    </button>
+  <div class="flex min-h-full flex-col gap-2.5">
+    <div class="flex h-20 shrink-0 items-center justify-end px-6 md:px-12">
+      <button type="button" data-close-menu aria-label="بستن منو" class="flex size-12 items-center justify-center text-on-surface transition-opacity hover:opacity-70">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+
+    <nav data-menu-view="main" aria-label="منوی اصلی" class="menu-view flex flex-1 flex-col justify-center gap-8 px-8 md:px-[72px]">
+      <ul class="flex flex-col gap-8">
+        <li><button type="button" data-menu-go="categories" aria-label="کتگوری‌ها" class="flex w-full items-center justify-between text-25 text-primary transition-opacity duration-300 hover:opacity-70"><span>کتگوری‌ها</span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button></li>
+        <li><a href="custom-order.html" class="flex w-full items-center justify-between text-25 text-primary transition-opacity duration-300 hover:opacity-70"><span>سفارش اختصاصی</span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a></li>
+        <li><a href="about.html" class="flex w-full items-center justify-between text-25 text-primary transition-opacity duration-300 hover:opacity-70"><span>درباره ما</span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a></li>
+        <li><a href="contact.html" class="flex w-full items-center justify-between text-25 text-primary transition-opacity duration-300 hover:opacity-70"><span>تماس با ما</span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a></li>
+      </ul>
+      <hr class="border-black-10" />
+      <a href="login.html" data-account-link class="flex items-center gap-4 self-start text-16 text-primary transition-opacity duration-300 hover:opacity-70">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span data-account-label>ورود / ثبت‌نام</span>
+      </a>
+    </nav>
+
+    <div data-menu-view="categories" hidden class="menu-view flex flex-col gap-2.5">
+      <div class="flex h-14 items-center px-6 md:px-12">
+        <button type="button" data-menu-go="main" class="flex items-center gap-2 text-13 text-on-surface-var transition-opacity hover:opacity-70">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          بازگشت
+        </button>
+      </div>
+      <ul class="mx-auto grid w-full grid-cols-2 gap-4 px-8 py-4 md:max-w-[712px] md:grid-cols-4" aria-label="کتگوری‌ها">
+        <li><a href="shop.html?category=kids" class="flex h-[113px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 p-4 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[45px] w-full justify-center"><img src="assets/images/shop/cat-kids-icon.webp" alt="" width="60" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">کودک و نوجوان</span></a></li>
+        <li><a href="shop.html?category=furniture" class="flex h-[113px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 p-4 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[45px] w-full justify-center"><img src="assets/images/shop/cat-furniture-icon.webp" alt="" width="64" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">مبلمان</span></a></li>
+        <li><a href="shop.html?category=beds" class="flex h-[113px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 p-4 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[45px] w-full justify-center"><img src="assets/images/shop/cat-beds-icon.webp" alt="" width="83" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">تخت و سرویس خواب</span></a></li>
+        <li><a href="shop.html?category=living-room" class="flex h-[113px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 p-4 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[45px] w-full justify-center"><img src="assets/images/shop/cat-living-icon.webp" alt="" width="97" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">پذیرایی و نشیمن</span></a></li>
+        <li><a href="shop.html?category=dining" class="flex h-[113px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 p-4 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[45px] w-full justify-center"><img src="assets/images/shop/cat-dining-icon.webp" alt="" width="85" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">غذا خوری و بار</span></a></li>
+        <li><a href="shop.html?category=bedroom" class="flex h-[113px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 p-4 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[45px] w-full justify-center"><img src="assets/images/shop/cat-bedroom-furniture-icon.webp" alt="" width="34" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">مبلمان اتاق خواب</span></a></li>
+        <li><a href="shop.html?category=baby" class="flex h-[113px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 p-4 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[45px] w-full justify-center"><img src="assets/images/shop/cat-baby-icon.webp" alt="" width="79" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">نوزاد</span></a></li>
+        <li><a href="shop.html?category=office" class="flex h-[113px] flex-col items-center gap-4 rounded-[32px] border border-outline-var bg-white/50 p-4 transition-colors duration-300 hover:bg-white/90"><span class="flex h-[45px] w-full justify-center"><img src="assets/images/shop/cat-office-icon.webp" alt="" width="95" height="48" loading="lazy" decoding="async" class="h-full w-auto object-contain" /></span><span class="text-13 text-ink">اداری و کار</span></a></li>
+      </ul>
+      <div class="flex h-[86px] items-center justify-center">
+        <a href="shop.html" class="flex items-center gap-8 text-20 text-primary transition-opacity duration-300 hover:opacity-70">مشاهده همه محصولات <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a>
+      </div>
+    </div>
+
+    <div class="mt-auto flex h-20 shrink-0 items-center justify-center text-on-surface-var opacity-50">
+      <svg viewBox="0 0 100 32" width="99.26" height="32" fill="currentColor" aria-hidden="true"><use href="#maso-logo" /></svg>
+    </div>
   </div>
-  <nav class="px-6 md:px-[49px]">
-    <ul>
-      <li class="border-b border-black-10"><a href="shop.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">فروشگاه</a></li>
-      <li class="border-b border-black-10"><a href="custom-order.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">سفارش اختصاصی</a></li>
-      <li class="border-b border-black-10"><a href="blog.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">بلاگ</a></li>
-      <li class="border-b border-black-10"><a href="profile-orders.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">پیگیری سفارش</a></li>
-      <li class="border-b border-black-10"><a href="about.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">درباره ما</a></li>
-      <li class="border-b border-black-10"><a href="contact.html" class="flex h-14 items-center text-20 transition-colors hover:text-primary">تماس با ما</a></li>
-    </ul>
-  </nav>
 </dialog>
 
 <!--

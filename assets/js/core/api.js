@@ -24,6 +24,7 @@
   /* ------------------------------------------------------------------ */
 
   const PAGE_SIZE = 12;
+  const BLOG_PAGE_SIZE = 9;
   const SORT_KEYS = ["price-desc", "price-asc", "newest"];
   const DEFAULT_SORT = "newest";
   const RESERVED = new Set(["category", "sort", "stock", "page"]);
@@ -124,7 +125,8 @@
   const cache = new Map();
 
   async function request(path, { method = "GET", body, timeout = 15000 } = {}) {
-    if (method === "GET" && cache.has(path)) return cache.get(path);
+    const cacheable = method === "GET" && !path.startsWith("/maso/v1/account");
+    if (cacheable && cache.has(path)) return cache.get(path);
     const headers = { Accept: "application/json" };
     const token = Maso.session?.get()?.token;
     if (token) headers.Authorization = `Bearer ${token}`;
@@ -140,7 +142,7 @@
       return res.json();
     });
 
-    if (method === "GET") {
+    if (cacheable) {
       cache.set(path, promise);
       promise.catch(() => cache.delete(path));
     }
@@ -187,6 +189,49 @@
     const selection = {};
     product.optionGroups.forEach((g, i) => (selection[g.key] = line.optionIds[i]));
     return Maso.pricing.priceFor(product, selection) ?? 0;
+  }
+
+  /** Sample account edits survive a reload (this browser only) */
+  const mockAccountStore = {
+    get() {
+      try {
+        return JSON.parse(localStorage.getItem("maso-sample-account-v1")) || {};
+      } catch {
+        return {};
+      }
+    },
+    set(value) {
+      try {
+        localStorage.setItem("maso-sample-account-v1", JSON.stringify(value));
+      } catch {
+        /* private mode: edits last until the page closes */
+      }
+    },
+  };
+
+  function mockCustomer() {
+    const mobile = Maso.session?.get()?.customer?.mobile || "09123456789";
+    return { ...MOCK.account, mobile, ...mockAccountStore.get() };
+  }
+
+  /** The sample profile shares the checkout's saved addresses; seeds two the first time */
+  function mockAddresses() {
+    let seeded = false;
+    try {
+      seeded = localStorage.getItem("maso-sample-addresses-seeded") === "1";
+      localStorage.setItem("maso-sample-addresses-seeded", "1");
+    } catch {
+      /* ignore */
+    }
+    if (!seeded && !Maso.checkout.addresses().length) [...MOCK.sampleAddresses].reverse().forEach((a) => Maso.checkout.saveAddress(a));
+    return Maso.checkout.addresses();
+  }
+
+  /** A small text file standing in for WordPress's PDF pre-invoice */
+  function mockPreInvoiceFile(order) {
+    const p = MOCK.preInvoice;
+    const lines = ["پیش فاکتور ماسو (نمونه)", "", `شماره سفارش: ${order.number}`, `نام و نام خانوادگی: ${p.customerName}`, `شماره پیگیری: ${p.trackingCode}`, `شماره همراه: ${p.mobile}`, `مبلغ: ${Maso.fmt.price(order.total)} تومان`];
+    return `data:text/plain;charset=utf-8,${encodeURIComponent(lines.join("\n"))}`;
   }
 
   /* ------------------------------------------------------------------ */
@@ -338,6 +383,140 @@
         }
       }
       return later(code === "1234" ? { token: `mock.${mobile}`, customer: { id: "1", mobile }, isNew: false } : null, 400);
+    },
+
+    /* --- Account (needs the login token; 401 = signed out) --- */
+
+    account: {
+      /** → { customer: { firstName, lastName, mobile, email }, currentOrder: OrderSummary | null } */
+      get() {
+        if (!USE_MOCK) return request("/maso/v1/account");
+        return later({ customer: mockCustomer(), currentOrder: MOCK.orders.find((o) => o.status === "current") || null }, 150);
+      },
+
+      /** { firstName?, lastName?, email? } → customer */
+      update(patch) {
+        if (!USE_MOCK) return request("/maso/v1/account", { method: "PATCH", body: patch });
+        mockAccountStore.set({ ...mockAccountStore.get(), ...patch });
+        return later(mockCustomer(), 300);
+      },
+
+      /** Texts a code to the new number → { resendIn, length } */
+      requestMobileChange(mobile) {
+        if (!USE_MOCK) return request("/maso/v1/account/mobile", { method: "POST", body: { mobile } });
+        return later({ resendIn: 120, length: 4 }, 400);
+      },
+
+      /** → customer with the new number, or null for a wrong code */
+      async confirmMobileChange(mobile, code) {
+        if (!USE_MOCK) {
+          try {
+            return await request("/maso/v1/account/mobile/verify", { method: "POST", body: { mobile, code } });
+          } catch (e) {
+            if (e.status === 422) return null;
+            throw e;
+          }
+        }
+        if (code !== "1234") return later(null, 400);
+        mockAccountStore.set({ ...mockAccountStore.get(), mobile });
+        const session = Maso.session.get();
+        if (session) Maso.session.set({ ...session, customer: { ...session.customer, mobile } });
+        return later(mockCustomer(), 400);
+      },
+
+      /** Status "pre" | "current" | "delivered" | "returned" → OrderSummary[] */
+      orders(status) {
+        if (!USE_MOCK) return request(`/maso/v1/account/orders${qs({ status })}`);
+        return later(MOCK.orders.filter((o) => o.status === status), 150);
+      },
+
+      /** OrderDetail, or null when it isn't this customer's order */
+      async order(id) {
+        if (!USE_MOCK) {
+          try {
+            return await request(`/maso/v1/account/orders/${encodeURIComponent(id)}`);
+          } catch (e) {
+            if (e.status === 404) return null;
+            throw e;
+          }
+        }
+        const summary = MOCK.orders.find((o) => o.id === id);
+        if (!summary) return later(null, 0);
+        const step = summary.status === "delivered" ? 3 : summary.id === "40011" ? 2 : 1;
+        const detail = { ...summary, ...MOCK.orderDetail, step, receipt: { ...MOCK.orderDetail.receipt, orderNumber: summary.number } };
+        if (summary.status === "pre") detail.preInvoice = { ...MOCK.preInvoice, downloadUrl: mockPreInvoiceFile(summary) };
+        return later(detail, 150);
+      },
+
+      /** Saved addresses (same shape as the checkout's) */
+      addresses() {
+        if (!USE_MOCK) return request("/maso/v1/account/addresses");
+        return later(mockAddresses(), 120);
+      },
+
+      /** Creates (no id) or updates an address → the saved address */
+      saveAddress(address) {
+        if (!USE_MOCK) {
+          const known = /^\d+$/.test(String(address.id || ""));
+          return request(`/maso/v1/account/addresses${known ? `/${address.id}` : ""}`, { method: known ? "PUT" : "POST", body: address });
+        }
+        mockAddresses();
+        Maso.checkout.saveAddress(address);
+        return later(address, 250);
+      },
+
+      removeAddress(id) {
+        if (!USE_MOCK) return request(`/maso/v1/account/addresses/${encodeURIComponent(id)}`, { method: "DELETE" });
+        Maso.checkout.removeAddress(id);
+        return later({ ok: true }, 250);
+      },
+
+      /** Ends the session on WordPress too (best effort) */
+      logout() {
+        if (!USE_MOCK) return request("/maso/v1/auth/logout", { method: "POST" }).catch(() => null);
+        return later(null, 0);
+      },
+    },
+
+    /* --- Blog --- */
+
+    /** One page of posts (newest first) → { items: PostSummary[], page, totalPages, total } */
+    posts({ page = 1 } = {}) {
+      if (!USE_MOCK) return request(`/maso/v1/blog/posts?page=${page}&per_page=${BLOG_PAGE_SIZE}`);
+      const all = MOCK.posts;
+      const start = (page - 1) * BLOG_PAGE_SIZE;
+      return later({ items: all.slice(start, start + BLOG_PAGE_SIZE), page, totalPages: Math.max(1, Math.ceil(all.length / BLOG_PAGE_SIZE)), total: all.length }, 80);
+    },
+
+    /** Post with body, suggested products and other posts — or null when there is no such post */
+    async post(slug) {
+      if (!USE_MOCK) {
+        try {
+          return await request(`/maso/v1/blog/posts/${encodeURIComponent(slug)}`);
+        } catch (e) {
+          if (e.status === 404) return null;
+          throw e;
+        }
+      }
+      const summary = MOCK.posts.find((p) => p.slug === slug);
+      if (!summary) return later(null, 0);
+      return later(
+        {
+          ...summary,
+          ...MOCK.postContent,
+          products: MOCK.products.slice(0, 6).map(toSummary),
+          related: MOCK.posts.filter((p) => p.slug !== slug).slice(0, 6),
+        },
+        80,
+      );
+    },
+
+    /* --- Contact form (تماس با ما) --- */
+
+    /** { name, mobile, message } → { ok: true } */
+    submitContact(input) {
+      if (USE_MOCK) return later({ ok: true }, 700);
+      return request("/maso/v1/forms/contact", { method: "POST", body: input });
     },
 
     /* --- Custom order --- */

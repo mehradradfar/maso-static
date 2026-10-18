@@ -409,6 +409,83 @@
     after: { src: "/images/custom/after-1.webp", width: 146, height: 195, alt: "مبل ساخته شده توسط ماسو" },
   };
 
+  /* ------------------------------------------------------------------ */
+  /* Blog (GET /maso/v1/blog/posts, /maso/v1/blog/posts/{slug})          */
+  /* ------------------------------------------------------------------ */
+
+  const LOREM =
+    "لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است، و برای شرایط فعلی تکنولوژی مورد نیاز، و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد، کتابهای زیادی در شصت و سه درصد گذشته حال و آینده، شناخت فراوان جامعه و متخصصان را می طلبد، تا با نرم افزارها شناخت بیشتری را برای طراحان رایانه ای علی الخصوص طراحان خلاقی، و فرهنگ پیشرو در زبان فارسی ایجاد کرد، در این صورت می توان امید داشت که تمام و دشواری موجود در ارائه راهکارها، و شرایط سخت تایپ به پایان رسد و زمان مورد نیاز شامل حروفچینی دستاوردهای اصلی، و جوابگوی سوالات پیوسته اهل دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.";
+
+  /** PostSummary — what lists and cards need */
+  const posts = Array.from({ length: 9 }, (_, i) => ({
+    slug: i === 0 ? "minimal-furniture-arrangement" : `minimal-home-tips-${i + 1}`,
+    title: "چند نکته ساده برای چیدمان مینیمال خانه‌تان",
+    excerpt:
+      "لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است ...",
+    // ۱۴۰۵/۰۵/۰۵ and earlier
+    date: new Date(Date.UTC(2026, 6, 27 - i * 6, 8)).toISOString(),
+    image: { src: "/images/blog/minimal-card.jpg", width: 334, height: 336, alt: "" },
+  }));
+
+  /**
+   * Body of a post: HTML from the WordPress editor. `<!--products-->` marks
+   * where the "محصولات پیشنهادی" band goes (otherwise it follows the text).
+   */
+  const figure = `<figure><img src="assets/images/blog/minimal-wide.jpg" width="898" height="355" alt="پذیرایی مینیمال با مبل طوسی و میز ناهارخوری چوبی" loading="lazy" decoding="async" /></figure>`;
+  const postContent = {
+    heroImage: { src: "/images/blog/minimal-hero.jpg", width: 1440, height: 404, alt: "" },
+    content: [
+      `<p>${LOREM}</p>`,
+      figure,
+      `<h2>چند نکته ساده برای چیدمان مینیمال خانه‌تان</h2>`,
+      `<p>${LOREM}</p>`,
+      `<!--products-->`,
+      figure,
+      `<h2>چند نکته ساده برای چیدمان مینیمال خانه‌تان</h2>`,
+      `<p>${LOREM}</p>`,
+    ].join(""),
+  };
+
+  /* ------------------------------------------------------------------ */
+  /* Account (GET /maso/v1/account, …/orders, …/addresses)               */
+  /* ------------------------------------------------------------------ */
+
+  const orderImage = { src: "/images/shop/product-izo.jpg", width: 644, height: 600, alt: "مبدل ایزو" };
+  const delivery = (days) => ({ caption: "تحویل محصول", label: `${days} کاری روز دیگر`, tone: "warning" });
+
+  /** OrderSummary — list rows and the "سفارش جاری" card */
+  const orders = [
+    { id: "40021", number: "12342341234", status: "pre", total: 1_480_000_000, image: orderImage, badge: { label: "در انتظار تایید شما", tone: "warning" } },
+    { id: "40017", number: "12342341235", status: "current", total: 1_480_000_000, image: orderImage, badge: delivery("۱۰") },
+    { id: "40011", number: "12342341236", status: "current", total: 2_960_000_000, image: orderImage, badge: delivery("۳") },
+    { id: "39950", number: "12342341201", status: "delivered", total: 1_480_000_000, image: orderImage },
+    { id: "39902", number: "12342341190", status: "delivered", total: 990_000_000, image: orderImage },
+  ];
+
+  /** Extra fields of OrderDetail (the sample uses the same ones for every order) */
+  const orderItem = (n) => ({ slug: `izo-sofa-${n}`, name: "مبدل ایزو", image: orderImage, price: 1_480_000_000, regularPrice: 1_644_000_000, qty: 1 });
+  const orderDetail = {
+    address: "گیلان، رشت، بلوار گیلان، خ ۱۲۲",
+    items: [orderItem(1), orderItem(2), orderItem(3)],
+    receipt: { orderNumber: "12342341234", trackingCode: "12342341234", transactionId: "190-8748923704", date: "2026-07-27T09:02:00Z" },
+  };
+  const preInvoice = {
+    image: { src: "/images/shop/product-izo.jpg", width: 644, height: 600, alt: "" },
+    description:
+      "لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است، و برای شرایط فعلی تکنولوژی مورد نیاز، و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد، کتابهای زیادی در شصت و سه درصد گذشته حال و آینده، شناخت فراوان جامعه و متخصصان را می طلبد.",
+    customerName: "علی زارع",
+    trackingCode: "12342341234",
+    mobile: "09123456789",
+    date: "2026-07-27T09:02:00Z",
+    downloadUrl: "",
+  };
+
+  /** Saved addresses shown the first time the sample profile is opened */
+  const sampleAddresses = [
+    { id: "sample-1", firstName: "مهراد", lastName: "رادفر", mobile: "09123456789", provinceId: "gil", cityId: "gil-1", provinceName: "گیلان", cityName: "رشت", street: "بلوار گیلان، خ ۱۲۲", plaque: "12", postalCode: "1249871239" },
+    { id: "sample-2", firstName: "مهراد", lastName: "رادفر", mobile: "09123456789", provinceId: "gls", cityId: "gls-5", provinceName: "گلستان", cityName: "کردکوی", street: "ابتدای جاده کردکوی - بندرترکمن", plaque: "4", postalCode: "4981734111" },
+  ];
+
   window.MASO_MOCK = {
     settings,
     categories,
@@ -422,5 +499,12 @@
     paymentMethods,
     coupons,
     customOrder: { showcase: [pair, pair, pair, pair, pair] },
+    posts,
+    postContent,
+    account: { firstName: "مهراد", lastName: "رادفر", email: "" },
+    orders,
+    orderDetail,
+    preInvoice,
+    sampleAddresses,
   };
 })();

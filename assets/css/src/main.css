@@ -185,7 +185,12 @@
       background-color 0.5s var(--ease-out-expo),
       color 0.5s var(--ease-out-expo),
       box-shadow 0.5s var(--ease-out-expo),
-      backdrop-filter 0.5s var(--ease-out-expo);
+      backdrop-filter 0.5s var(--ease-out-expo),
+      opacity 0.5s var(--ease-out-expo);
+  }
+  /* The full-screen menu replaces it (its own close button sits in the same row) */
+  html:has(#mobile-menu[open]) .site-header {
+    opacity: 0;
   }
   @media (width >= 48rem) {
     .site-header {
@@ -242,6 +247,80 @@
     box-shadow: 0 1px 0 var(--color-black-10);
   }
 
+  /* Mega menu open (desktop): the glass panel shows through, other items fade */
+  .site-header[data-mega] {
+    color: var(--color-primary);
+    background-color: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    /* backdrop-filter switches instantly so the panel's own blur sees the page */
+    transition-property: background-color, color, box-shadow, opacity;
+  }
+  .site-header[data-mega]::after {
+    content: none;
+  }
+  .site-header [data-dim] {
+    transition: opacity 0.5s var(--ease-out-expo);
+  }
+  .site-header[data-mega] [data-dim] {
+    opacity: 0.3;
+  }
+
+  /* The panel sits inside the header (z-index -1 → behind its links) */
+  .mega-menu {
+    position: fixed;
+    inset-inline: 0;
+    top: 0;
+    z-index: -1;
+    height: 596px;
+    padding-top: 97px;
+    color: var(--color-primary);
+    background-color: rgb(255 255 255 / 0.6);
+    backdrop-filter: blur(50px);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.4s var(--ease-out-expo),
+      visibility 0s linear 0.4s;
+  }
+  .mega-menu[data-open] {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.5s var(--ease-out-expo);
+  }
+  .mega-menu li,
+  .mega-menu > :last-child {
+    opacity: 0;
+    translate: 0 -12px;
+    transition:
+      opacity 0.3s var(--ease-out-expo),
+      translate 0.3s var(--ease-out-expo);
+  }
+  .mega-menu[data-open] li,
+  .mega-menu[data-open] > :last-child {
+    opacity: 1;
+    translate: none;
+    transition-duration: 0.7s;
+  }
+  .mega-menu[data-open] li:nth-child(2) { transition-delay: 30ms; }
+  .mega-menu[data-open] li:nth-child(3) { transition-delay: 60ms; }
+  .mega-menu[data-open] li:nth-child(4) { transition-delay: 90ms; }
+  .mega-menu[data-open] li:nth-child(5) { transition-delay: 60ms; }
+  .mega-menu[data-open] li:nth-child(6) { transition-delay: 90ms; }
+  .mega-menu[data-open] li:nth-child(7) { transition-delay: 120ms; }
+  .mega-menu[data-open] li:nth-child(8) { transition-delay: 150ms; }
+  .mega-menu[data-open] > :last-child { transition-delay: 180ms; }
+  @media (width < 64rem) {
+    .mega-menu {
+      display: none;
+    }
+  }
+
+  /* Mobile menu: each view slides in when it is shown */
+  .menu-view:not([hidden]) {
+    animation: menu-view-in 0.6s var(--ease-out-expo) both;
+  }
+
   /* The payment result is a full-screen page on phones and tablets (no header) */
   @media (width < 64rem) {
     .site-header[data-bare] {
@@ -278,6 +357,12 @@
   .animate-rise {
     animation: rise 1s var(--ease-out-expo) both;
     animation-delay: var(--rise-delay, 0ms);
+  }
+
+  /* Slow drift of the floating photos on the about page */
+  .animate-float {
+    animation: float 8s ease-in-out infinite;
+    animation-delay: var(--float-delay, 0s);
   }
 
   /* Lighter entrance for lists that appear on interaction (search results, …) */
@@ -322,6 +407,103 @@
     max-width: 100%;
     height: auto;
     border-radius: 16px;
+  }
+
+  /* Horizontal card rows: fade the edge where more cards wait (ui.js → Maso.rail) */
+  .rail {
+    --rail-fade-start: 0px;
+    --rail-fade-end: 0px;
+    mask-image: linear-gradient(
+      to left,
+      transparent 0,
+      #000 var(--rail-fade-start),
+      #000 calc(100% - var(--rail-fade-end)),
+      transparent 100%
+    );
+  }
+  .rail[dir="ltr"] {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 var(--rail-fade-start),
+      #000 calc(100% - var(--rail-fade-end)),
+      transparent 100%
+    );
+  }
+  @media (width >= 64rem) {
+    .rail[data-more-start] {
+      --rail-fade-start: 120px;
+    }
+    .rail[data-more-end] {
+      --rail-fade-end: 240px;
+    }
+  }
+
+  /* Blog post body from the WordPress editor (Figma "Frame 5" / "Frame 238282") */
+  .post-body {
+    font-size: 16px;
+    line-height: 25px;
+    color: var(--color-ink-var);
+  }
+  .post-body > * + * {
+    margin-top: 8px;
+  }
+  .post-body > p + p,
+  .post-body > ul + p,
+  .post-body > p + ul,
+  .post-body > ol + p,
+  .post-body > p + ol {
+    margin-top: 16px;
+  }
+  .post-body > p + :is(h2, h3),
+  .post-body > :is(ul, ol) + :is(h2, h3) {
+    margin-top: 32px;
+  }
+  .post-body > :is(figure, .wp-block-image, img) {
+    margin-top: 64px;
+  }
+  .post-body > :is(figure, .wp-block-image, img):first-child {
+    margin-top: 0;
+  }
+  .post-body > :is(figure, .wp-block-image, img) + * {
+    margin-top: 16px;
+  }
+  .post-body :is(h1, h2, h3) {
+    font-size: 20px;
+    line-height: 31px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-ink);
+  }
+  .post-body :is(figure img, .wp-block-image img),
+  .post-body > img {
+    display: block;
+    width: 100%;
+    height: 356px;
+    object-fit: cover;
+    border: 1px solid var(--color-hairline);
+    border-radius: 32px;
+  }
+  .post-body figcaption {
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 20px;
+  }
+  .post-body :where(ul) {
+    list-style: disc;
+    padding-inline-start: 24px;
+  }
+  .post-body :where(ol) {
+    list-style: decimal;
+    padding-inline-start: 24px;
+  }
+  .post-body :where(a) {
+    color: var(--color-secondary);
+    text-decoration: underline;
+    text-underline-position: from-font;
+  }
+  .post-body :where(strong, b) {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-ink);
   }
 
   /* Smoothly animated <details> where the browser supports it (Chrome 131+) */
@@ -376,6 +558,19 @@
   to {
     opacity: 1;
     translate: none;
+  }
+}
+
+@keyframes float {
+  50% {
+    translate: 0 -10px;
+  }
+}
+
+@keyframes menu-view-in {
+  from {
+    opacity: 0;
+    translate: -24px 0;
   }
 }
 

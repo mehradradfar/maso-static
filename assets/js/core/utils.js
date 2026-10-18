@@ -137,6 +137,12 @@
     "/checkout/result": "checkout-result.html",
     "/login": "login.html",
     "/custom-order": "custom-order.html",
+    "/blog": "blog.html",
+    "/about": "about.html",
+    "/contact": "contact.html",
+    "/profile": "profile.html",
+    "/profile/orders": "profile.html?view=orders",
+    "/profile/addresses": "profile.html?view=addresses",
     "/maintenance": "maintenance.html",
   };
 
@@ -144,6 +150,7 @@
     shop: (category) => (category ? `shop.html?category=${encodeURIComponent(category)}` : "shop.html"),
     product: (slug) => `product.html?slug=${encodeURIComponent(slug)}`,
     search: (q) => (q ? `search.html?q=${encodeURIComponent(q)}` : "search.html"),
+    post: (slug) => `blog-post.html?slug=${encodeURIComponent(slug)}`,
 
     /** Site path from WordPress → link on this site */
     page(path) {
@@ -152,10 +159,10 @@
       const clean = pathname.replace(/\/+$/, "") || "/";
       const extra = rest.startsWith("?") ? `&${rest.slice(1)}` : rest;
       let m;
-      if (PAGES[clean]) return PAGES[clean] + rest;
+      if (PAGES[clean]) return PAGES[clean] + (PAGES[clean].includes("?") ? extra : rest);
       if ((m = clean.match(/^\/shop\/([^/]+)$/))) return Maso.url.shop(decodeURIComponent(m[1])) + extra;
       if ((m = clean.match(/^\/product\/([^/]+)$/))) return Maso.url.product(decodeURIComponent(m[1])) + extra;
-      if ((m = clean.match(/^\/blog\/([^/]+)$/))) return `blog-post.html?slug=${m[1]}${extra}`;
+      if ((m = clean.match(/^\/blog\/([^/]+)$/))) return Maso.url.post(decodeURIComponent(m[1])) + extra;
       return `${clean.slice(1).replace(/\//g, "-")}.html${rest}`;
     },
 

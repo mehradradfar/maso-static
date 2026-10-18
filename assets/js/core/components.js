@@ -82,11 +82,17 @@
    * Product card (Figma "Frame 1000004115"): 375px picture with a 4px primary
    * underline, then name/capacity, divider, short description, and the
    * swatches + price row. Width comes from the grid.
+   * variant "rounded" (blog's suggested products): 32px-radius picture, no
+   * underline, 12px side padding.
    */
-  function productCard(product, { index = 0, eager = false } = {}) {
+  function productCard(product, { index = 0, eager = false, variant = "default" } = {}) {
+    const rounded = variant === "rounded";
     return html`
       <article data-reveal style="--reveal-index:${index % 3}" class="group relative flex flex-col gap-4">
-        <div class="relative h-[375px] overflow-hidden border-b-4 border-primary bg-linear-to-b from-[#677b9c] to-[#e0ebff]">
+        <div class="${cx(
+          "relative h-[375px] overflow-hidden bg-linear-to-b from-[#677b9c] to-[#e0ebff]",
+          rounded ? "rounded-[32px]" : "border-b-4 border-primary",
+        )}">
           ${img(product.image, {
             alt: product.image.alt || product.name,
             eager,
@@ -95,7 +101,7 @@
           ${!product.inStock &&
           html`<span class="absolute start-4 top-4 rounded-full bg-surface/90 px-3 py-1 text-13 text-ink-var">ناموجود</span>`}
         </div>
-        <div class="flex flex-col gap-4 px-6">
+        <div class="${cx("flex flex-col gap-4", rounded ? "px-3" : "px-6")}">
           <div class="flex items-center justify-between gap-4">
             <h3 class="text-25 text-ink">
               <!-- The whole card is clickable through this link's ::after -->
@@ -110,6 +116,45 @@
           </div>
         </div>
       </article>
+    `;
+  }
+
+  /**
+   * Blog post card (Figma "Frame 1000004146"): square picture with a 32px
+   * radius and hairline border, 2-line title, excerpt, date.
+   * size "list": fills its grid cell, 5 lines of excerpt on desktop
+   * size "rail": 224px wide ("مقالات دیگر"), 4 lines
+   */
+  function postCard(post, { index = 0, size = "list", eager = false } = {}) {
+    const rail = size === "rail";
+    return html`
+      <article data-reveal style="--reveal-index:${index % 3}" class="${cx("group relative flex flex-col gap-4", rail && "w-[224px]")}">
+        <div class="aspect-[263/264] overflow-hidden rounded-[32px] border border-hairline bg-surface-low">
+          ${img(post.image, {
+            alt: post.image.alt || "",
+            eager,
+            cls: "size-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]",
+          })}
+        </div>
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-2">
+            <h3 class="line-clamp-2 text-20 font-bold text-ink">
+              <a href="${url.post(post.slug)}" class="after:absolute after:inset-0">${post.title}</a>
+            </h3>
+            <p class="${cx("text-16 text-ink-var", rail ? "line-clamp-4" : "line-clamp-4 lg:line-clamp-5")}">${post.excerpt}</p>
+          </div>
+          <time datetime="${post.date}" class="text-13 text-ink-var">${fmt.dateNumeric(post.date)}</time>
+        </div>
+      </article>
+    `;
+  }
+
+  function postCardSkeleton() {
+    return html`
+      <div aria-hidden="true" class="flex flex-col gap-4">
+        <div class="aspect-[263/264] animate-pulse rounded-[32px] bg-skeleton"></div>
+        ${block("h-[62px] w-4/5")} ${block("h-[100px] w-full")} ${block("h-5 w-24")}
+      </div>
     `;
   }
 
@@ -157,5 +202,5 @@
     return Maso.raw(`<script type="application/ld+json">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>`);
   }
 
-  Maso.ui = { img, price, swatches, swatchDot, productCard, productCardSkeleton, block, breadcrumbs, jsonLd };
+  Maso.ui = { img, price, swatches, swatchDot, productCard, productCardSkeleton, postCard, postCardSkeleton, block, breadcrumbs, jsonLd };
 })();

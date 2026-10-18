@@ -4,7 +4,9 @@ The Maso storefront as **plain HTML, CSS and JavaScript** — no framework, no
 server, no build step needed to run it. It is the same design as the
 Next.js version on the `main` branch (Figma *Maso Group Website*, Persian /
 RTL, widths **402 / 768 / 1266 / 1440**), checked side by side against it
-screenshot by screenshot.
+screenshot by screenshot. The pages designed after that (contact, about,
+blog, profile) and the new header with the mega menu exist only in this
+version so far.
 
 ## Look at it
 
@@ -13,8 +15,8 @@ screenshot by screenshot.
   `npm run serve` → <http://localhost:8080> (needs Node 18+; any web server works too).
 
 It runs on built-in sample data until WordPress is connected. Try:
-login code **1234** · coupons **MASO10** / **WELCOME** · coupon **FAIL** →
-failed-payment page.
+login code **1234** (also for changing the number in the profile) · coupons
+**MASO10** / **WELCOME** · coupon **FAIL** → failed-payment page.
 
 ## Pages
 
@@ -28,10 +30,17 @@ failed-payment page.
 | Login / register | `login.html` | `/login` |
 | Custom order | `custom-order.html` | `/custom-order` |
 | 404, maintenance | `404.html`, `maintenance.html` | — |
+| Contact (support) | `contact.html` | — |
+| About us | `about.html` | — |
+| Blog, article | `blog.html`, `blog-post.html?slug=minimal-furniture-arrangement` | — |
+| Profile (signed in) | `profile.html`, `?view=info` · `addresses` · `orders&tab=pre\|current\|delivered\|returned` · `order&id=40017` | — |
 
-Links to pages that aren't designed yet (about, blog, contact, order
-tracking, terms) already point at `about.html`, `blog.html`, … and show the
-404 page until those files exist.
+The header (every page) has the "کتگوری‌ها" mega menu on desktop and the
+frosted full-screen menu with a categories screen on phones and tablets.
+The account icon leads to the login page, or to the profile once signed in.
+
+Only the terms page (`terms.html`, linked from the footer) isn't designed
+yet; it shows the 404 page until the file exists.
 
 ## Files
 
@@ -138,3 +147,10 @@ Upload everything **except** `node_modules/`, `partials/`, `scripts/`,
   matters, render them in PHP from the same markup when building the theme.
 * Videos (hero, footer, login background) are pictures for now; each spot
   has a comment showing where to put a `<video>`.
+* Pictures for the new pages (about, contact, blog samples) were exported from
+  the Figma file at their drawn size. Before launch, replace them with the
+  original photos at 2× (same file names in `assets/images/about/`,
+  `contact/`, `blog/`) so they stay sharp on retina screens. Blog and product
+  pictures normally come from WordPress anyway.
+* The contact page's map is a picture that links to Google Maps; put the
+  office's exact pin in the link in `contact.html`.

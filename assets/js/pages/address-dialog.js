@@ -6,7 +6,8 @@
  *   2. form — personal details and address, prefilled from step 1
  *
  *   const dialog = Maso.addressDialog({ provinces, onSaved(address) })
- *   dialog.open()   // every opening starts a clean flow
+ *   dialog.open()          // every opening starts a clean flow
+ *   dialog.open(address)   // "ویرایش آدرس": opens on the form, prefilled; keeps the id
  *
  * Leaflet (assets/vendor/leaflet) is only downloaded the first time the map
  * is shown, so no other page pays for it.
@@ -176,6 +177,9 @@
     /* --- Flow state (reset on every opening) --- */
     let step = "map";
     let center = null;
+    /** id of the address being edited (null = new address) */
+    let editingId = null;
+    const title = () => (editingId ? "ویرایش آدرس" : "افزودن آدرس جدید");
     /** Reverse-geocoded place for `center`: { key, label, province?, city?, street? } */
     let place = null;
     let values = { ...EMPTY };
@@ -199,8 +203,8 @@
         </button>
         <h2 class="text-center text-13 text-on-surface-var">
           ${step === "map"
-            ? html`<span class="md:hidden">انتخاب لوکیشن</span><span class="hidden md:inline">افزودن آدرس جدید</span>`
-            : "افزودن آدرس جدید"}
+            ? html`<span class="md:hidden">انتخاب لوکیشن</span><span class="hidden md:inline">${title()}</span>`
+            : title()}
         </h2>
         <button type="button" data-action="close" aria-label="بستن" class="-m-3 hidden size-12 items-center justify-center justify-self-end text-on-surface md:flex">
           ${icon("close")}
@@ -443,7 +447,7 @@
         requestAnimationFrame(() => dom.$('[aria-describedby$="-err"]', dialog)?.focus());
         return;
       }
-      const id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
+      const id = editingId || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
       onSaved({ id, ...found.address });
       dialog.close();
     }
@@ -491,14 +495,18 @@
     });
 
     return {
-      open() {
+      open(existing) {
+        editingId = existing?.id ?? null;
         step = "map";
-        center = null;
+        center = existing?.location ?? null;
         place = null;
         values = { ...EMPTY };
+        if (existing) for (const key of Object.keys(EMPTY)) values[key] = existing[key] ?? "";
         errors = {};
+        dialog.setAttribute("aria-label", title());
         dialog.showModal();
-        showMap();
+        if (existing) showForm();
+        else showMap();
       },
     };
   };
