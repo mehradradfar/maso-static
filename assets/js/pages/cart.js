@@ -10,32 +10,25 @@
   const { html, icon, fmt, url, cx, dom, ui, co } = Maso;
 
   /**
-   * One cart row: 113px photo (32px radius), name, price, a hairline, then
-   * the chosen finishes and "تغییر انتخاب‌ها" back to the product page.
+   * One cart row: 113px photo (32px radius), name and price (side by side on
+   * desktop, stacked below), a hairline, then the chosen finishes and
+   * "تغییر انتخاب‌ها" back to the product page. The bin isn't in the design;
+   * it sits quietly next to that link.
    */
   const cartItem = (line) => {
     const href = url.product(line.slug);
     return html`
-      <article class="flex w-full gap-4 lg:w-[354px]">
+      <article class="flex w-full gap-4">
         <a href="${href}" tabindex="-1" class="group relative size-[113px] shrink-0 overflow-hidden rounded-[32px] bg-surface-low">
           ${ui.img(line.image, { cls: "absolute inset-0 size-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-105" })}
         </a>
         <div class="flex min-w-0 flex-1 flex-col gap-4">
-          <div class="flex items-start justify-between gap-2">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <h2 class="text-20 text-ink"><a href="${href}" class="transition-opacity hover:opacity-70">${line.name}</a></h2>
-            <button
-              type="button"
-              data-action="remove"
-              data-id="${line.id}"
-              aria-label="${`حذف ${line.name} از سبد خرید`}"
-              class="-m-2 flex size-10 shrink-0 items-center justify-center text-ink-var transition-colors hover:text-error"
-            >
-              ${icon("trash", { size: 20 })}
-            </button>
-          </div>
-          <div class="flex items-end justify-between gap-2">
-            ${ui.price({ price: line.price, regularPrice: line.regularPrice, size: "sm" })}
-            ${line.qty > 1 && html`<span class="text-13 text-ink-var">${`× ${fmt.digits(line.qty)}`}</span>`}
+            <div class="flex items-end justify-between gap-2 lg:flex-row-reverse">
+              ${ui.price({ price: line.price, regularPrice: line.regularPrice, size: "sm" })}
+              ${line.qty > 1 && html`<span class="text-13 text-ink-var">${`× ${fmt.digits(line.qty)}`}</span>`}
+            </div>
           </div>
           <hr class="border-hairline" />
           <div class="flex items-center justify-between gap-2">
@@ -51,9 +44,20 @@
                   </li>`,
                 )}
             </ul>
-            <a href="${href}" class="group flex h-8 shrink-0 items-center gap-1 text-16 text-secondary transition-opacity hover:opacity-80">
-              تغییر انتخاب‌ها ${icon("chevronLeft", { size: 18, cls: "transition-transform duration-300 group-hover:-translate-x-0.5" })}
-            </a>
+            <div class="flex shrink-0 items-center gap-3">
+              <a href="${href}" class="group flex h-8 items-center gap-1 text-16 text-secondary transition-opacity hover:opacity-80">
+                تغییر انتخاب‌ها ${icon("chevronLeft", { size: 18, cls: "transition-transform duration-300 group-hover:-translate-x-0.5" })}
+              </a>
+              <button
+                type="button"
+                data-action="remove"
+                data-id="${line.id}"
+                aria-label="${`حذف ${line.name} از سبد خرید`}"
+                class="flex size-8 items-center justify-center text-ink-var transition-colors hover:text-error"
+              >
+                ${icon("trash", { size: 18 })}
+              </button>
+            </div>
           </div>
         </div>
       </article>

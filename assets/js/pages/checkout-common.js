@@ -21,12 +21,13 @@
     "transition-[background-color,transform] duration-300 ease-out-expo hover:bg-surface-low active:scale-[0.98]";
 
   /**
-   * Two-column frame on desktop: the step on the right, the 409px summary
-   * column on the left (full height, outline-var rule). Phones and tablets
+   * Two-column frame on desktop, centred and at most 1266px wide: the step
+   * on the right, the 409px summary column on the left (full height,
+   * outline-var rule). Phones and tablets
    * get a single column; the summary renders inside the step instead.
    */
   const frame = (main, aside) => html`
-    <div class="lg:flex lg:min-h-[calc(100dvh-97px)]">
+    <div class="lg:mx-auto lg:flex lg:min-h-[calc(100dvh-97px)] lg:max-w-[1266px]">
       <div class="flex min-h-[calc(100dvh-80px)] min-w-0 flex-1 flex-col lg:min-h-0">${main}</div>
       <aside aria-label="خلاصه سفارش" class="hidden w-[409px] shrink-0 border-s border-outline-var lg:block">
         <div class="no-scrollbar sticky top-[97px] flex max-h-[calc(100dvh-97px)] flex-col gap-4 overflow-y-auto p-8">${aside}</div>

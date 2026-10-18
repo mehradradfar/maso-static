@@ -136,8 +136,11 @@
     choose: (patch) => choices.update((c) => ({ ...c, ...patch })),
     /** After a completed order: forget the coupon, keep address & payment preference */
     reset: () => choices.update(({ addressId, paymentMethodId }) => ({ addressId, paymentMethodId })),
+    /** New addresses go first; an edited one keeps its place. Either way it becomes the chosen one. */
     saveAddress(address) {
-      addresses.update((list) => [address, ...list.filter((a) => a.id !== address.id)]);
+      addresses.update((list) =>
+        list.some((a) => a.id === address.id) ? list.map((a) => (a.id === address.id ? address : a)) : [address, ...list],
+      );
       choices.update((c) => ({ ...c, addressId: address.id }));
     },
     removeAddress(id) {

@@ -1,8 +1,10 @@
 /**
  * checkout-shipping.html — "اطلاعات ارسال" (step 1 of 2).
  *  no address: illustration + "اضافه کردن اطلاعات ارسال"
- *  address:    "افزودن آدرس", the chosen address card ("تغییر"), and the
- *              delivery method WordPress resolves for that city
+ *  addresses:  "افزودن آدرس", every saved address as a card (Figma edit 19:
+ *              the chosen one outlined in primary; tap a card to choose it,
+ *              "تغییر" edits it), and the delivery method WordPress resolves
+ *              for the chosen city
  */
 (function () {
   "use strict";
@@ -10,15 +12,35 @@
   const Maso = window.Maso;
   const { html, icon, cx, dom, api, co } = Maso;
 
-  /** 110px outlined card: "ارسال به آدرس" caption, the address, "تغییر" on the left */
-  const addressCard = (address) => html`
-    <div class="flex min-h-[110px] items-center justify-between rounded-[26px] border border-black-10 px-4 py-3">
-      <div class="flex min-w-0 flex-1 flex-col gap-0.5 px-4">
+  /** 110px card: "ارسال به آدرس" caption, the address, "تغییر" on the left; the chosen one has a primary outline */
+  const addressCard = (address, chosen) => html`
+    <li
+      class="${cx(
+        "relative flex min-h-[110px] items-center justify-between rounded-[26px] border px-4 py-3 transition-colors duration-300",
+        chosen ? "border-primary" : "border-black-10 hover:border-outline-var",
+      )}"
+    >
+      <button
+        type="button"
+        data-action="pick-address"
+        data-id="${address.id}"
+        role="radio"
+        aria-checked="${chosen}"
+        class="flex min-w-0 flex-1 flex-col items-start gap-0.5 px-4 text-start after:absolute after:inset-0 after:rounded-[26px]"
+      >
         <span class="text-10 text-ink-var">ارسال به آدرس</span>
         <span class="line-clamp-2 text-16 text-ink">${Maso.formatAddress(address)}</span>
-      </div>
-      <button type="button" data-action="choose-address" class="flex h-14 shrink-0 items-center px-3 text-16 text-secondary transition-opacity hover:opacity-80">تغییر</button>
-    </div>
+      </button>
+      <button
+        type="button"
+        data-action="edit-address"
+        data-id="${address.id}"
+        aria-label="${`تغییر آدرس ${Maso.formatAddress(address)}`}"
+        class="relative z-[1] flex h-14 shrink-0 items-center px-3 text-16 text-secondary transition-opacity hover:opacity-80"
+      >
+        تغییر
+      </button>
+    </li>
   `;
 
   /** Truck + method name/description (Maso wordmark for in-house delivery), then its notice */
@@ -81,7 +103,9 @@
                       <button type="button" data-action="add-address" class="group flex h-8 items-center gap-1 self-start text-16 text-secondary">
                         ${icon("plus", { size: 20, cls: "transition-transform duration-300 group-hover:rotate-90" })} افزودن آدرس
                       </button>
-                      ${addressCard(address)}
+                      <ul role="radiogroup" aria-label="آدرس ارسال" class="flex flex-col gap-4">
+                        ${Maso.checkout.addresses().map((a) => addressCard(a, a.id === address.id))}
+                      </ul>
                     </div>
                     <div data-slot="method"><div aria-hidden="true" class="h-[90px] animate-pulse rounded-[16px] bg-skeleton"></div></div>
                   </div>
@@ -118,62 +142,19 @@
       verify: (address) => Boolean(Maso.session.get()) || co.confirmMobile(address.mobile),
     });
 
-    /* --- Choose between saved addresses (not in the design; styled like the city picker) --- */
-    const chooser = Maso.sheet({ title: "انتخاب آدرس", variant: "sheet", cardRadius: 32 });
-    chooser.setFooter(html`<div class="px-6 py-4">
-      <button type="button" data-action="add-address" class="${cx(co.CTA_OUTLINE, "w-full gap-1")}">${icon("plus", { size: 20 })} افزودن آدرس جدید</button>
-    </div>`);
-
-    function paintChooser() {
-      const selected = address?.id;
-      dom.render(
-        chooser.body,
-        html`<ul class="px-6">
-          ${Maso.checkout.addresses().map(
-            (a) => html`<li class="flex items-center gap-3 border-b border-outline-var py-3">
-              <button type="button" data-action="pick-address" data-id="${a.id}" class="flex min-w-0 flex-1 items-center gap-3 text-start">
-                <span class="flex size-6 shrink-0 items-center justify-center rounded-full border border-outline p-1">
-                  ${a.id === selected && html`<span class="size-full rounded-full bg-secondary"></span>`}
-                </span>
-                <span class="flex min-w-0 flex-col gap-1">
-                  <span class="line-clamp-2 text-16 text-on-surface">${Maso.formatAddress(a)}</span>
-                  <span class="text-13 text-on-surface-var">${`${a.firstName} ${a.lastName}`}</span>
-                </span>
-              </button>
-              <button type="button" data-action="remove-address" data-id="${a.id}" aria-label="حذف آدرس" class="flex size-10 shrink-0 items-center justify-center text-ink-var hover:text-error">
-                ${icon("trash", { size: 20 })}
-              </button>
-            </li>`,
-          )}
-        </ul>`,
-      );
-    }
-
-    const handlers = {
-      "add-address"() {
-        chooser.close();
-        dialog.open();
-      },
-      "choose-address"() {
-        paintChooser();
-        chooser.open();
+    dom.actions(root, {
+      "add-address": () => dialog.open(),
+      "edit-address"(el) {
+        const found = Maso.checkout.addresses().find((a) => a.id === el.dataset.id);
+        if (found) dialog.open(found);
       },
       "pick-address"(el) {
-        Maso.checkout.choose({ addressId: el.dataset.id });
-        chooser.close();
+        if (el.dataset.id !== address?.id) Maso.checkout.choose({ addressId: el.dataset.id });
       },
-      "remove-address"(el) {
-        Maso.checkout.removeAddress(el.dataset.id);
-      },
-    };
-    dom.actions(root, handlers);
-    dom.actions(chooser.dialog, handlers);
-
-    // Saved/removed/picked addresses (also from other tabs) → redraw
-    Maso.checkout.subscribe(() => {
-      draw();
-      if (chooser.dialog.open) paintChooser();
     });
+
+    // Saved/picked addresses (also from other tabs) → redraw
+    Maso.checkout.subscribe(draw);
     Maso.cart.subscribe((lines) => (lines.length ? draw() : location.replace("cart.html")));
   });
 })();
