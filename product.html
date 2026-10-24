@@ -35,15 +35,16 @@
 <div data-top-sentinel aria-hidden="true" class="absolute top-0 h-px w-px"></div>
 
 <!--
-  Site header (Figma "Frame 12798").
-   mobile & tablet: logo on the right; search, bag, menu (right → left) — 80px tall
-   desktop:         logo on the right; کتگوری‌ها (mega menu), سفارش اختصاصی,
-                    divider, bag, search, account — 97px tall, 1000px wide
+  Site header (Figma "global region", Frame 1000004227).
+   mobile & tablet: logo on the right; search, bag, menu (right → left)
+   desktop:         logo on the right; محصولات (mega menu), فروشگاه,
+                    divider, bag, search, account — content 900px wide
+   80px tall everywhere; on desktop a full-width outline-var rule underneath.
   Mode and scroll states: see "Header modes" in assets/css/src/main.css.
   Items marked data-dim fade to 30% while the mega menu is open.
 -->
 <header class="site-header group/header">
-  <div class="mx-auto flex h-full max-w-[1000px] items-center justify-between">
+  <div class="mx-auto flex h-full max-w-[900px] items-center justify-between">
     <a href="index.html" aria-label="ماسو - صفحه اصلی" class="shrink-0" data-dim>
       <svg viewBox="0 0 100 32" width="99.26" height="32" fill="currentColor" role="img" aria-label="ماسو"><use href="#maso-logo" /></svg>
     </a>
@@ -52,9 +53,9 @@
     <nav aria-label="منوی اصلی" class="hidden items-center gap-8 lg:flex">
       <ul class="flex">
         <li>
-          <button type="button" data-mega-toggle aria-expanded="false" aria-controls="mega-menu" class="relative flex h-12 w-[150px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">کتگوری‌ها</button>
+          <button type="button" data-mega-toggle aria-expanded="false" aria-controls="mega-menu" class="relative flex h-12 w-[139px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">محصولات</button>
           <!--
-            Mega menu (Figma "Frame 2", 596px): frosted glass over the top of the
+            Mega menu (Figma "Frame 2", 579px): frosted glass over the top of the
             page, behind the header's own links. Opened by the button above
             (assets/js/core/ui.js); Esc or a click outside closes it.
           -->
@@ -76,7 +77,7 @@
             </div>
           </div>
         </li>
-        <li data-dim><a href="custom-order.html" class="relative flex h-12 w-[150px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">سفارش اختصاصی</a></li>
+        <li data-dim><a href="shop.html" class="relative flex h-12 w-[139px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">فروشگاه</a></li>
       </ul>
       <span aria-hidden="true" class="h-[27px] w-px bg-current opacity-20"></span>
       <a href="cart.html" data-cart-link aria-label="سبد خرید" class="relative flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70" data-dim>
@@ -189,22 +190,22 @@
     <main id="main">
       <div id="product">
         <!-- Loading placeholder: fills the screen and hides the footer until the product arrives (no jump) -->
-        <div data-page-skeleton aria-busy="true" aria-label="در حال بارگذاری محصول" class="mx-auto min-h-[calc(100dvh-80px)] max-w-[1266px] lg:min-h-[calc(100dvh-97px)]">
-          <div class="flex h-[52px] items-center px-6 md:px-12 lg:border-b lg:border-black-10"><div class="h-5 w-56 animate-pulse rounded-[6px] bg-skeleton"></div></div>
-          <div class="lg:flex">
-            <div class="flex min-w-0 flex-1 flex-col gap-8 px-6 py-8 md:px-12">
+        <div data-page-skeleton aria-busy="true" aria-label="در حال بارگذاری محصول" class="min-h-[calc(100dvh-80px)]">
+          <div class="flex h-[52px] items-center justify-center px-4 md:px-12 lg:border-b lg:border-outline-var"><div class="h-5 w-full max-w-[900px]"><div class="h-5 w-56 animate-pulse rounded-[6px] bg-skeleton"></div></div></div>
+          <div class="mx-auto max-w-[1000px] lg:flex">
+            <div class="flex min-w-0 flex-1 flex-col gap-8 px-6 py-8 md:px-12 lg:pt-4">
               <div class="flex flex-col gap-3">
                 <div class="h-[31px] w-52 animate-pulse rounded-[6px] bg-skeleton"></div>
                 <div class="h-6 w-40 animate-pulse rounded-[6px] bg-skeleton"></div>
               </div>
-              <div class="flex gap-6 overflow-hidden">
-                <div class="size-[340px] shrink-0 animate-pulse rounded-[32px] bg-skeleton"></div>
-                <div class="size-[340px] shrink-0 animate-pulse rounded-[32px] bg-skeleton"></div>
-                <div class="size-[340px] shrink-0 animate-pulse rounded-[32px] bg-skeleton"></div>
+              <div class="flex gap-6 overflow-hidden lg:gap-5">
+                <div class="size-[340px] shrink-0 animate-pulse rounded-[32px] bg-skeleton lg:size-[290px]"></div>
+                <div class="size-[340px] shrink-0 animate-pulse rounded-[32px] bg-skeleton lg:size-[290px]"></div>
+                <div class="size-[340px] shrink-0 animate-pulse rounded-[32px] bg-skeleton lg:size-[290px]"></div>
               </div>
               <div class="mx-auto h-3 w-20 animate-pulse rounded-full bg-skeleton"></div>
               <!-- Option cards on phones/tablets, features and sections below -->
-              <div class="flex flex-col gap-2 lg:hidden">
+              <div class="flex flex-col gap-4 lg:hidden">
                 <div class="h-6 w-28 animate-pulse rounded-[6px] bg-skeleton"></div>
                 <div class="h-20 animate-pulse rounded-[24px] bg-skeleton"></div>
                 <div class="h-20 animate-pulse rounded-[24px] bg-skeleton"></div>
@@ -220,7 +221,7 @@
                 <div class="h-[62px] animate-pulse rounded-[16px] bg-skeleton"></div>
               </div>
             </div>
-            <div class="hidden h-[calc(100dvh-154px)] min-h-[600px] w-[350px] shrink-0 flex-col gap-4 border-s border-outline-var p-8 lg:flex">
+            <div class="hidden h-[calc(100dvh-153px)] min-h-[600px] w-[350px] shrink-0 flex-col gap-4 border-s border-outline-var p-8 lg:flex">
               <div class="flex flex-1 flex-col gap-6">
                 <div class="h-6 w-28 animate-pulse rounded-[6px] bg-skeleton"></div>
                 <div class="flex flex-col gap-2">

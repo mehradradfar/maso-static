@@ -88,8 +88,8 @@
     const flag = (name) => (on) => header.toggleAttribute(name, on);
 
     if (header.dataset.mode === "overlay") {
-      // Solid once the page content passes under it (97px = desktop header height)
-      Maso.scrolledPast($("[data-header-sentinel]"), 97, flag("data-solid"));
+      // Solid once the page content passes under it (80px = header height)
+      Maso.scrolledPast($("[data-header-sentinel]"), 80, flag("data-solid"));
     } else {
       // Frosted glass as soon as the page moves
       Maso.scrolledPast($("[data-top-sentinel]"), 0, flag("data-scrolled"));

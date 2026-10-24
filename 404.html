@@ -38,15 +38,16 @@
 <div data-top-sentinel aria-hidden="true" class="absolute top-0 h-px w-px"></div>
 
 <!--
-  Site header (Figma "Frame 12798").
-   mobile & tablet: logo on the right; search, bag, menu (right → left) — 80px tall
-   desktop:         logo on the right; کتگوری‌ها (mega menu), سفارش اختصاصی,
-                    divider, bag, search, account — 97px tall, 1000px wide
+  Site header (Figma "global region", Frame 1000004227).
+   mobile & tablet: logo on the right; search, bag, menu (right → left)
+   desktop:         logo on the right; محصولات (mega menu), فروشگاه,
+                    divider, bag, search, account — content 900px wide
+   80px tall everywhere; on desktop a full-width outline-var rule underneath.
   Mode and scroll states: see "Header modes" in assets/css/src/main.css.
   Items marked data-dim fade to 30% while the mega menu is open.
 -->
 <header class="site-header group/header">
-  <div class="mx-auto flex h-full max-w-[1000px] items-center justify-between">
+  <div class="mx-auto flex h-full max-w-[900px] items-center justify-between">
     <a href="index.html" aria-label="ماسو - صفحه اصلی" class="shrink-0" data-dim>
       <svg viewBox="0 0 100 32" width="99.26" height="32" fill="currentColor" role="img" aria-label="ماسو"><use href="#maso-logo" /></svg>
     </a>
@@ -55,9 +56,9 @@
     <nav aria-label="منوی اصلی" class="hidden items-center gap-8 lg:flex">
       <ul class="flex">
         <li>
-          <button type="button" data-mega-toggle aria-expanded="false" aria-controls="mega-menu" class="relative flex h-12 w-[150px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">کتگوری‌ها</button>
+          <button type="button" data-mega-toggle aria-expanded="false" aria-controls="mega-menu" class="relative flex h-12 w-[139px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">محصولات</button>
           <!--
-            Mega menu (Figma "Frame 2", 596px): frosted glass over the top of the
+            Mega menu (Figma "Frame 2", 579px): frosted glass over the top of the
             page, behind the header's own links. Opened by the button above
             (assets/js/core/ui.js); Esc or a click outside closes it.
           -->
@@ -79,7 +80,7 @@
             </div>
           </div>
         </li>
-        <li data-dim><a href="custom-order.html" class="relative flex h-12 w-[150px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">سفارش اختصاصی</a></li>
+        <li data-dim><a href="shop.html" class="relative flex h-12 w-[139px] items-center justify-center text-16 after:absolute after:inset-x-10 after:bottom-2 after:h-px after:origin-center after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-out-expo hover:after:scale-x-100">فروشگاه</a></li>
       </ul>
       <span aria-hidden="true" class="h-[27px] w-px bg-current opacity-20"></span>
       <a href="cart.html" data-cart-link aria-label="سبد خرید" class="relative flex size-12 items-center justify-center transition-opacity duration-300 hover:opacity-70" data-dim>
@@ -191,7 +192,7 @@
 
     <main id="main">
       <!-- Vertically centred in whatever height is left under the header -->
-      <div class="flex min-h-[calc(100dvh-80px)] flex-col lg:min-h-[calc(100dvh-97px)]">
+      <div class="flex min-h-[calc(100dvh-80px)] flex-col">
         <div class="animate-rise flex flex-1 flex-col items-center justify-center gap-8 px-8 text-center">
           <div class="flex flex-col gap-3">
             <h1 class="max-w-[256px] text-25 text-on-surface">صفحه‌ای که دنبالش می‌گردید پیدا نشد.</h1>

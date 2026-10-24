@@ -20,7 +20,7 @@
  * `{{key}}` placeholders in a partial are filled from the settings (missing
  * keys become empty strings). Header settings:
  *   mode: "overlay" (home) | "page" (default)
- *   rule: "full" (cart & checkout) | "none" (custom order)
+ *   rule: "none" — no desktop rule under the header (pages whose design has none)
  *   bare: true → hidden on phones/tablets (payment result)
  * Head settings:
  *   title, description, noindex: true | "follow"

@@ -285,7 +285,7 @@
     dom.render(
       root,
       html`
-        ${ui.breadcrumbs(crumbs, { cls: "lg:border-b lg:border-black-10" })}
+        ${ui.breadcrumbs(crumbs)}
         <!-- Category rail + desktop filter/sort pills -->
         <div class="mx-auto flex max-w-[1100px] items-center justify-between">${categoryRail(categories, query.category)} ${controls()}</div>
         ${compactBar(categories, query.category)}

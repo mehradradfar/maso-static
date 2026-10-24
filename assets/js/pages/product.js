@@ -4,8 +4,9 @@
  *  phones/tablets: one column — title, gallery, option cards, features,
  *                  collapsible sections, and a floating bar with the price
  *                  and the cart button
- *  desktop:        title, gallery, features and sections on the right,
- *                  350px sticky buy sidebar on the left
+ *  desktop:        a centred 1000px row — title, gallery, features and
+ *                  sections in the 650px column on the right, the 350px
+ *                  sticky buy sidebar on the left
  *
  * The cart button turns into a quantity stepper in place once the piece is
  * in the cart (Figma edit 26, motion in main.css under "Cart counter").
@@ -50,13 +51,16 @@
   /**
    * Collapsible section (Figma edit 24): 16px semibold title and a 24px "+"
    * (1.5px stroke, inline SVG) in a 48px box that turns into "−" when open,
-   * 80px closed (16px padding), 1.5px outline-var rule underneath.
+   * 80px closed with a 1.5px outline-var rule drawn inside the bottom edge
+   * (inset shadow = Figma's inside stroke, so the row stays exactly 80px).
+   * Open, the row gets 24px above the title (CSS .acc-summary) and the content
+   * starts 24px (specs) or 32px (the rest) under it, 24px above the rule.
    * Native <details> (works without JavaScript); ui.js "Smooth accordions"
    * animates the opening and closing (data-accordion).
    */
-  const accordion = (title, body, { gap = "gap-8" } = {}) => html`
-    <details data-accordion class="group/acc border-b-[1.5px] border-outline-var">
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-4 [&::-webkit-details-marker]:hidden">
+  const accordion = (title, body, { gap = "gap-8", top = "pt-4" } = {}) => html`
+    <details data-accordion class="group/acc shadow-[inset_0_-1.5px_0_var(--color-outline-var)]">
+      <summary class="acc-summary flex cursor-pointer list-none items-center justify-between gap-6 [&::-webkit-details-marker]:hidden">
         ${title}
         <span aria-hidden="true" class="flex size-12 shrink-0 items-center justify-center text-ink transition-transform duration-500 ease-out-expo group-hover/acc:scale-110">
           <svg class="acc-plus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision">
@@ -65,7 +69,7 @@
           </svg>
         </span>
       </summary>
-      <div data-accordion-body><div class="${cx("flex flex-col pb-6", gap)}">${body}</div></div>
+      <div data-accordion-body><div class="${cx("flex flex-col pb-6", top, gap)}">${body}</div></div>
     </details>
   `;
   const sectionTitle = (text) => html`<h2 class="text-16 font-bold text-ink">${text}</h2>`;
@@ -80,10 +84,10 @@
       <ul
         data-gallery
         aria-label="${`تصاویر ${name}`}"
-        class="no-scrollbar -mx-6 flex snap-x snap-mandatory scroll-px-6 gap-6 overflow-x-auto overscroll-x-contain px-6 md:-mx-12 md:scroll-px-12 md:px-12 lg:ms-0 lg:-me-12 lg:scroll-ps-0 lg:ps-0 lg:pe-12"
+        class="no-scrollbar -mx-6 flex snap-x snap-mandatory scroll-px-6 gap-6 overflow-x-auto lg:gap-5 overscroll-x-contain px-6 md:-mx-12 md:scroll-px-12 md:px-12 lg:ms-0 lg:-me-12 lg:scroll-ps-0 lg:ps-0 lg:pe-12"
       >
         ${images.map(
-          (img, i) => html`<li class="relative size-[340px] shrink-0 snap-start overflow-hidden rounded-[32px] bg-surface-low">
+          (img, i) => html`<li class="relative size-[340px] shrink-0 snap-start overflow-hidden rounded-[32px] bg-surface-low lg:size-[290px]">
             ${ui.img(img, {
               eager: i === 0,
               cls: "absolute inset-0 size-full object-cover transition-transform duration-700 ease-out-expo hover:scale-[1.03]",
@@ -106,7 +110,7 @@
     <section aria-label="ویژگی‌ها" class="flex justify-center pt-6 pb-20 ${SECTION_X}">
       <ul class="flex w-full max-w-[900px] gap-3 lg:gap-8">
         ${list.map(
-          (f, i) => html`<li data-reveal style="--reveal-index:${i}" class="flex flex-1 flex-col items-start gap-4 overflow-hidden rounded-2xl border border-hairline p-3">
+          (f, i) => html`<li data-reveal style="--reveal-index:${i}" class="flex flex-1 flex-col items-start gap-4 overflow-hidden rounded-2xl border border-hairline p-[11px]">
             <p class="text-16 text-ink">${f.text}</p>
             ${ui.img(f.icon, { alt: "", width: 24, height: 24 })}
           </li>`,
@@ -117,8 +121,8 @@
 
   const specRow = (spec) => html`
     <li class="flex items-center gap-2 overflow-hidden rounded-2xl border border-hairline bg-surface-low">
-      <span class="flex h-12 min-w-0 flex-1 items-center justify-center px-[27px] py-1 text-16 whitespace-nowrap text-ink-var">${spec.label}</span>
-      <span class="flex min-w-0 flex-1 items-center justify-center self-stretch rounded-2xl bg-hairline px-4 py-3 text-16 whitespace-nowrap text-ink">
+      <span class="flex h-[46px] min-w-0 flex-1 items-center justify-center px-[27px] py-1 text-16 whitespace-nowrap text-ink-var">${spec.label}</span>
+      <span class="flex min-w-0 flex-1 items-center justify-center self-stretch rounded-2xl bg-hairline px-4 py-[11px] text-16 whitespace-nowrap text-ink">
         ${spec.value === true ? icon("checkCircle") : spec.value === false ? icon("crossCircle") : html`<span dir="ltr">${spec.value}</span>`}
       </span>
     </li>
@@ -130,16 +134,16 @@
       html`<h2 class="text-16 font-bold text-ink">در یک نگاه. <span class="text-[#999]">مشخصات تخصصی محصول</span></h2>`,
       html`<ul class="flex flex-col gap-2">${list.slice(0, visible).map(specRow)}</ul>
         ${list.length > visible &&
-        html`<ul data-more-specs hidden class="-mt-6 flex flex-col gap-2">${list.slice(visible).map(specRow)}</ul>
+        html`<ul data-more-specs hidden class="-mt-4 flex flex-col gap-2">${list.slice(visible).map(specRow)}</ul>
           <button
             type="button"
             data-action="more-specs"
             aria-expanded="false"
-            class="-mt-2 flex h-12 w-full items-center justify-center gap-1 rounded-2xl px-3 text-16 text-ink-strong"
+            class="flex h-12 w-full items-center justify-center gap-1 rounded-2xl px-3 text-16 text-ink-strong"
           >
             <span>بیشتر</span>${icon("chevronDown", { size: 18, cls: "transition-transform" })}
           </button>`}`,
-      { gap: "gap-6" },
+      { gap: "gap-6", top: "pt-2" },
     );
 
   /**
@@ -209,7 +213,7 @@
   const sections = (product) => html`
     <div class="${SECTION_X} pb-16">
       <!-- The last section has no rule under it -->
-      <div class="mx-auto flex max-w-[900px] flex-col [&>details:last-of-type]:border-b-0">
+      <div class="mx-auto flex max-w-[900px] flex-col [&>details:last-of-type]:shadow-none">
         ${specs(product.specs, product.specsVisible)} ${product.space && space(product.space)} ${description(product.descriptionHtml)}
         ${faq(product.faqs)}
       </div>
@@ -262,18 +266,15 @@
     dom.render(
       root,
       html`
-        ${ui.breadcrumbs([...product.breadcrumbs, { label: product.name, href: `/product/${product.slug}` }], {
-          size: "roomy",
-          cls: "lg:border-b lg:border-black-10",
-        })}
+        ${ui.breadcrumbs([...product.breadcrumbs, { label: product.name, href: `/product/${product.slug}` }])}
 
-        <!-- Phones/tablets: one column. Desktop: content on the right, 350px sticky sidebar on the left -->
-        <div class="mx-auto max-w-[1266px] pb-[104px] lg:flex lg:items-start lg:pb-0">
+        <!-- Phones/tablets: one column. Desktop: 1000px row — 650px content on the right, 350px sticky sidebar on the left -->
+        <div class="mx-auto max-w-[1000px] pb-[104px] lg:flex lg:items-start lg:pb-0">
           <div class="min-w-0 flex-1">
-            <section class="flex flex-col items-start gap-8 px-6 py-8 md:px-12 lg:items-center">
+            <section class="flex flex-col items-start gap-8 px-6 py-8 md:px-12 lg:gap-12 lg:pt-4">
               <!-- Name and delivery time on every screen; the price range only where there is no sidebar -->
-              <div class="flex w-full flex-col items-start gap-3 lg:max-w-[900px]">${titleBlock(product, "h1")} ${priceRangeText(min, max, "text-16 lg:hidden")}</div>
-              <div class="w-full lg:max-w-[900px]">${gallery(product.images, product.name)}</div>
+              <div class="flex w-full flex-col items-start gap-3">${titleBlock(product, "h1")} ${priceRangeText(min, max, "text-16 lg:hidden")}</div>
+              <div class="w-full">${gallery(product.images, product.name)}</div>
             </section>
 
             <section aria-label="جزئیات محصول" class="flex flex-col gap-4 px-6 pt-6 pb-16 md:px-12 lg:hidden">
@@ -292,7 +293,7 @@
 
           <aside
             aria-label="خرید"
-            class="sticky top-[97px] hidden h-[calc(100dvh-154px)] min-h-[600px] w-[350px] shrink-0 flex-col gap-4 overflow-y-auto border-s border-outline-var bg-surface p-8 lg:flex"
+            class="sticky top-20 hidden h-[calc(100dvh-153px)] min-h-[600px] w-[350px] shrink-0 flex-col gap-4 overflow-y-auto border-s border-outline-var bg-surface p-8 ps-[31px] lg:flex"
           >
             <div class="flex flex-1 flex-col gap-4">
               <div class="flex flex-col gap-6">
@@ -319,7 +320,7 @@
         >
           <div
             data-slot="mobile-buy"
-            class="pointer-events-auto mx-auto flex max-w-[672px] flex-col items-center gap-2 rounded-[32px] border border-black-10 bg-white/50 px-4 py-3 backdrop-blur-md"
+            class="pointer-events-auto mx-auto flex max-w-[672px] flex-col items-center gap-2 rounded-[32px] border border-black-10 bg-white/50 px-[15px] py-[11px] backdrop-blur-md"
           ></div>
         </div>
 
@@ -348,7 +349,7 @@
 
     /** The three "جزئیات محصول" cards (size, wood, fabric) */
     const optionCards = () => html`
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-4 lg:gap-2">
         ${groups.map((group) => {
           const chosen = group.options.find((o) => o.id === selection[group.key]);
           return html`<button
@@ -356,7 +357,7 @@
             data-action="picker"
             data-group="${group.key}"
             aria-haspopup="dialog"
-            class="flex h-20 w-full items-center justify-between gap-4 overflow-hidden rounded-[24px] border border-hairline bg-surface-low px-4 py-3 text-start transition-colors duration-300 hover:border-outline-var"
+            class="flex h-20 w-full items-center justify-between gap-4 overflow-hidden rounded-[24px] border border-hairline bg-surface-low px-[15px] py-[11px] text-start transition-colors duration-300 hover:border-outline-var"
           >
             <span class="flex min-w-0 flex-1 flex-col items-start gap-2">
               <span class="text-13 text-outline">${chosen ? (group.selectedLabel ?? group.label) : group.label}</span>
@@ -504,8 +505,8 @@
         if (frame) return;
         frame = requestAnimationFrame(() => {
           frame = 0;
-          const step = track.firstElementChild?.offsetWidth ?? 340;
-          paintDots(Math.min(product.images.length - 1, Math.round(Math.abs(track.scrollLeft) / (step + 24))));
+          const step = (track.firstElementChild?.offsetWidth ?? 340) + (parseFloat(getComputedStyle(track).columnGap) || 24);
+          paintDots(Math.min(product.images.length - 1, Math.round(Math.abs(track.scrollLeft) / step)));
         });
       },
       { passive: true },

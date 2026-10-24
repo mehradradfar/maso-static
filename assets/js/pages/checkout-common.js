@@ -27,10 +27,10 @@
    * get a single column; the summary renders inside the step instead.
    */
   const frame = (main, aside) => html`
-    <div class="lg:mx-auto lg:flex lg:min-h-[calc(100dvh-97px)] lg:max-w-[1266px]">
+    <div class="lg:mx-auto lg:flex lg:min-h-[calc(100dvh-80px)] lg:max-w-[1266px]">
       <div class="flex min-h-[calc(100dvh-80px)] min-w-0 flex-1 flex-col lg:min-h-0">${main}</div>
       <aside aria-label="خلاصه سفارش" class="hidden w-[409px] shrink-0 border-s border-outline-var lg:block">
-        <div class="no-scrollbar sticky top-[97px] flex max-h-[calc(100dvh-97px)] flex-col gap-4 overflow-y-auto p-8">${aside}</div>
+        <div class="no-scrollbar sticky top-20 flex max-h-[calc(100dvh-80px)] flex-col gap-4 overflow-y-auto p-8">${aside}</div>
       </aside>
     </div>
   `;

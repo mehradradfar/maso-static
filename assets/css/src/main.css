@@ -208,23 +208,14 @@
     }
   }
   @media (width >= 64rem) {
-    .site-header {
-      height: 97px;
-    }
-    /* Desktop hairline, centred and capped at 1266px */
+    /* Desktop rule (Figma global region): edge to edge, outline-var.
+       Pages whose own design has no rule pass data-rule="none". */
     .site-header::after {
       content: "";
       position: absolute;
       inset-inline: 0;
       bottom: 0;
-      margin-inline: auto;
       height: 1px;
-      max-width: 1266px;
-      background: var(--color-black-10);
-    }
-    /* Cart & checkout draw it edge to edge (it meets the summary column's border) */
-    .site-header[data-rule="full"]::after {
-      max-width: none;
       background: var(--color-outline-var);
     }
     .site-header[data-rule="none"]::after {
@@ -368,6 +359,14 @@
   .acc-chevron {
     transition: transform 0.6s cubic-bezier(0.33, 1, 0.68, 1);
   }
+  /* Product sections: 16px above the title closed, 24px open */
+  .acc-summary {
+    padding-block: 16px;
+    transition: padding-top 0.6s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+  details[open]:not([data-closing]) > .acc-summary {
+    padding-top: 24px;
+  }
   .acc-plus-v {
     transform-box: fill-box;
     transform-origin: center;
@@ -384,7 +383,8 @@
   @media (prefers-reduced-motion: reduce) {
     .acc-plus,
     .acc-plus-v,
-    .acc-chevron {
+    .acc-chevron,
+    .acc-summary {
       transition: none;
     }
   }
@@ -515,8 +515,8 @@
     inset-inline: 0;
     top: 0;
     z-index: -1;
-    height: 596px;
-    padding-top: 97px;
+    height: 579px;
+    padding-top: 80px;
     color: var(--color-primary);
     background-color: rgb(255 255 255 / 0.6);
     backdrop-filter: blur(50px);

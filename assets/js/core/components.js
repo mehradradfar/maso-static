@@ -175,22 +175,22 @@
   }
 
   /**
-   * "فروشگاه / تخت" trail under the header on shop pages. Ancestors are
-   * on-surface-var, the current page is full black; "/ " belongs to the
-   * following crumb, exactly like the design.
-   * size "compact": 8px vertical padding, 16px text (listing)
-   *      "roomy":   16px padding, 13px text (product page, Figma edit 31)
+   * "فروشگاه / تخت" trail under the header (Figma global region): a 52px
+   * band, 13px text, content 900px wide, full-width outline-var rule on
+   * desktop. The first crumb is on-surface-var, the rest full black; "/ "
+   * belongs to the following crumb, exactly like the design.
    */
-  function breadcrumbs(items, { size = "compact", cls = "" } = {}) {
+  function breadcrumbs(items, { cls = "" } = {}) {
     return html`
-      <nav aria-label="مسیر صفحه" class="${cx(size === "compact" ? "px-4 py-2 md:px-12" : "p-4 md:px-12", cls)}">
-        <ol class="${cx("no-scrollbar mx-auto flex max-w-[900px] items-start gap-2 overflow-x-auto whitespace-nowrap", size === "compact" ? "text-16" : "text-13")}">
+      <nav aria-label="مسیر صفحه" class="${cx("p-4 md:px-12 lg:border-b lg:border-outline-var lg:pb-[15px]", cls)}">
+        <ol class="no-scrollbar mx-auto flex max-w-[900px] items-start gap-2 overflow-x-auto text-13 whitespace-nowrap">
           ${items.map((item, i) => {
             const slash = i > 0 && html`<span aria-hidden="true">/ </span>`;
+            const tone = i === 0 ? "text-ink-var" : "text-ink";
             return html`<li class="shrink-0">
               ${i === items.length - 1
-                ? html`<span aria-current="page" class="text-ink">${slash}${item.label}</span>`
-                : html`<a href="${url.page(item.href)}" class="text-ink-var transition-colors hover:text-ink">${slash}${item.label}</a>`}
+                ? html`<span aria-current="page" class="${tone}">${slash}${item.label}</span>`
+                : html`<a href="${url.page(item.href)}" class="${cx(tone, "transition-opacity hover:opacity-70")}">${slash}${item.label}</a>`}
             </li>`;
           })}
         </ol>
