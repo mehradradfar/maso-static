@@ -29,14 +29,14 @@
    * Price block from the product card:
    *   ۱,۴۸۰,۰۰۰,۰۰۰ تومان          (20px bold + toman sign, 10px gap)
    *   ۲۰۰,۰۰۰,۰۰۰  [- ۱۰٪]          (struck-through old price + red badge)
-   * size "md": 20px bold (cards) · "sm": 16px regular (search rows, cart)
+   * size "md": 20px bold · "card": 16px semibold (product cards) · "sm": 16px regular (search rows, cart)
    */
   function price({ price, regularPrice, size = "md", cls = "" }) {
     const discount = regularPrice && regularPrice > price ? Math.round((1 - price / regularPrice) * 100) : 0;
     return html`
       <div class="${cx("flex shrink-0 flex-col items-start gap-1", cls)}">
         <p class="flex items-center gap-2.5 text-ink">
-          <span class="${size === "md" ? "text-20 font-bold" : "text-16"}">${fmt.price(price)}</span>
+          <span class="${size === "md" ? "text-20 font-bold" : size === "card" ? "text-16 font-semibold" : "text-16"}">${fmt.price(price)}</span>
           ${icon("toman")}
         </p>
         ${discount > 0 &&
@@ -103,7 +103,7 @@
         </div>
         <div class="${cx("flex flex-col gap-4", rounded ? "px-3" : "px-6")}">
           <div class="flex items-center justify-between gap-4">
-            <h3 class="text-25 text-ink">
+            <h3 class="text-20 text-ink">
               <!-- The whole card is clickable through this link's ::after -->
               <a href="${url.product(product.slug)}" class="after:absolute after:inset-0">${product.name}</a>
             </h3>
@@ -112,7 +112,7 @@
           <hr class="border-0 border-t border-black-10" />
           <p class="text-13 text-ink-var">${product.shortDescription}</p>
           <div class="flex items-center justify-between">
-            ${price({ price: product.price, regularPrice: product.regularPrice })} ${swatches(product.swatches)}
+            ${price({ price: product.price, regularPrice: product.regularPrice, size: "card" })} ${swatches(product.swatches)}
           </div>
         </div>
       </article>
@@ -166,7 +166,7 @@
       <div aria-hidden="true" class="flex flex-col gap-4">
         <div class="h-[244px] animate-pulse bg-skeleton md:h-[375px]"></div>
         <div class="flex flex-col gap-4 px-6">
-          <div class="flex items-center justify-between">${block("h-[39px] w-[150px]")} ${block("h-5 w-16")}</div>
+          <div class="flex items-center justify-between">${block("h-[31px] w-[150px]")} ${block("h-5 w-16")}</div>
           ${block("h-10 w-full")}
           <div class="flex items-center justify-between">${block("h-[31px] w-[150px]")} ${block("h-6 w-20")}</div>
         </div>
@@ -202,5 +202,83 @@
     return Maso.raw(`<script type="application/ld+json">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>`);
   }
 
-  Maso.ui = { img, price, swatches, swatchDot, productCard, productCardSkeleton, postCard, postCardSkeleton, block, breadcrumbs, jsonLd };
+  /* ------------------------------------------------------------------ */
+  /* Cart counter (Figma "Button" set, edit 26)                           */
+  /* ------------------------------------------------------------------ */
+
+  /*
+   * One pill that reads `label` ("افزودن به سبد") until the line is in the
+   * cart, then a stepper: [bin / −] [count] [+]. The element stays in the
+   * page while the count changes so CSS can animate between states (main.css
+   * "Cart counter"):
+   *   add → stepper   label slides up, the three parts rise from below,
+   *                   navy → light grey (300ms ease-out, like the prototype)
+   *   +1 / −1         the number rolls (new one from above / below)
+   *   1 ↔ 2           the bin and the minus swap places vertically
+   *   bin at 1        everything runs backwards (product page) or the row goes (cart)
+   *
+   *   ui.counter({ label, cls, key, add: 'data-action="add"', step: 'data-action="qty" data-id="…"' })
+   *   ui.syncCounter(el, qty, animate)
+   * `add` / `step` are extra attributes for the label button and the two stepper buttons.
+   */
+  const PLUS_CIRCLE = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>`;
+  const MINUS_CIRCLE = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg>`;
+
+  function counter({ label = "", cls = "", key = "", add = "", step = "" } = {}) {
+    return html`
+      <div data-counter="${key}" data-state="add" class="${cx("counter relative h-12 overflow-hidden rounded-full", cls)}">
+        <button type="button" ${Maso.raw(add)} class="counter-add absolute inset-0 flex items-center justify-center px-6 text-16 whitespace-nowrap text-on-primary">
+          ${label}
+        </button>
+        <div dir="ltr" role="group" aria-label="تعداد در سبد خرید" class="counter-stepper absolute inset-0 flex items-center justify-between px-1" inert>
+          <button type="button" ${Maso.raw(step)} data-delta="-1" class="counter-dec relative flex size-12 items-center justify-center overflow-hidden rounded-full text-[#999] transition-colors hover:bg-black/5">
+            <span class="counter-bin absolute">${icon("trash")}</span>
+            <span class="counter-minus absolute">${Maso.raw(MINUS_CIRCLE)}</span>
+          </button>
+          <span class="counter-num relative h-[31px] min-w-6 text-center text-20 font-bold text-ink" aria-live="polite"><span data-num class="absolute inset-0"></span></span>
+          <button type="button" ${Maso.raw(step)} data-delta="1" aria-label="افزودن یکی" class="counter-inc flex size-12 items-center justify-center rounded-full text-[#212121] transition-colors hover:bg-black/5">
+            ${Maso.raw(PLUS_CIRCLE)}
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  /** Moves a counter to `qty`; animated unless it was just drawn */
+  function syncCounter(el, qty, animate = true) {
+    const $ = (sel) => el.querySelector(sel);
+    const before = Number(el.dataset.qty || 0);
+    el.dataset.qty = String(qty);
+    if (!animate) el.classList.add("counter-instant");
+    el.dataset.state = qty > 0 ? "qty" : "add";
+    el.toggleAttribute("data-many", qty > 1);
+    $(".counter-add").toggleAttribute("inert", qty > 0);
+    $(".counter-stepper").toggleAttribute("inert", qty === 0);
+    $(".counter-dec").setAttribute("aria-label", qty > 1 ? "کم کردن یکی" : "حذف از سبد");
+
+    const box = $(".counter-num");
+    const shown = fmt.digits(Math.max(qty, 1));
+    const old = box.querySelector("[data-num]");
+    if (animate && before > 0 && qty > 0 && qty !== before && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      // Count went up: the new number drops in from above and the old one leaves downwards
+      const up = qty > before;
+      const next = document.createElement("span");
+      next.dataset.num = "";
+      next.className = "absolute inset-0";
+      next.textContent = shown;
+      box.append(next);
+      const opts = { duration: 300, easing: "ease-out" };
+      next.animate([{ transform: `translateY(${up ? -36 : 40}px)` }, { transform: "translateY(0)" }], opts);
+      old.animate([{ transform: "translateY(0)" }, { transform: `translateY(${up ? 40 : -36}px)` }], opts).finished.then(
+        () => old.remove(),
+        () => old.remove(),
+      );
+    } else {
+      [...box.querySelectorAll("[data-num]")].slice(1).forEach((n) => n.remove());
+      old.textContent = shown;
+    }
+    if (!animate) requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove("counter-instant")));
+  }
+
+  Maso.ui = { img, price, swatches, swatchDot, productCard, productCardSkeleton, postCard, postCardSkeleton, block, breadcrumbs, jsonLd, counter, syncCounter };
 })();

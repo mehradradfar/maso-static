@@ -10,11 +10,14 @@
   const { html, icon, fmt, url, cx, dom, ui, co } = Maso;
 
   /**
-   * One cart row: 113px photo (32px radius), name and price (side by side on
-   * desktop, stacked below), a hairline, then the chosen finishes and
-   * "تغییر انتخاب‌ها" back to the product page. The bin isn't in the design;
-   * it sits quietly next to that link.
+   * One cart row (Figma edit 28): 113px photo (32px radius); name, price and
+   * the quantity counter in one row from tablets up (stacked on phones, the
+   * counter last); a hairline, then the chosen finishes and "تغییر انتخاب‌ها"
+   * back to the product page. The counter's bin at 1 removes the row.
    */
+  const lineCounter = (line) =>
+    ui.counter({ cls: "w-[156px]", key: line.id, step: `data-action="qty" data-id="${line.id}"` });
+
   const cartItem = (line) => {
     const href = url.product(line.slug);
     return html`
@@ -23,12 +26,10 @@
           ${ui.img(line.image, { cls: "absolute inset-0 size-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-105" })}
         </a>
         <div class="flex min-w-0 flex-1 flex-col gap-4">
-          <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <h2 class="text-20 text-ink"><a href="${href}" class="transition-opacity hover:opacity-70">${line.name}</a></h2>
-            <div class="flex items-end justify-between gap-2 lg:flex-row-reverse">
-              ${ui.price({ price: line.price, regularPrice: line.regularPrice, size: "sm" })}
-              ${line.qty > 1 && html`<span class="text-13 text-ink-var">${`× ${fmt.digits(line.qty)}`}</span>`}
-            </div>
+          <div class="flex flex-col gap-4 md:flex-row md:items-start md:gap-6">
+            <h2 class="text-20 text-ink md:min-w-0 md:flex-1"><a href="${href}" class="transition-opacity hover:opacity-70">${line.name}</a></h2>
+            ${ui.price({ price: line.price, regularPrice: line.regularPrice, size: "sm" })}
+            <div class="hidden md:block">${lineCounter(line)}</div>
           </div>
           <hr class="border-hairline" />
           <div class="flex items-center justify-between gap-2">
@@ -44,21 +45,11 @@
                   </li>`,
                 )}
             </ul>
-            <div class="flex shrink-0 items-center gap-3">
-              <a href="${href}" class="group flex h-8 items-center gap-1 text-16 text-secondary transition-opacity hover:opacity-80">
-                تغییر انتخاب‌ها ${icon("chevronLeft", { size: 18, cls: "transition-transform duration-300 group-hover:-translate-x-0.5" })}
-              </a>
-              <button
-                type="button"
-                data-action="remove"
-                data-id="${line.id}"
-                aria-label="${`حذف ${line.name} از سبد خرید`}"
-                class="flex size-8 items-center justify-center text-ink-var transition-colors hover:text-error"
-              >
-                ${icon("trash", { size: 18 })}
-              </button>
-            </div>
+            <a href="${href}" class="group flex h-8 shrink-0 items-center gap-1 text-16 text-secondary transition-opacity hover:opacity-80">
+              تغییر انتخاب‌ها ${icon("chevronLeft", { size: 18, cls: "transition-transform duration-300 group-hover:-translate-x-0.5" })}
+            </a>
           </div>
+          <div class="md:hidden">${lineCounter(line)}</div>
         </div>
       </article>
     `;
@@ -84,10 +75,19 @@
       co.fill(root, "payable", co.payable(state.quote?.payable));
     });
 
+    let drawnIds = "";
+    /** Puts every counter on its line's quantity */
+    const syncCounters = (animate) =>
+      dom.$$("[data-counter]", root).forEach((el) => {
+        const line = Maso.cart.lines().find((l) => l.id === el.dataset.counter);
+        if (line) ui.syncCounter(el, line.qty, animate);
+      });
+
     /** Full redraw (first load, or the cart changed in another tab) */
     function draw() {
       const lines = Maso.cart.lines();
       drawnCount = lines.length;
+      drawnIds = lines.map((l) => l.id).join("|");
       if (!lines.length) {
         dom.render(root, emptyCart());
         return;
@@ -121,6 +121,7 @@
         co.fill(root, "totals", co.totals(quote.state, false));
         co.fill(root, "payable", co.payable(quote.state.quote?.payable));
       }
+      syncCounters(false);
     }
 
     function refresh() {
@@ -133,12 +134,16 @@
     Maso.cart.subscribe((lines) => {
       // A row removed here: take just that row out (no replayed animations)
       const list = dom.$("[data-items]", root);
-      if (list && lines.length && lines.length === drawnCount - 1) {
+      if (list && lines.map((l) => l.id).join("|") === drawnIds) {
+        // Only quantities changed: the counters roll in place
+        syncCounters(true);
+      } else if (list && lines.length && lines.length === drawnCount - 1) {
         const ids = new Set(lines.map((l) => l.id));
         dom.$$("[data-line]", list).forEach((li) => !ids.has(li.dataset.line) && li.remove());
         // The new first row loses its divider
         list.firstElementChild?.classList.remove("border-t", "border-hairline", "pt-8");
         drawnCount = lines.length;
+        drawnIds = lines.map((l) => l.id).join("|");
       } else {
         draw();
       }
@@ -146,7 +151,10 @@
     });
 
     dom.actions(root, {
-      remove: (el) => Maso.cart.remove(el.dataset.id),
+      qty(el) {
+        const line = Maso.cart.lines().find((l) => l.id === el.dataset.id);
+        if (line) Maso.cart.setQty(line.id, line.qty + Number(el.dataset.delta));
+      },
     });
   });
 })();

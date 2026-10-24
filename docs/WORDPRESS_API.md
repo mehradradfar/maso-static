@@ -350,7 +350,10 @@ page and back. Only ever return the signed-in customer's own data.
 {
   "step": 1,                                    // 1 در حال آماده سازی · 2 ارسال شده · 3 تحویل گرفته شده
   "address": "گیلان، رشت، بلوار گیلان، خ ۱۲۲",  // "ارسال به آدرس"
-  "items": [{ "slug": "izo-sofa", "name": "مبدل ایزو", "image": { /* Media */ }, "price": 1480000000, "regularPrice": 1644000000, "qty": 1 }],
+  "items": [{
+    "slug": "izo-sofa", "name": "مبدل ایزو", "image": { /* Media */ }, "price": 1480000000, "regularPrice": 1644000000, "qty": 1,
+    "options": [{ "label": "رنگ چوب", "value": "گردو", "swatch": { /* Media */ } }]   // optional: finishes shown as swatches
+  }],
   "receipt": { "orderNumber": "…", "trackingCode": "…", "transactionId": "190-8748923704", "date": "2026-07-27T09:02:00Z" },
   "receiptUrl": "/checkout/result?order=40017", // optional — "مشاهده رسید پرداخت" (default: that path)
   "preInvoice": {                               // only for status "pre" — the "پیش فاکتور شما" drawer

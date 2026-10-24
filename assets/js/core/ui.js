@@ -199,6 +199,15 @@
     Maso.cart.subscribe(paint);
   }
 
+  /** Fixed bottom bars ([data-fixed-bar]) fade away while the footer is on screen */
+  function initFooterWatch() {
+    const footer = document.querySelector("body > footer, footer");
+    if (!footer || !("IntersectionObserver" in window)) return;
+    new IntersectionObserver(([entry]) => document.documentElement.toggleAttribute("data-at-footer", entry.isIntersecting), {
+      rootMargin: "0px 0px -40px 0px",
+    }).observe(footer);
+  }
+
   /* ------------------------------------------------------------------ */
   /* Background videos ([data-autoplay])                                 */
   /*   play only while on screen (and only then download, preload=none); */
@@ -401,6 +410,7 @@
     initMobileMenu();
     initAccountLinks();
     initCartBadge();
+    initFooterWatch();
     initVideos();
     initCenteredScrollers();
     $$("[data-rail]").forEach(Maso.rail);

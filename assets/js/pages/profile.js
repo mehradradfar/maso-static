@@ -645,12 +645,28 @@
     return html`
       <li ${hidden ? html`hidden data-more-item` : ""} class="flex items-center gap-4 border-b border-outline-var pb-4 last:border-b-0">
         ${thumb(item.image, "size-[113px] rounded-[32px]")}
+        <!-- Figma edit 27: name and price side by side, the chosen finishes underneath -->
         <div class="flex min-w-0 flex-1 flex-col gap-4">
-          <h3 class="text-20 text-on-surface">
-            ${item.slug ? html`<a href="${Maso.url.product(item.slug)}" class="hover:underline">${item.name}</a>` : item.name}
-            ${item.qty > 1 && html`<span class="text-13 text-on-surface-var">× ${fmt.digits(item.qty)}</span>`}
-          </h3>
-          ${ui.price({ price: item.price, regularPrice: item.regularPrice, size: "sm" })}
+          <div class="flex flex-wrap items-start justify-between gap-x-2 gap-y-3">
+            <h3 class="text-20 text-on-surface">
+              ${item.slug ? html`<a href="${Maso.url.product(item.slug)}" class="hover:underline">${item.name}</a>` : item.name}
+              ${item.qty > 1 && html`<span class="text-13 text-on-surface-var">× ${fmt.digits(item.qty)}</span>`}
+            </h3>
+            ${ui.price({ price: item.price, regularPrice: item.regularPrice, size: "sm" })}
+          </div>
+          ${item.options?.some((o) => o.swatch) &&
+          html`<ul class="flex items-center gap-2" aria-label="انتخاب‌ها">
+            ${item.options
+              .filter((o) => o.swatch)
+              .map(
+                (o) => html`<li
+                  title="${`${o.label}: ${o.value}`}"
+                  class="relative size-6 overflow-hidden rounded-full after:absolute after:inset-0 after:rounded-full after:shadow-[inset_0_5px_2px_rgba(0,0,0,0.25)]"
+                >
+                  ${ui.img(o.swatch, { alt: o.value, width: 24, height: 24, cls: "size-full object-cover" })}
+                </li>`,
+              )}
+          </ul>`}
         </div>
       </li>
     `;

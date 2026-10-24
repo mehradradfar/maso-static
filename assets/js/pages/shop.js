@@ -63,6 +63,7 @@
       aria-label="دسته‌بندی‌ها"
       aria-hidden="true"
       inert
+      data-fixed-bar
       class="pointer-events-none fixed inset-x-0 top-20 z-40 -translate-y-4 bg-white/50 opacity-0 backdrop-blur-[30px] transition-[translate,opacity] duration-500 ease-out-expo data-visible:pointer-events-auto data-visible:translate-y-0 data-visible:opacity-100 lg:hidden"
     >
       <ul class="no-scrollbar flex gap-2 overflow-x-auto px-6 py-3">
@@ -113,7 +114,7 @@
     <div class="hidden shrink-0 items-start gap-2 lg:flex">
       ${pill("sort", "مرتب سازی", "sort")} ${pill("filter", "فیلتر", "filter")}
     </div>
-    <div class="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex h-[98px] items-end justify-center bg-linear-to-b from-white/0 to-white pb-4 lg:hidden">
+    <div data-fixed-bar class="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex h-[98px] items-end justify-center bg-linear-to-b from-white/0 to-white pb-4 lg:hidden">
       <div class="pointer-events-auto flex h-14 w-[295px] items-center gap-2.5 rounded-full border border-hairline bg-white/50 px-4 shadow-[0_0_12px_rgba(0,0,0,0.08)] backdrop-blur-md">
         ${barButton("sort", "مرتب سازی", "sort")}
         <span aria-hidden="true" class="h-9 w-px shrink-0 bg-black-10"></span>

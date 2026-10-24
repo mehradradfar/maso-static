@@ -463,7 +463,19 @@
   ];
 
   /** Extra fields of OrderDetail (the sample uses the same ones for every order) */
-  const orderItem = (n) => ({ slug: `izo-sofa-${n}`, name: "مبدل ایزو", image: orderImage, price: 1_480_000_000, regularPrice: 1_644_000_000, qty: 1 });
+  const orderItem = (n) => ({
+    slug: `izo-sofa-${n}`,
+    name: "مبدل ایزو",
+    image: orderImage,
+    price: 1_480_000_000,
+    regularPrice: 1_644_000_000,
+    qty: 1,
+    // Chosen finishes, shown as swatches on the order page
+    options: [
+      { label: "رنگ چوب", value: "گردو", swatch: swatches[0].image },
+      { label: "رنگ پارچه", value: "راش روشن", swatch: swatches[2].image },
+    ],
+  });
   const orderDetail = {
     address: "گیلان، رشت، بلوار گیلان، خ ۱۲۲",
     items: [orderItem(1), orderItem(2), orderItem(3)],

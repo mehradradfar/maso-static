@@ -1,9 +1,14 @@
 /**
  * product.html?slug=… — product page (Figma page "PDP").
  *
- *  phones/tablets: one column — title, gallery, option cards, sections,
- *                  and a floating bar with the price and the cart button
- *  desktop:        content on the right, 409px sticky buy sidebar on the left
+ *  phones/tablets: one column — title, gallery, option cards, features,
+ *                  collapsible sections, and a floating bar with the price
+ *                  and the cart button
+ *  desktop:        title, gallery, features and sections on the right,
+ *                  409px sticky buy sidebar on the left
+ *
+ * The cart button turns into a quantity stepper in place once the piece is
+ * in the cart (Figma edit 26, motion in main.css under "Cart counter").
  *
  * State is the configuration being built (size, wood, fabric). Everything
  * derived from it — exact price, cart line, quantity — is redrawn into the
@@ -16,6 +21,7 @@
   const { html, icon, fmt, url, cx, dom, api, pricing, ui } = Maso;
 
   const SECTION_X = "px-6 md:px-12";
+  const TEST_HINT = "اگر ترکیب مطمئن نیستید، تست محصول را سفارش دهید.";
 
   /* ================================================================== */
   /* Static sections                                                     */
@@ -24,7 +30,7 @@
   /** Product name (gradient) + "تحویل تا ۴۵ روز کاری" */
   const titleBlock = (product, tag) => html`
     <div class="flex flex-col items-start">
-      ${Maso.raw(`<${tag} class="bg-linear-to-b from-black to-black/30 bg-clip-text text-25 font-bold text-transparent">`)}${product.name}${Maso.raw(`</${tag}>`)}
+      ${Maso.raw(`<${tag} class="bg-linear-to-b from-black to-black/30 bg-clip-text text-20 font-semibold text-transparent">`)}${product.name}${Maso.raw(`</${tag}>`)}
       <p class="text-16 text-on-surface">تحویل تا <strong class="font-extrabold">${fmt.digits(product.deliveryDays)}</strong> روز کاری</p>
     </div>
   `;
@@ -38,8 +44,30 @@
   `;
 
   const exactPrice = (value, cls) => html`
-    <p class="${cx("flex items-center gap-2.5 font-bold text-ink", cls)}"><span>${fmt.price(value)}</span>${icon("toman")}</p>
+    <p class="${cx("flex items-center gap-2.5 font-semibold text-ink", cls)}"><span>${fmt.price(value)}</span>${icon("toman")}</p>
   `;
+
+  /**
+   * Collapsible section (Figma edit 24): 20px title and a 48px "+" that turns
+   * into "−" when open, 2px outline rule underneath.
+   * Native <details>, so it works without JavaScript and opens with an animation.
+   */
+  const accordion = (title, body, { gap = "gap-8" } = {}) => html`
+    <details class="group/acc details-animate border-b-2 border-outline">
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-6 [&::-webkit-details-marker]:hidden">
+        ${title}
+        <span aria-hidden="true" class="flex size-12 shrink-0 items-center justify-center text-ink transition-transform duration-500 ease-out-expo group-hover/acc:scale-110">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M5 12h14" />
+            <path d="M12 5v14" class="origin-center transition-transform duration-500 ease-out-expo group-open/acc:scale-y-0" />
+          </svg>
+        </span>
+      </summary>
+      <div class="${cx("flex flex-col pb-6", gap)}">${body}</div>
+    </details>
+  `;
+  const sectionTitle = (text) => html`<h2 class="text-20 font-semibold text-ink">${text}</h2>`;
+  const gradientTitle = (text) => html`<h2 class="bg-linear-to-b from-black to-black/30 bg-clip-text text-20 font-semibold text-transparent">${text}</h2>`;
 
   /**
    * 340×340 rounded photos in a horizontal snap-scroller that starts on the
@@ -95,57 +123,45 @@
   `;
 
   /** "در یک نگاه. مشخصات تخصصی محصول" table with "بیشتر" / "کمتر" */
-  const specs = (list, visible) => html`
-    <section class="flex flex-col items-center gap-6 pt-6 pb-20 ${SECTION_X}">
-      <h2 class="w-full max-w-[900px] text-25 font-semibold text-ink">در یک نگاه. <span class="text-ink-muted">مشخصات تخصصی محصول</span></h2>
-      <ul class="flex w-full max-w-[900px] flex-col gap-2">${list.slice(0, visible).map(specRow)}</ul>
-      ${list.length > visible &&
-      html`<ul data-more-specs hidden class="-mt-4 flex w-full max-w-[900px] flex-col gap-2">${list.slice(visible).map(specRow)}</ul>
-        <button
-          type="button"
-          data-action="more-specs"
-          aria-expanded="false"
-          class="flex h-12 w-full max-w-[900px] items-center justify-center gap-1 rounded-2xl px-3 text-16 text-ink-strong"
-        >
-          <span>بیشتر</span>${icon("chevronDown", { size: 18, cls: "transition-transform" })}
-        </button>`}
-    </section>
-  `;
+  const specs = (list, visible) =>
+    accordion(
+      html`<h2 class="text-20 font-semibold text-ink">در یک نگاه. <span class="text-ink-muted">مشخصات تخصصی محصول</span></h2>`,
+      html`<ul class="flex flex-col gap-2">${list.slice(0, visible).map(specRow)}</ul>
+        ${list.length > visible &&
+        html`<ul data-more-specs hidden class="-mt-6 flex flex-col gap-2">${list.slice(visible).map(specRow)}</ul>
+          <button
+            type="button"
+            data-action="more-specs"
+            aria-expanded="false"
+            class="-mt-2 flex h-12 w-full items-center justify-center gap-1 rounded-2xl px-3 text-16 text-ink-strong"
+          >
+            <span>بیشتر</span>${icon("chevronDown", { size: 18, cls: "transition-transform" })}
+          </button>`}`,
+      { gap: "gap-6" },
+    );
 
-  /** "فضای مورد نیاز" — numbers on one side, top-view diagram with dimensions on the other */
-  const space = (s) => html`
-    <section class="flex justify-center bg-surface-low pt-6 pb-6 md:pb-20 ${SECTION_X}">
-      <div class="flex w-full max-w-[900px] flex-col gap-6 md:gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-0">
-        <!-- Diagram — below the numbers on phones, on the right on desktop. Drawn LTR so the dimension lines sit where the design puts them. -->
-        <div class="order-last flex flex-1 justify-center md:py-6 lg:order-first">
-          <figure dir="ltr" class="flex flex-col items-center gap-3 md:gap-4">
-            <div class="hidden h-[51px] md:block" aria-hidden="true"></div>
-            <div class="flex h-[189px] items-center gap-3 md:gap-4">
-              <div class="w-[51px]" aria-hidden="true"></div>
-              ${ui.img(s.diagram, { width: 152, height: 189 })}
-              <div class="flex h-full w-[51px] items-center justify-center border-l border-on-surface text-13 text-on-surface">${s.depth}</div>
-            </div>
-            <figcaption class="flex h-[51px] w-[189px] items-center justify-center border-t border-on-surface text-13 text-on-surface">${s.width}</figcaption>
-          </figure>
-        </div>
-        <div class="flex flex-1 flex-col gap-3">
-          <h2 class="text-25 font-semibold text-ink">فضای مورد نیاز</h2>
-          <dl class="flex flex-col gap-2 md:gap-3">
-            ${s.rows.map(
-              (row) => html`<div class="flex items-center justify-between whitespace-nowrap">
-                <dt class="text-13 text-on-surface-var">${row.label}</dt>
-                <dd class="text-16 text-on-surface" dir="ltr">${row.value}</dd>
-              </div>`,
-            )}
-          </dl>
-        </div>
-      </div>
-    </section>
-  `;
-
-  const gradientTitle = (text) => html`
-    <h2 class="w-full max-w-[900px] bg-linear-to-b from-black to-black/30 bg-clip-text text-25 font-bold text-transparent">${text}</h2>
-  `;
+  /** "فضای مورد نیاز" — the numbers, then the top-view diagram with its dimensions */
+  const space = (s) =>
+    accordion(
+      sectionTitle("فضای مورد نیاز"),
+      html`<dl class="flex flex-col gap-2">
+          ${s.rows.map(
+            (row) => html`<div class="flex items-center justify-between gap-3 whitespace-nowrap">
+              <dt class="text-13 text-on-surface-var">${row.label}</dt>
+              <dd class="text-16 text-on-surface" dir="ltr">${row.value}</dd>
+            </div>`,
+          )}
+        </dl>
+        <!-- Drawn LTR so the dimension lines sit where the design puts them -->
+        <figure dir="ltr" class="flex flex-col items-center gap-3 self-center">
+          <div class="flex h-[189px] items-center gap-3">
+            <div class="w-[51px]" aria-hidden="true"></div>
+            ${ui.img(s.diagram, { width: 152, height: 189 })}
+            <div class="flex h-full w-[51px] items-center justify-center border-l border-on-surface text-13 text-on-surface">${s.depth}</div>
+          </div>
+          <figcaption class="flex h-[51px] w-[189px] items-center justify-center border-t border-on-surface text-13 text-on-surface">${s.width}</figcaption>
+        </figure>`,
+    );
 
   /**
    * Rich text from the WordPress editor. WordPress sanitises it; links to
@@ -155,37 +171,42 @@
     const box = document.createElement("div");
     box.innerHTML = htmlText;
     box.querySelectorAll("a[href^='/']").forEach((a) => a.setAttribute("href", url.page(a.getAttribute("href"))));
-    return html`
-      <section class="flex flex-col items-center gap-8 pt-6 pb-16 ${SECTION_X}">
-        ${gradientTitle("در باره محصول")}
-        <div class="prose-maso w-full max-w-[900px]">${Maso.raw(box.innerHTML)}</div>
-      </section>
-    `;
+    return accordion(gradientTitle("در باره محصول"), html`<div class="prose-maso">${Maso.raw(box.innerHTML)}</div>`);
   }
 
-  /** FAQ accordion on native <details> — no JavaScript; animates where supported */
+  /** FAQ: questions on native <details> inside the collapsible section */
   const faq = (faqs) =>
     faqs.length &&
-    html`
-      <section class="flex flex-col items-center gap-8 pt-6 pb-16 ${SECTION_X}">
-        ${gradientTitle("سوالات متداول")}
-        <div class="flex w-full max-w-[900px] flex-col gap-3">
-          ${faqs.map(
-            (f) => html`<details name="product-faq" class="group details-animate">
-              <summary class="flex h-12 cursor-pointer list-none items-center justify-between text-16 text-[#1c1c1c] [&::-webkit-details-marker]:hidden">
-                ${f.question} ${icon("chevronLeft", { cls: "transition-transform duration-300 ease-out-expo group-open:-rotate-90" })}
-              </summary>
-              <p class="pb-3 text-16 text-ink-var">${f.answer}</p>
-            </details>`,
-          )}
-        </div>
-        ${ui.jsonLd({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.question, acceptedAnswer: { "@type": "Answer", text: f.answer } })),
-        })}
-      </section>
-    `;
+    html`${accordion(
+      gradientTitle("سوالات متداول"),
+      html`<div class="flex flex-col gap-3">
+        ${faqs.map(
+          (f) => html`<details name="product-faq" class="group details-animate">
+            <summary class="flex h-12 cursor-pointer list-none items-center justify-between text-16 text-[#1c1c1c] [&::-webkit-details-marker]:hidden">
+              ${f.question} ${icon("chevronLeft", { cls: "transition-transform duration-300 ease-out-expo group-open:-rotate-90" })}
+            </summary>
+            <p class="pb-3 text-16 text-ink-var">${f.answer}</p>
+          </details>`,
+        )}
+      </div>`,
+      { gap: "gap-0" },
+    )}
+    ${ui.jsonLd({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.question, acceptedAnswer: { "@type": "Answer", text: f.answer } })),
+    })}`;
+
+  /** The four collapsible sections under the features, 900px at most */
+  const sections = (product) => html`
+    <div class="${SECTION_X} pb-16">
+      <!-- The last section has no rule under it -->
+      <div class="mx-auto flex max-w-[900px] flex-col [&>details:last-of-type]:border-b-0">
+        ${specs(product.specs, product.specsVisible)} ${product.space && space(product.space)} ${description(product.descriptionHtml)}
+        ${faq(product.faqs)}
+      </div>
+    </div>
+  `;
 
   /* ================================================================== */
   /* Page                                                                */
@@ -242,7 +263,8 @@
         <div class="mx-auto max-w-[1266px] pb-[104px] lg:flex lg:items-start lg:pb-0">
           <div class="min-w-0 flex-1">
             <section class="flex flex-col items-start gap-8 px-6 py-8 md:px-12 lg:items-center">
-              <div class="flex flex-col items-start gap-3 lg:hidden">${titleBlock(product, "h1")} ${priceRangeText(min, max, "text-16")}</div>
+              <!-- Name and delivery time on every screen; the price range only where there is no sidebar -->
+              <div class="flex w-full flex-col items-start gap-3 lg:max-w-[900px]">${titleBlock(product, "h1")} ${priceRangeText(min, max, "text-16 lg:hidden")}</div>
               <div class="w-full lg:max-w-[900px]">${gallery(product.images, product.name)}</div>
             </section>
 
@@ -252,39 +274,36 @@
               <div data-slot="cards"></div>
               ${product.test &&
               html`<div class="flex flex-col items-start gap-3 py-3">
-                <p class="w-full text-13 text-on-surface-var">اگر از ترکیب مورد نظر اطمینان ندارید تست محسول را سفارش دهید</p>
+                <p class="w-full text-13 text-on-surface-var">${TEST_HINT}</p>
                 ${testLink("about", "تست محصول چیست؟", "help")}
               </div>`}
             </section>
 
-            ${features(product.features)} ${specs(product.specs, product.specsVisible)} ${product.space && space(product.space)}
-            ${description(product.descriptionHtml)} ${faq(product.faqs)}
+            ${features(product.features)} ${sections(product)}
           </div>
 
           <aside
             aria-label="خرید"
             class="sticky top-[97px] hidden h-[calc(100dvh-154px)] min-h-[600px] w-[409px] shrink-0 flex-col gap-4 overflow-y-auto border-s border-outline-var bg-surface p-8 lg:flex"
           >
-            <div class="flex flex-1 flex-col gap-4">
-              ${titleBlock(product, "p")}
-              <div class="flex flex-col gap-6">
-                <p class="text-16 text-ink">جزئیات محصول</p>
-                <div data-slot="cards"></div>
-              </div>
-              <hr class="border-0 border-t border-black-10" />
-              <div data-slot="sidebar-price"></div>
+            <div class="flex flex-1 flex-col gap-6">
+              <p class="text-16 text-ink">جزئیات محصول</p>
+              <div data-slot="cards"></div>
             </div>
             <hr class="border-0 border-t border-black-10" />
+            <div data-slot="sidebar-price"></div>
             ${product.test &&
-            html`<div class="flex flex-col items-center gap-6">
-              <p class="w-full text-13 text-on-surface-var">اگر از ترکیب مورد نظر اطمینان ندارید تست محسول را سفارش دهید</p>
-              ${testLink("order", "سفارش تست محصول", "chevron")}
-            </div>`}
+            html`<hr class="border-0 border-t border-black-10" />
+              <div class="flex flex-col items-center gap-2">
+                <p class="w-full text-13 text-on-surface-var">${TEST_HINT}</p>
+                ${testLink("order", "سفارش تست محصول", "chevron")}
+              </div>`}
           </aside>
         </div>
 
         <!-- Phone/tablet bottom bar: price + cart (or the test sample), and the test-order link -->
         <div
+          data-fixed-bar
           class="pointer-events-none fixed inset-x-0 bottom-0 z-40 bg-linear-to-b from-white/0 to-white [mask-image:linear-gradient(to_bottom,transparent,black_96px)] p-4 pt-24 backdrop-blur-[2px] lg:hidden"
         >
           <div
@@ -346,38 +365,38 @@
       </div>
     `;
 
-    const FILLED =
-      "flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-primary px-6 text-16 whitespace-nowrap text-on-primary transition-[background-color,transform] duration-300 hover:bg-primary/90 active:scale-[0.98]";
+    /** Cart counter (Figma edit 26, components.js): "افزودن به سبد" → stepper in place */
+    const counter = (kind, label, cls) =>
+      ui.counter({
+        label,
+        cls,
+        key: kind,
+        add: `data-action="${kind === "test" ? "buy-test" : "add"}"`,
+        step: `data-action="qty" data-kind="${kind}"`,
+      });
+    const syncCounter = ui.syncCounter;
 
-    /** Once something is in the cart — piece or sample — the call to action leads there */
-    const viewCart = (fullWidth) => html`<a href="cart.html" class="${cx(FILLED, fullWidth && "w-full")}">مشاهده سبد</a>`;
-
-    /** Add-to-cart, or "مشاهده سبد" once this exact configuration is in the cart */
-    function cartButton(fullWidth) {
-      if (inCart(lineId())) return viewCart(fullWidth);
-      // Before everything is chosen the button walks the visitor through the missing pickers
-      return html`<button type="button" data-action="add" class="${cx(FILLED, fullWidth && "w-full")}">افزودن به سبد</button>`;
-    }
-
+    const qtyOf = (id) => Maso.cart.lines().find((l) => l.id === id)?.qty ?? 0;
+    /** "مشاهده سبد" in the test order sheet once the sample is in the cart */
+    const viewCart = (fullWidth) => html`<a
+      href="cart.html"
+      class="${cx(
+        "flex h-12 shrink-0 items-center justify-center rounded-full bg-primary px-6 text-16 whitespace-nowrap text-on-primary transition-colors duration-300 hover:bg-primary/90",
+        fullWidth && "w-full",
+      )}"
+      >مشاهده سبد</a
+    >`;
     const barDivider = html`<hr class="w-full border-0 border-t border-black-10" />`;
 
     /**
-     * The floating bar on phones/tablets (Figma comment "different states of the fixed option"):
+     * The floating bar on phones/tablets:
      *   nothing chosen yet  → "انتخاب جزئیات محصول" (outline) + test link
-     *   configured          → price + "افزودن به سبد" + test link
-     *   test mode           → sample price + "خرید تست محصول"
-     *   in the cart         → price + "مشاهده سبد"
+     *   configured          → price + cart counter + test link
+     *   test mode           → sample price + counter for the sample
      */
     function mobileBar(price) {
       const row = (amount, button) => html`<div class="flex w-full items-center justify-between gap-6">${exactPrice(amount, "text-16")} ${button}</div>`;
-      if (mode === "test" && test) {
-        return row(
-          test.price,
-          inCart(testLineId())
-            ? viewCart(false)
-            : html`<button type="button" data-action="buy-test" class="${FILLED}">خرید تست محصول</button>`,
-        );
-      }
+      if (mode === "test" && test) return row(test.price, counter("test", "خرید تست محصول", "w-[175px] shrink-0"));
       const testFooter = test && html`${barDivider} ${testLink("order", "سفارش تست محصول", "chevron")}`;
       if (price === null) {
         return html`<button
@@ -389,10 +408,30 @@
           </button>
           ${testFooter}`;
       }
-      if (inCart(lineId())) return row(price, viewCart(false));
-      return html`${row(price, cartButton(false))} ${testFooter}`;
+      return html`${row(price, counter("product", "افزودن به سبد", "w-[156px] shrink-0"))} ${testFooter}`;
     }
 
+    /** Sidebar price block: the hint and price range, or "قیمت" + exact price and the full-width counter */
+    const sidebarPrice = (price) =>
+      price === null
+        ? html`<div class="flex flex-col items-center gap-6">
+            <p class="w-full text-16 text-on-surface">برای <strong class="font-extrabold">مشاهده قیمت دقیق</strong> ابتدا جزئیات محصول را انتخاب کنید.</p>
+            ${priceRangeText(min, max, "text-20")}
+          </div>`
+        : html`<div class="flex flex-col gap-6">
+            <div class="flex items-center justify-between gap-2.5">
+              <span class="text-13 text-ink">قیمت</span>
+              ${exactPrice(price, "text-16")}
+            </div>
+            ${counter("product", "افزودن به سبد", "w-full")}
+          </div>`;
+
+    /**
+     * Redraws what depends on the configuration. The bar and the sidebar are
+     * only rebuilt when their shape changes (another configuration, price or
+     * mode); a cart change alone just moves the counters, so they animate.
+     */
+    const drawn = {};
     function paint() {
       const price = currentPrice();
       dom.$$('[data-slot="cards"]', root).forEach((el) => dom.render(el, optionCards()));
@@ -402,17 +441,22 @@
       );
       dom.$('[data-slot="hint"]', root).hidden = price !== null;
 
-      dom.render(
-        dom.$('[data-slot="sidebar-price"]', root),
-        price === null
-          ? html`<div class="flex flex-col items-center gap-6">
-              <p class="w-full text-16 text-on-surface">برای <strong class="font-extrabold">مشاهده قیمت دقیق</strong> ابتدا جزئیات محصول را انتخاب کنید.</p>
-              ${priceRangeText(min, max, "text-20")}
-            </div>`
-          : html`<div class="flex flex-col items-center gap-6">${exactPrice(price, "text-20")} ${cartButton(true)}</div>`,
-      );
-
-      dom.render(dom.$('[data-slot="mobile-buy"]', root), mobileBar(price));
+      const shape = `${mode}|${price}|${lineId()}|${testLineId()}`;
+      const fresh = [];
+      for (const [slot, view] of [
+        ["sidebar-price", () => sidebarPrice(price)],
+        ["mobile-buy", () => mobileBar(price)],
+      ]) {
+        if (drawn[slot] === shape) continue;
+        drawn[slot] = shape;
+        const el = dom.$(`[data-slot="${slot}"]`, root);
+        dom.render(el, view());
+        fresh.push(el);
+      }
+      dom.$$("[data-counter]", root).forEach((el) => {
+        const qty = qtyOf(el.dataset.counter === "test" ? testLineId() : lineId());
+        syncCounter(el, qty, !fresh.some((f) => f.contains(el)));
+      });
       if (orderSheet?.dialog.open) paintTest();
     }
 
@@ -695,6 +739,10 @@
       "buy-test"() {
         if (testReady()) addTest();
         else openTest("order");
+      },
+      qty(el) {
+        const id = el.dataset.kind === "test" ? testLineId() : lineId();
+        Maso.cart.setQty(id, qtyOf(id) + Number(el.dataset.delta));
       },
       "more-specs"(button) {
         const list = dom.$("[data-more-specs]", root);

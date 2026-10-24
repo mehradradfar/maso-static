@@ -340,6 +340,90 @@
     }
   }
 
+  /* Floating bottom bars (shop sort/filter, product buy bar) step aside once
+     the footer comes into view (Figma edit 23); ui.js sets data-at-footer */
+  [data-fixed-bar] {
+    transition:
+      opacity 0.4s var(--ease-out-expo),
+      translate 0.4s var(--ease-out-expo),
+      visibility 0s linear 0s;
+  }
+  html[data-at-footer] [data-fixed-bar] {
+    /* important: wins over the bars' own state utilities (e.g. data-visible:opacity-100) */
+    opacity: 0 !important;
+    translate: 0 24px !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition:
+      opacity 0.4s var(--ease-out-expo),
+      translate 0.4s var(--ease-out-expo),
+      visibility 0s linear 0.4s;
+  }
+
+  /* While a page shows its full-screen skeleton the footer stays away, so
+     nothing jumps when the content arrives (Figma edit 29) */
+  body:has([data-page-skeleton]) footer {
+    display: none;
+  }
+
+  /* Cart counter on the product page (Figma edit 26, product.js "counter").
+     Positions are the prototype's: in the "add" state the stepper parts wait
+     below the pill (bin 160px, number 60px, plus 110px down) and slide up
+     together when the piece is added, while the label leaves upwards. */
+  .counter {
+    background-color: var(--color-primary);
+    transition: background-color 0.3s ease-out;
+  }
+  .counter:has(.counter-add:hover) {
+    background-color: color-mix(in srgb, var(--color-primary) 90%, white);
+  }
+  .counter[data-state="qty"] {
+    background-color: #e6e6e6;
+  }
+  .counter-add,
+  .counter-dec,
+  .counter-num,
+  .counter-inc,
+  .counter-bin,
+  .counter-minus {
+    transition: translate 0.3s ease-out;
+  }
+  .counter-dec {
+    translate: 0 160px;
+  }
+  .counter-num {
+    translate: 0 60px;
+  }
+  .counter-inc {
+    translate: 0 110px;
+  }
+  .counter[data-state="qty"] .counter-add {
+    translate: 0 -50px;
+  }
+  .counter[data-state="qty"] :is(.counter-dec, .counter-num, .counter-inc) {
+    translate: 0 0;
+  }
+  /* Left button: the bin at 1, the minus from 2 up (they swap vertically) */
+  .counter-minus {
+    translate: 0 -40px;
+  }
+  .counter[data-many] .counter-bin {
+    translate: 0 40px;
+  }
+  .counter[data-many] .counter-minus {
+    translate: 0 0;
+  }
+  .counter-instant,
+  .counter-instant * {
+    transition: none !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .counter,
+    .counter * {
+      transition: none !important;
+    }
+  }
+
   /* Cart count on the bag icon: a pill in the header's own colour with the
      number knocked out, so it reads on white and over the home hero alike */
   .cart-badge {
@@ -659,12 +743,8 @@
     display: none;
   }
 
-  /* Leaflet ships its own stylesheet; keep its attribution small and RTL-safe */
-  .leaflet-container {
-    font-family: inherit;
-    background: var(--color-surface-low);
-  }
-  .leaflet-control-attribution {
+  /* The address map (MapTiler): keep its attribution small and RTL-safe */
+  .maplibregl-ctrl-attrib {
     direction: ltr;
     font-size: 10px;
   }
