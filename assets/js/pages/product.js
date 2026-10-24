@@ -5,7 +5,7 @@
  *                  collapsible sections, and a floating bar with the price
  *                  and the cart button
  *  desktop:        title, gallery, features and sections on the right,
- *                  409px sticky buy sidebar on the left
+ *                  350px sticky buy sidebar on the left
  *
  * The cart button turns into a quantity stepper in place once the piece is
  * in the cart (Figma edit 26, motion in main.css under "Cart counter").
@@ -141,11 +141,16 @@
       { gap: "gap-6" },
     );
 
-  /** "فضای مورد نیاز" — the numbers, then the top-view diagram with its dimensions */
+  /**
+   * "فضای مورد نیاز" — the numbers and the top-view diagram with its
+   * dimensions: stacked on phones/tablets, side by side on desktop (numbers
+   * on the right, diagram on the left, two equal columns, 32px apart).
+   */
   const space = (s) =>
     accordion(
       sectionTitle("فضای مورد نیاز"),
-      html`<dl class="flex flex-col gap-2">
+      html`<div class="flex flex-col gap-8 lg:flex-row lg:items-center lg:py-4">
+        <dl class="flex flex-col gap-2 lg:flex-1">
           ${s.rows.map(
             (row) => html`<div class="flex items-center justify-between gap-3 whitespace-nowrap">
               <dt class="text-13 text-on-surface-var">${row.label}</dt>
@@ -154,14 +159,15 @@
           )}
         </dl>
         <!-- Drawn LTR so the dimension lines sit where the design puts them -->
-        <figure dir="ltr" class="flex flex-col items-center gap-3 self-center">
+        <figure dir="ltr" class="flex flex-col items-center gap-3 self-center lg:flex-1">
           <div class="flex h-[189px] items-center gap-3">
             <div class="w-[51px]" aria-hidden="true"></div>
             ${ui.img(s.diagram, { width: 152, height: 189 })}
             <div class="flex h-full w-[51px] items-center justify-center border-l border-on-surface text-13 text-on-surface">${s.depth}</div>
           </div>
           <figcaption class="flex h-[51px] w-[189px] items-center justify-center border-t border-on-surface text-13 text-on-surface">${s.width}</figcaption>
-        </figure>`,
+        </figure>
+      </div>`,
     );
 
   /**
@@ -260,7 +266,7 @@
           cls: "lg:border-b lg:border-black-10",
         })}
 
-        <!-- Phones/tablets: one column. Desktop: content on the right, 409px sticky sidebar on the left -->
+        <!-- Phones/tablets: one column. Desktop: content on the right, 350px sticky sidebar on the left -->
         <div class="mx-auto max-w-[1266px] pb-[104px] lg:flex lg:items-start lg:pb-0">
           <div class="min-w-0 flex-1">
             <section class="flex flex-col items-start gap-8 px-6 py-8 md:px-12 lg:items-center">
@@ -285,7 +291,7 @@
 
           <aside
             aria-label="خرید"
-            class="sticky top-[97px] hidden h-[calc(100dvh-154px)] min-h-[600px] w-[409px] shrink-0 flex-col gap-4 overflow-y-auto border-s border-outline-var bg-surface p-8 lg:flex"
+            class="sticky top-[97px] hidden h-[calc(100dvh-154px)] min-h-[600px] w-[350px] shrink-0 flex-col gap-4 overflow-y-auto border-s border-outline-var bg-surface p-8 lg:flex"
           >
             <div class="flex flex-1 flex-col gap-4">
               <div class="flex flex-col gap-6">
@@ -349,7 +355,7 @@
             data-action="picker"
             data-group="${group.key}"
             aria-haspopup="dialog"
-            class="flex h-20 w-full items-center justify-between gap-4 overflow-hidden rounded-[24px] border border-hairline bg-surface-low px-4 py-3 text-start transition-colors duration-300 hover:border-outline-var lg:h-[76px]"
+            class="flex h-20 w-full items-center justify-between gap-4 overflow-hidden rounded-[24px] border border-hairline bg-surface-low px-4 py-3 text-start transition-colors duration-300 hover:border-outline-var"
           >
             <span class="flex min-w-0 flex-1 flex-col items-start gap-2">
               <span class="text-13 text-outline">${chosen ? (group.selectedLabel ?? group.label) : group.label}</span>
