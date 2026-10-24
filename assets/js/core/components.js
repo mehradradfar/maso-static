@@ -29,14 +29,14 @@
    * Price block from the product card:
    *   ۱,۴۸۰,۰۰۰,۰۰۰ تومان          (20px bold + toman sign, 10px gap)
    *   ۲۰۰,۰۰۰,۰۰۰  [- ۱۰٪]          (struck-through old price + red badge)
-   * size "md": 20px bold · "card": 16px semibold (product cards) · "sm": 16px regular (search rows, cart)
+   * size "md": 20px bold · "card": 16px bold (product cards) · "sm": 16px regular (search rows, cart)
    */
   function price({ price, regularPrice, size = "md", cls = "" }) {
     const discount = regularPrice && regularPrice > price ? Math.round((1 - price / regularPrice) * 100) : 0;
     return html`
       <div class="${cx("flex shrink-0 flex-col items-start gap-1", cls)}">
         <p class="flex items-center gap-2.5 text-ink">
-          <span class="${size === "md" ? "text-20 font-bold" : size === "card" ? "text-16 font-semibold" : "text-16"}">${fmt.price(price)}</span>
+          <span class="${size === "md" ? "text-20 font-bold" : size === "card" ? "text-16 font-bold" : "text-16"}">${fmt.price(price)}</span>
           ${icon("toman")}
         </p>
         ${discount > 0 &&

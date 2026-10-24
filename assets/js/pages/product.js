@@ -30,7 +30,7 @@
   /** Product name (gradient) + "تحویل تا ۴۵ روز کاری" */
   const titleBlock = (product, tag) => html`
     <div class="flex flex-col items-start">
-      ${Maso.raw(`<${tag} class="bg-linear-to-b from-black to-black/30 bg-clip-text text-20 font-semibold text-transparent">`)}${product.name}${Maso.raw(`</${tag}>`)}
+      ${Maso.raw(`<${tag} class="bg-linear-to-b from-black to-black/30 bg-clip-text text-20 font-bold text-transparent">`)}${product.name}${Maso.raw(`</${tag}>`)}
       <p class="text-16 text-on-surface">تحویل تا <strong class="font-extrabold">${fmt.digits(product.deliveryDays)}</strong> روز کاری</p>
     </div>
   `;
@@ -44,30 +44,31 @@
   `;
 
   const exactPrice = (value, cls) => html`
-    <p class="${cx("flex items-center gap-2.5 font-semibold text-ink", cls)}"><span>${fmt.price(value)}</span>${icon("toman")}</p>
+    <p class="${cx("flex items-center gap-2.5 font-bold text-ink", cls)}"><span>${fmt.price(value)}</span>${icon("toman")}</p>
   `;
 
   /**
-   * Collapsible section (Figma edit 24): 20px title and a 48px "+" that turns
-   * into "−" when open, 2px outline rule underneath.
+   * Collapsible section (Figma edit 24): 16px semibold title and a 24px "+"
+   * (1.5px stroke, inline SVG) in a 48px box that turns into "−" when open,
+   * 80px closed (16px padding), 1.5px outline-var rule underneath.
    * Native <details>, so it works without JavaScript and opens with an animation.
    */
   const accordion = (title, body, { gap = "gap-8" } = {}) => html`
-    <details class="group/acc details-animate border-b-2 border-outline">
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-6 [&::-webkit-details-marker]:hidden">
+    <details class="group/acc details-animate border-b-[1.5px] border-outline-var">
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-4 [&::-webkit-details-marker]:hidden">
         ${title}
         <span aria-hidden="true" class="flex size-12 shrink-0 items-center justify-center text-ink transition-transform duration-500 ease-out-expo group-hover/acc:scale-110">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision">
             <path d="M5 12h14" />
-            <path d="M12 5v14" class="origin-center transition-transform duration-500 ease-out-expo group-open/acc:scale-y-0" />
+            <path d="M12 5v14" class="origin-center transition-transform duration-500 ease-out-expo [transform-box:fill-box] group-open/acc:scale-y-0" />
           </svg>
         </span>
       </summary>
       <div class="${cx("flex flex-col pb-6", gap)}">${body}</div>
     </details>
   `;
-  const sectionTitle = (text) => html`<h2 class="text-20 font-semibold text-ink">${text}</h2>`;
-  const gradientTitle = (text) => html`<h2 class="bg-linear-to-b from-black to-black/30 bg-clip-text text-20 font-semibold text-transparent">${text}</h2>`;
+  const sectionTitle = (text) => html`<h2 class="text-16 font-bold text-ink">${text}</h2>`;
+  const gradientTitle = (text) => html`<h2 class="bg-linear-to-b from-black to-black/30 bg-clip-text text-16 font-bold text-transparent">${text}</h2>`;
 
   /**
    * 340×340 rounded photos in a horizontal snap-scroller that starts on the
@@ -125,7 +126,7 @@
   /** "در یک نگاه. مشخصات تخصصی محصول" table with "بیشتر" / "کمتر" */
   const specs = (list, visible) =>
     accordion(
-      html`<h2 class="text-20 font-semibold text-ink">در یک نگاه. <span class="text-ink-muted">مشخصات تخصصی محصول</span></h2>`,
+      html`<h2 class="text-16 font-bold text-ink">در یک نگاه. <span class="text-[#999]">مشخصات تخصصی محصول</span></h2>`,
       html`<ul class="flex flex-col gap-2">${list.slice(0, visible).map(specRow)}</ul>
         ${list.length > visible &&
         html`<ul data-more-specs hidden class="-mt-6 flex flex-col gap-2">${list.slice(visible).map(specRow)}</ul>
@@ -423,7 +424,7 @@
       price === null
         ? html`<div class="flex h-[103px] items-center justify-between gap-2.5">
             <span class="text-13 text-ink">قیمت</span>
-            ${priceRangeText(min, max, "text-16 font-semibold")}
+            ${priceRangeText(min, max, "text-16 font-bold")}
           </div>`
         : html`<div class="flex h-[103px] flex-col justify-between">
             <div class="flex items-center justify-between gap-2.5">
