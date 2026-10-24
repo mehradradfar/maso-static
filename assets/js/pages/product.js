@@ -51,20 +51,21 @@
    * Collapsible section (Figma edit 24): 16px semibold title and a 24px "+"
    * (1.5px stroke, inline SVG) in a 48px box that turns into "−" when open,
    * 80px closed (16px padding), 1.5px outline-var rule underneath.
-   * Native <details>, so it works without JavaScript and opens with an animation.
+   * Native <details> (works without JavaScript); ui.js "Smooth accordions"
+   * animates the opening and closing (data-accordion).
    */
   const accordion = (title, body, { gap = "gap-8" } = {}) => html`
-    <details class="group/acc details-animate border-b-[1.5px] border-outline-var">
+    <details data-accordion class="group/acc border-b-[1.5px] border-outline-var">
       <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-4 [&::-webkit-details-marker]:hidden">
         ${title}
         <span aria-hidden="true" class="flex size-12 shrink-0 items-center justify-center text-ink transition-transform duration-500 ease-out-expo group-hover/acc:scale-110">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision">
+          <svg class="acc-plus" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" shape-rendering="geometricPrecision">
             <path d="M5 12h14" />
-            <path d="M12 5v14" class="origin-center transition-transform duration-500 ease-out-expo [transform-box:fill-box] group-open/acc:scale-y-0" />
+            <path d="M12 5v14" class="acc-plus-v" />
           </svg>
         </span>
       </summary>
-      <div class="${cx("flex flex-col pb-6", gap)}">${body}</div>
+      <div data-accordion-body><div class="${cx("flex flex-col pb-6", gap)}">${body}</div></div>
     </details>
   `;
   const sectionTitle = (text) => html`<h2 class="text-16 font-bold text-ink">${text}</h2>`;
@@ -188,11 +189,11 @@
       gradientTitle("سوالات متداول"),
       html`<div class="flex flex-col gap-3">
         ${faqs.map(
-          (f) => html`<details name="product-faq" class="group details-animate">
+          (f) => html`<details data-accordion data-accordion-group="product-faq">
             <summary class="flex h-12 cursor-pointer list-none items-center justify-between text-16 text-[#1c1c1c] [&::-webkit-details-marker]:hidden">
-              ${f.question} ${icon("chevronLeft", { cls: "transition-transform duration-300 ease-out-expo group-open:-rotate-90" })}
+              ${f.question} ${icon("chevronLeft", { cls: "acc-chevron" })}
             </summary>
-            <p class="pb-3 text-16 text-ink-var">${f.answer}</p>
+            <div data-accordion-body><p class="pb-3 text-16 text-ink-var">${f.answer}</p></div>
           </details>`,
         )}
       </div>`,

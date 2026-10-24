@@ -360,6 +360,35 @@
       visibility 0s linear 0.4s;
   }
 
+  /* Accordion icons (product sections): "+" spins half a turn and becomes
+     "−"; the FAQ chevron turns down. Driven by [open] but not while the
+     section is closing, so the icon moves together with the content. */
+  .acc-plus,
+  .acc-plus-v,
+  .acc-chevron {
+    transition: transform 0.6s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+  .acc-plus-v {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  details[open]:not([data-closing]) > summary .acc-plus {
+    transform: rotate(180deg);
+  }
+  details[open]:not([data-closing]) > summary .acc-plus-v {
+    transform: scaleY(0);
+  }
+  details[open]:not([data-closing]) > summary .acc-chevron {
+    transform: rotate(-90deg);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .acc-plus,
+    .acc-plus-v,
+    .acc-chevron {
+      transition: none;
+    }
+  }
+
   /* While a page shows its full-screen skeleton the footer stays away, so
      nothing jumps when the content arrives (Figma edit 29) */
   body:has([data-page-skeleton]) footer {

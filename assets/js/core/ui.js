@@ -199,6 +199,89 @@
     Maso.cart.subscribe(paint);
   }
 
+  /* ------------------------------------------------------------------ */
+  /* Smooth accordions (<details data-accordion>)                        */
+  /*   Browsers open <details> instantly; this animates the height of     */
+  /*   [data-accordion-body] and fades/slides its content in and out.     */
+  /*   Works for content drawn later (one delegated listener), copes with */
+  /*   a click mid-animation, and keeps one open per                      */
+  /*   data-accordion-group. Reduced motion → instant, like native.       */
+  /* ------------------------------------------------------------------ */
+
+  function initAccordions() {
+    const still = matchMedia("(prefers-reduced-motion: reduce)");
+    const running = new WeakMap();
+    // Gentle ease-out to open (no snap at the start), ease-in-out to close
+    const OPEN_EASE = "cubic-bezier(0.33, 1, 0.68, 1)";
+    const CLOSE_EASE = "cubic-bezier(0.65, 0, 0.35, 1)";
+
+    function toggle(details, open) {
+      const body = details.querySelector(":scope > [data-accordion-body]");
+      const inner = body?.firstElementChild;
+      const busy = running.get(details);
+      if (!body || !inner || still.matches || !body.animate) {
+        busy?.forEach((a) => a.cancel());
+        details.removeAttribute("data-closing");
+        details.open = open;
+        return;
+      }
+      // Start from wherever the current animation is (a click mid-way reverses smoothly)
+      const from = busy ? body.getBoundingClientRect().height : open ? 0 : body.offsetHeight;
+      busy?.forEach((a) => a.cancel());
+
+      details.toggleAttribute("data-closing", !open);
+      if (open) details.open = true;
+      const to = open ? body.scrollHeight : 0;
+      // Taller content takes a little longer, within limits
+      const distance = Math.abs(to - from);
+      const duration = open ? Math.min(850, 500 + distance * 0.25) : Math.min(550, 340 + distance * 0.15);
+
+      body.style.overflow = "hidden";
+      const height = body.animate([{ height: `${from}px` }, { height: `${to}px` }], {
+        duration,
+        easing: open ? OPEN_EASE : CLOSE_EASE,
+        fill: "both",
+      });
+      const fade = inner.animate(
+        open
+          ? [
+              { opacity: 0, transform: "translateY(-12px)" },
+              { opacity: 1, transform: "none" },
+            ]
+          : [
+              { opacity: 1, transform: "none" },
+              { opacity: 0, transform: "translateY(-8px)" },
+            ],
+        { duration: open ? duration * 0.9 : duration * 0.6, delay: open ? 80 : 0, easing: open ? OPEN_EASE : CLOSE_EASE, fill: "both" },
+      );
+      running.set(details, [height, fade]);
+      height.onfinish = () => {
+        running.delete(details);
+        body.style.overflow = "";
+        height.cancel();
+        fade.cancel();
+        if (!open) {
+          details.open = false;
+          details.removeAttribute("data-closing");
+        }
+      };
+    }
+
+    document.addEventListener("click", (e) => {
+      const summary = e.target.closest("details[data-accordion] > summary");
+      if (!summary) return;
+      e.preventDefault();
+      const details = summary.parentElement;
+      const opening = !details.open || details.hasAttribute("data-closing");
+      if (opening && details.dataset.accordionGroup) {
+        document
+          .querySelectorAll(`details[data-accordion-group="${CSS.escape(details.dataset.accordionGroup)}"][open]`)
+          .forEach((other) => other !== details && !other.hasAttribute("data-closing") && toggle(other, false));
+      }
+      toggle(details, opening);
+    });
+  }
+
   /** Fixed bottom bars ([data-fixed-bar]) fade away while the footer is on screen */
   function initFooterWatch() {
     const footer = document.querySelector("body > footer, footer");
@@ -411,6 +494,7 @@
     initAccountLinks();
     initCartBadge();
     initFooterWatch();
+    initAccordions();
     initVideos();
     initCenteredScrollers();
     $$("[data-rail]").forEach(Maso.rail);
