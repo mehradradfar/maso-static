@@ -18,7 +18,30 @@
   const USE_MOCK = !WP;
   /** Sample data: the one-time code that works everywhere (login, number change, checkout) */
   const MOCK_OTP = "12345";
-  const MOCK = window.MASO_MOCK;
+  /**
+   * The sample data file (assets/js/dist/mock.js) is requested by the scripts
+   * partial only while WP_URL is empty, in parallel with the rest; every API
+   * call waits for it (see the end of this file). With WordPress it is never
+   * downloaded.
+   */
+  let MOCK = window.MASO_MOCK;
+  const here = document.currentScript?.src;
+  const mockReady =
+    !USE_MOCK || MOCK
+      ? Promise.resolve()
+      : new Promise((resolve) => {
+          let tag = document.getElementById("maso-mock");
+          if (!tag) {
+            tag = Object.assign(document.createElement("script"), { id: "maso-mock", src: new URL("mock.js", here || location.href).href });
+            document.head.append(tag);
+          }
+          const done = () => {
+            MOCK = window.MASO_MOCK;
+            resolve();
+          };
+          tag.addEventListener("load", done);
+          tag.addEventListener("error", done);
+        });
 
   /* ------------------------------------------------------------------ */
   /* Shop query ⇄ URL                                                    */
@@ -615,4 +638,16 @@
       }
     },
   };
+
+  /* Sample data mode: every call first waits for the sample data file */
+  if (USE_MOCK) {
+    const waitForMock = (group) => {
+      for (const [key, value] of Object.entries(group)) {
+        if (value === ApiError) continue;
+        if (typeof value === "function") group[key] = (...args) => mockReady.then(() => value.apply(group, args));
+        else if (value && typeof value === "object") waitForMock(value);
+      }
+    };
+    waitForMock(Maso.api);
+  }
 })();

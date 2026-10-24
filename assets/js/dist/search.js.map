@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../pages/search.js"],
+  "sourcesContent": ["/** search.html — the search panel as a page, starting from ?q= */\n(function () {\n  \"use strict\";\n\n  const { api, url, dom } = window.Maso;\n\n  dom.ready(async () => {\n    const root = dom.$(\"#search-page-panel\");\n    const popular = await api\n      .settings()\n      .then((s) => s.popularSearches)\n      .catch(() => []);\n    window.Maso.searchPanel(root, { popular, initialQuery: url.param(\"q\") || \"\" });\n  });\n})();\n"],
+  "mappings": "OACC,UAAY,CACX,aAEA,GAAM,CAAE,IAAAA,EAAK,IAAAC,EAAK,IAAAC,CAAI,EAAI,OAAO,KAEjCA,EAAI,MAAM,SAAY,CACpB,IAAMC,EAAOD,EAAI,EAAE,oBAAoB,EACjCE,EAAU,MAAMJ,EACnB,SAAS,EACT,KAAMK,GAAMA,EAAE,eAAe,EAC7B,MAAM,IAAM,CAAC,CAAC,EACjB,OAAO,KAAK,YAAYF,EAAM,CAAE,QAAAC,EAAS,aAAcH,EAAI,MAAM,GAAG,GAAK,EAAG,CAAC,CAC/E,CAAC,CACH,GAAG",
+  "names": ["api", "url", "dom", "root", "popular", "s"]
+}

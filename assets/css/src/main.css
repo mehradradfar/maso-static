@@ -14,6 +14,7 @@
 @source "../../../*.html";
 @source "../../../partials/*.html";
 @source "../../js";
+@source not "../../js/dist";
 
 /* ==========================================================================
    Font — Yekan Bakh VF (licensed, self-hosted: no Google Fonts / CDNs, which
@@ -747,21 +748,6 @@
   .post-body :where(strong, b) {
     font-weight: var(--font-weight-bold);
     color: var(--color-ink);
-  }
-
-  /* Smoothly animated <details> where the browser supports it (Chrome 131+) */
-  .details-animate {
-    interpolate-size: allow-keywords;
-  }
-  .details-animate::details-content {
-    block-size: 0;
-    overflow: hidden;
-    transition:
-      block-size 0.4s var(--ease-out-expo),
-      content-visibility 0.4s allow-discrete;
-  }
-  .details-animate[open]::details-content {
-    block-size: auto;
   }
 
   /* Hides scrollbars on horizontal carousels while keeping them scrollable */

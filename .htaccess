@@ -27,20 +27,37 @@ ErrorDocument 503 /maintenance.html
   AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml
 </IfModule>
 
-# Caching: pages always fresh, assets for a week (rename a file to force an update)
+# Caching
+#   pages and assets/js/config.js: always checked for a new copy
+#   CSS, JS bundles, font: a year — every build changes their ?v=… in the pages
+#   images and videos: 30 days (rename a file to replace it sooner)
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType text/html "access plus 0 seconds"
-  ExpiresByType text/css "access plus 7 days"
-  ExpiresByType text/javascript "access plus 7 days"
-  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType text/javascript "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType application/json "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
   ExpiresByType image/webp "access plus 30 days"
   ExpiresByType image/jpeg "access plus 30 days"
   ExpiresByType image/png "access plus 30 days"
   ExpiresByType image/svg+xml "access plus 30 days"
-  ExpiresByType font/woff2 "access plus 1 year"
   ExpiresByType video/mp4 "access plus 30 days"
 </IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "\.(css|js|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+<Files "config.js">
+  <IfModule mod_expires.c>
+    ExpiresActive Off
+  </IfModule>
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-cache"
+  </IfModule>
+</Files>
 
 <IfModule mod_mime.c>
   AddType font/woff2 .woff2

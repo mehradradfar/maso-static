@@ -68,7 +68,7 @@ reuses each GET answer (except the account ones).
 
 ```jsonc
 {
-  "headerNav": [{ "label": "سفارش اختصاصی", "href": "/custom-order" }],
+  "headerNav": [{ "label": "فروشگاه", "href": "/shop" }],
   "mobileNav": [{ "label": "سفارش اختصاصی", "href": "/custom-order" }, { "label": "درباره ما", "href": "/about" }, { "label": "تماس با ما", "href": "/contact" }],
   "popularSearches": ["مبل راحتی", "تخت دونفره", "میز ناهارخوری", "صندلی", "کنسول و آینه"],
   "loginBackground": { "src": "", "poster": { /* Media */ } },
@@ -86,7 +86,7 @@ reuses each GET answer (except the account ones).
 }
 ```
 
-The header's "کتگوری‌ها" mega menu (desktop) and the categories screen of the
+The header's «محصولات» mega menu (desktop) and the categories screen of the
 mobile menu list the shop categories — the same `Category[]` as
 `/maso/v1/shop/categories` (name, slug and the small `icon` picture). In this
 static version they are written into `partials/header.html`; a theme renders

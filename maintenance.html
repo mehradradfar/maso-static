@@ -7,7 +7,8 @@
 <html lang="fa" dir="rtl">
   <head>
     <!-- Served for any URL (e.g. /blog/x): resolve assets from the site root. Not when opened from disk. -->
-    <script>if (location.protocol !== "file:") document.write('<base href="/" />');</script>
+    <base href="/" />
+    <script>if (location.protocol === "file:") document.querySelector("base").href = "./";</script>
     <!-- @include head {"title":"در حال بروزرسانی","noindex":true} -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -24,7 +25,7 @@
 <link rel="preload" href="assets/fonts/YekanBakh-VF.woff2" as="font" type="font/woff2" crossorigin />
 <!-- Opened from disk (file://), browsers block font files: use an embedded copy instead -->
 <script>if (location.protocol === "file:") document.write('<script src="assets/fonts/yekan-bakh-local-preview.js"><\/script>');</script>
-<link rel="stylesheet" href="assets/css/main.css" />
+<link rel="stylesheet" href="assets/css/main.css?v=023c5ffd44" />
 <!-- Without JavaScript nothing should stay hidden by the scroll animations -->
 <noscript><style>[data-reveal]{opacity:1!important;translate:none!important}</style></noscript>
 <!-- /@include -->

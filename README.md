@@ -36,8 +36,9 @@ confirming the number at checkout) · coupons
 | Blog, article | `blog.html`, `blog-post.html?slug=minimal-furniture-arrangement` | — |
 | Profile (signed in) | `profile.html`, `?view=info` · `addresses` · `orders&tab=pre\|current\|delivered\|returned` · `order&id=40017` | — |
 
-The header (every page) has the "کتگوری‌ها" mega menu on desktop and the
-frosted full-screen menu with a categories screen on phones and tablets.
+The header (every page, 80px tall, content 900px wide) has the «محصولات»
+mega menu and a «فروشگاه» link on desktop, and the frosted full-screen menu
+with a categories screen on phones and tablets.
 The account icon leads to the login page, or to the profile once signed in.
 
 Only the terms page (`terms.html`, linked from the footer) isn't designed
@@ -51,6 +52,7 @@ assets/
   css/main.css         the stylesheet (compiled — this is what pages load)
   css/src/main.css     its source: design tokens (Figma variables), base, motion
   js/config.js         ← the only file to edit when going live (WordPress URL, map key)
+  js/dist/             what the pages load: minified bundles + source maps (built)
   js/data/mock.js      sample content in the exact WordPress JSON shapes
   js/data/service-areas.js  Tehran & Karaj outlines (where the map step and Maso delivery apply)
   js/core/             shared: helpers, icons, storage (cart…), data layer (api.js),
@@ -60,7 +62,7 @@ assets/
   images/              all pictures and logos
   video/               background clips (hero, footer, bed category)
 partials/              header, footer, <head> and script list shared by all pages
-scripts/build.mjs      copies the partials into the pages + compiles the CSS
+scripts/build.mjs      bundles the JS, compiles the CSS, copies the partials into the pages
 docs/WORDPRESS_API.md  the REST contract for the WordPress developer
 .htaccess              404 page, pretty URLs, caching, maintenance switch (Apache/LiteSpeed)
 ```
@@ -82,22 +84,46 @@ docs/WORDPRESS_API.md  the REST contract for the WordPress developer
 * Cart, saved addresses, checkout choices, recent searches and the login
   token are kept in `localStorage`.
 
+### Speed
+
+* **Three requests of JavaScript per page** at most: `config.js`, the shared
+  `dist/core.js` and the page's own bundle (checkout pages add the shared
+  checkout/address bundles). Bundles are minified (about half the size of
+  the sources); source maps keep the original files readable in the
+  browser's developer tools.
+* **Sample data only when needed:** `dist/mock.js` is requested only while
+  `WP_URL` is empty — with WordPress connected it is never downloaded.
+* **Long caching, instant updates:** every CSS/JS link carries `?v=<hash>`,
+  rewritten by each build, so browsers keep those files for a year
+  (`vercel.json`, `.htaccess`) yet fetch a new build immediately.
+  `config.js` is never cached long, so it can be edited on the server.
+* Pictures load lazily (except the first one on screen), videos only play
+  — and only download — while visible, scroll effects use
+  IntersectionObserver instead of scroll listeners, and the brand font is
+  preloaded with a metric-matched fallback (no layout jump).
+
 ## Editing
 
 Plain edits to a page's own content need nothing else: change the HTML and
-upload it.
+upload it. `assets/js/config.js` can also be edited directly.
 
-Two things are generated, so edit their sources and rebuild:
+Three things are generated, so edit their sources and rebuild:
 
 | To change… | edit | then |
 | --- | --- | --- |
 | header, footer, `<head>`, script list (all pages) | `partials/*.html` | `npm run build` |
 | colours, type sizes, animations — or after adding new utility classes anywhere | `assets/css/src/main.css` / the HTML or JS | `npm run build` |
+| any script (pages, data layer, components, sample data) | `assets/js/core`, `pages`, `data` | `npm run build` |
 
 ```bash
-npm install      # once (installs the Tailwind CLI only)
+npm install      # once (installs the Tailwind CLI and esbuild)
 npm run build    # or: npm run watch
 ```
+
+A new page script `assets/js/pages/foo.js` becomes `assets/js/dist/foo.js`
+automatically; load it with `<script src="assets/js/dist/foo.js" defer></script>`
+after the scripts partial (the build adds the `?v=`). Shared bundles are
+listed at the top of `scripts/build.mjs`.
 
 Each page marks where the shared parts go with
 `<!-- @include header {"mode":"overlay"} -->…<!-- /@include -->`; the build
@@ -130,6 +156,8 @@ and leave the scripts as they are.
 Upload everything **except** `node_modules/`, `partials/`, `scripts/`,
 `assets/css/src/`, `package*.json` and `docs/` to the site's root
 (`public_html` in cPanel's File Manager — zip, upload, extract). That's it.
+(`assets/js/core`, `pages` and `data` are only the sources of the bundles;
+uploading them does no harm.)
 
 * `.htaccess` (Apache/LiteSpeed, the usual cPanel servers) sets up the 404
   page, short URLs (`/shop` → `shop.html`), compression and caching.
@@ -139,7 +167,9 @@ Upload everything **except** `node_modules/`, `partials/`, `scripts/`,
   ```nginx
   error_page 404 /404.html;
   location / { try_files $uri $uri.html $uri/ =404; }
-  location /assets/ { expires 7d; }
+  location /assets/ { expires 30d; }
+  location ~ ^/assets/(css|js/dist|fonts)/ { add_header Cache-Control "public, max-age=31536000, immutable"; }
+  location = /assets/js/config.js { add_header Cache-Control "no-cache"; }
   ```
 
 * The site should live at the root of its domain (the 404 and maintenance

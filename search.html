@@ -22,7 +22,7 @@
 <link rel="preload" href="assets/fonts/YekanBakh-VF.woff2" as="font" type="font/woff2" crossorigin />
 <!-- Opened from disk (file://), browsers block font files: use an embedded copy instead -->
 <script>if (location.protocol === "file:") document.write('<script src="assets/fonts/yekan-bakh-local-preview.js"><\/script>');</script>
-<link rel="stylesheet" href="assets/css/main.css" />
+<link rel="stylesheet" href="assets/css/main.css?v=023c5ffd44" />
 <!-- Without JavaScript nothing should stay hidden by the scroll animations -->
 <noscript><style>[data-reveal]{opacity:1!important;translate:none!important}</style></noscript>
 <!-- /@include -->
@@ -309,17 +309,13 @@
 <!-- /@include -->
 
     <!-- @include scripts -->
-<!-- Core scripts (order matters: config → data → helpers → features) -->
-<script src="assets/js/config.js" defer></script>
-<script src="assets/js/data/mock.js" defer></script>
-<script src="assets/js/core/utils.js" defer></script>
-<script src="assets/js/core/icons.js" defer></script>
-<script src="assets/js/core/store.js" defer></script>
-<script src="assets/js/core/api.js" defer></script>
-<script src="assets/js/core/components.js" defer></script>
-<script src="assets/js/core/ui.js" defer></script>
-<script src="assets/js/core/search.js" defer></script>
+<!-- Scripts. config.js is the site's settings (not bundled, safe to edit on the server).
+     Sample data is fetched only while MASO_CONFIG.WP_URL is empty; everything else is
+     minified bundles built from assets/js by `npm run build` (?v= changes with every build). -->
+<script src="assets/js/config.js"></script>
+<script>MASO_CONFIG.WP_URL || document.head.append(Object.assign(document.createElement("script"), { id: "maso-mock", src: "assets/js/dist/mock.js?v=db8d9c8cee" }));</script>
+<script src="assets/js/dist/core.js?v=d429790b51" defer></script>
 <!-- /@include -->
-    <script src="assets/js/pages/search.js" defer></script>
+    <script src="assets/js/dist/search.js?v=c73395fe3f" defer></script>
   </body>
 </html>

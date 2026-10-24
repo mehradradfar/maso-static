@@ -1,10 +1,6 @@
-<!-- Core scripts (order matters: config → data → helpers → features) -->
-<script src="assets/js/config.js" defer></script>
-<script src="assets/js/data/mock.js" defer></script>
-<script src="assets/js/core/utils.js" defer></script>
-<script src="assets/js/core/icons.js" defer></script>
-<script src="assets/js/core/store.js" defer></script>
-<script src="assets/js/core/api.js" defer></script>
-<script src="assets/js/core/components.js" defer></script>
-<script src="assets/js/core/ui.js" defer></script>
-<script src="assets/js/core/search.js" defer></script>
+<!-- Scripts. config.js is the site's settings (not bundled, safe to edit on the server).
+     Sample data is fetched only while MASO_CONFIG.WP_URL is empty; everything else is
+     minified bundles built from assets/js by `npm run build` (?v= changes with every build). -->
+<script src="assets/js/config.js"></script>
+<script>MASO_CONFIG.WP_URL || document.head.append(Object.assign(document.createElement("script"), { id: "maso-mock", src: "assets/js/dist/mock.js" }));</script>
+<script src="assets/js/dist/core.js" defer></script>
