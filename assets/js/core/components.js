@@ -178,12 +178,13 @@
    * "فروشگاه / تخت" trail under the header on shop pages. Ancestors are
    * on-surface-var, the current page is full black; "/ " belongs to the
    * following crumb, exactly like the design.
-   * size "compact": 8px vertical padding (listing) · "roomy": 16px (product page)
+   * size "compact": 8px vertical padding, 16px text (listing)
+   *      "roomy":   16px padding, 13px text (product page, Figma edit 31)
    */
   function breadcrumbs(items, { size = "compact", cls = "" } = {}) {
     return html`
       <nav aria-label="مسیر صفحه" class="${cx(size === "compact" ? "px-4 py-2 md:px-12" : "p-4 md:px-12", cls)}">
-        <ol class="no-scrollbar mx-auto flex max-w-[900px] items-start gap-2 overflow-x-auto text-16 whitespace-nowrap">
+        <ol class="${cx("no-scrollbar mx-auto flex max-w-[900px] items-start gap-2 overflow-x-auto whitespace-nowrap", size === "compact" ? "text-16" : "text-13")}">
           ${items.map((item, i) => {
             const slash = i > 0 && html`<span aria-hidden="true">/ </span>`;
             return html`<li class="shrink-0">

@@ -286,9 +286,12 @@
             aria-label="خرید"
             class="sticky top-[97px] hidden h-[calc(100dvh-154px)] min-h-[600px] w-[409px] shrink-0 flex-col gap-4 overflow-y-auto border-s border-outline-var bg-surface p-8 lg:flex"
           >
-            <div class="flex flex-1 flex-col gap-6">
-              <p class="text-16 text-ink">جزئیات محصول</p>
-              <div data-slot="cards"></div>
+            <div class="flex flex-1 flex-col gap-4">
+              <div class="flex flex-col gap-6">
+                <p class="text-16 text-ink">جزئیات محصول</p>
+                <div data-slot="cards"></div>
+              </div>
+              <p data-slot="sidebar-hint" class="text-13 font-extrabold text-on-surface-var">برای مشاهده قیمت دقیق ابتدا جزئیات محصول را انتخاب کنید.</p>
             </div>
             <hr class="border-0 border-t border-black-10" />
             <div data-slot="sidebar-price"></div>
@@ -345,7 +348,7 @@
             data-action="picker"
             data-group="${group.key}"
             aria-haspopup="dialog"
-            class="flex h-20 w-full items-center justify-between gap-2 overflow-hidden rounded-[24px] border border-hairline bg-surface-low p-4 text-start transition-colors duration-300 hover:border-outline-var"
+            class="flex h-20 w-full items-center justify-between gap-4 overflow-hidden rounded-[24px] border border-hairline bg-surface-low px-4 py-3 text-start transition-colors duration-300 hover:border-outline-var lg:h-[76px]"
           >
             <span class="flex min-w-0 flex-1 flex-col items-start gap-2">
               <span class="text-13 text-outline">${chosen ? (group.selectedLabel ?? group.label) : group.label}</span>
@@ -358,7 +361,7 @@
                   ? ui.swatches(group.options.map((o) => ({ name: o.name, image: o.swatch })))
                   : html`<span class="text-16 text-on-surface">${group.options.map((o) => o.name).join("، ")}</span>`}
             </span>
-            ${!chosen && html`<span class="shrink-0 text-10 text-warning-text">انتخاب نشده</span>`}
+            ${!chosen && html`<span class="shrink-0 text-10 text-error">انتخاب نشده</span>`}
             ${icon("chevronLeft", { cls: "shrink-0 text-ink" })}
           </button>`;
         })}
@@ -411,14 +414,18 @@
       return html`${row(price, counter("product", "افزودن به سبد", "w-[156px] shrink-0"))} ${testFooter}`;
     }
 
-    /** Sidebar price block: the hint and price range, or "قیمت" + exact price and the full-width counter */
+    /**
+     * Sidebar price block (Figma edit 32), always 103px so nothing moves:
+     * "قیمت" + the price range until everything is chosen, then "قیمت" +
+     * exact price over the full-width counter.
+     */
     const sidebarPrice = (price) =>
       price === null
-        ? html`<div class="flex flex-col items-center gap-6">
-            <p class="w-full text-16 text-on-surface">برای <strong class="font-extrabold">مشاهده قیمت دقیق</strong> ابتدا جزئیات محصول را انتخاب کنید.</p>
-            ${priceRangeText(min, max, "text-20")}
+        ? html`<div class="flex h-[103px] items-center justify-between gap-2.5">
+            <span class="text-13 text-ink">قیمت</span>
+            ${priceRangeText(min, max, "text-16 font-semibold")}
           </div>`
-        : html`<div class="flex flex-col gap-6">
+        : html`<div class="flex h-[103px] flex-col justify-between">
             <div class="flex items-center justify-between gap-2.5">
               <span class="text-13 text-ink">قیمت</span>
               ${exactPrice(price, "text-16")}
@@ -440,6 +447,7 @@
         price === null ? html`<p class="text-16 text-warning-text">برای مشاهده قیمت دقیق جزئیات محصول را انتخاب کنید.</p>` : "",
       );
       dom.$('[data-slot="hint"]', root).hidden = price !== null;
+      dom.$('[data-slot="sidebar-hint"]', root).hidden = price !== null;
 
       const shape = `${mode}|${price}|${lineId()}|${testLineId()}`;
       const fresh = [];
