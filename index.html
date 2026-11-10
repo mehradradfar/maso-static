@@ -20,7 +20,7 @@
 <link rel="preload" href="assets/fonts/YekanBakh-VF.woff2" as="font" type="font/woff2" crossorigin />
 <!-- Opened from disk (file://), browsers block font files: use an embedded copy instead -->
 <script>if (location.protocol === "file:") document.write('<script src="assets/fonts/yekan-bakh-local-preview.js"><\/script>');</script>
-<link rel="stylesheet" href="assets/css/main.css?v=023c5ffd44" />
+<link rel="stylesheet" href="assets/css/main.css?v=8658a9e1dd" />
 <!-- Without JavaScript nothing should stay hidden by the scroll animations -->
 <noscript><style>[data-reveal]{opacity:1!important;translate:none!important}</style></noscript>
 <!-- /@include -->
@@ -259,8 +259,8 @@
               <div class="flex min-h-0 flex-1 items-center justify-center">
                 <img src="assets/images/home/cat-living.webp" alt="مبل پاندا" width="700" height="490" loading="lazy" decoding="async" class="h-[245px] w-auto max-w-none shrink-0 transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]" />
               </div>
-              <div class="flex h-[93px] shrink-0 flex-col items-center gap-2 px-8 text-center">
-                <h3 class="text-gradient-primary text-20 font-bold">پذیرایی و نشیمن</h3>
+              <div class="flex h-[93px] shrink-0 flex-col items-center gap-2 px-6 text-center">
+                <h3 class="text-gradient-primary text-20 font-bold">مبلمان و پذیرایی</h3>
                 <p class="text-16 text-on-surface-var">برای راحتی بیشتر در کنار زیبایی بدون انقضا</p>
               </div>
             </a>
@@ -271,7 +271,7 @@
               <div class="flex min-h-0 flex-1 items-center justify-end">
                 <img src="assets/images/home/cat-dining.webp" alt="ست ناهارخوری دینا" width="644" height="490" loading="lazy" decoding="async" class="h-[245px] w-auto max-w-none shrink-0 transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]" />
               </div>
-              <div class="flex h-[93px] shrink-0 flex-col items-center gap-2 px-8 text-center">
+              <div class="flex h-[93px] shrink-0 flex-col items-center gap-2 px-6 text-center">
                 <h3 class="text-gradient-primary text-20 font-bold">غذا خوری و بار</h3>
                 <p class="text-16 text-on-surface-var">صرف وعده غذایی در کنار کسانی که دوست دارید</p>
               </div>
@@ -279,8 +279,8 @@
           </li>
           <li dir="rtl" data-reveal style="--reveal-index: 0" class="md:col-span-2">
             <a href="shop.html?category=beds" class="group flex h-[338px] flex-col overflow-hidden bg-surface-low">
-              <div class="flex h-[93px] shrink-0 flex-col items-center justify-end gap-2 px-8 text-center">
-                <h3 class="text-gradient-primary text-20 font-bold">تخت و سرویس خواب</h3>
+              <div class="flex h-[93px] shrink-0 flex-col items-center justify-end gap-2 px-6 text-center">
+                <h3 class="text-gradient-primary text-20 font-bold">اتاق خواب</h3>
                 <p class="text-16 text-on-surface-var">استراحتی راحت در فضایی بی‌همتا</p>
               </div>
               <div class="flex min-h-0 flex-1 items-center justify-center">
@@ -309,7 +309,7 @@
               <div class="flex min-h-0 flex-1 items-center justify-center">
                 <img src="assets/images/home/cat-work.webp" alt="میز کار" width="535" height="490" loading="lazy" decoding="async" class="h-[245px] w-auto max-w-none shrink-0 transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]" />
               </div>
-              <div class="flex h-[93px] shrink-0 flex-col items-center gap-2 px-8 text-center">
+              <div class="flex h-[93px] shrink-0 flex-col items-center gap-2 px-6 text-center">
                 <h3 class="text-gradient-primary text-20 font-bold">فضای کار</h3>
                 <p class="text-16 text-on-surface-var">فضایی که در آن خلاقیت شکوفا می‌شود</p>
               </div>
@@ -317,7 +317,7 @@
           </li>
           <li dir="rtl" data-reveal style="--reveal-index: 0">
             <a href="shop.html?category=kids" class="group flex h-[338px] flex-col overflow-hidden bg-surface-low">
-              <div class="flex h-[93px] shrink-0 flex-col items-center justify-end gap-2 px-8 text-center">
+              <div class="flex h-[93px] shrink-0 flex-col items-center justify-end gap-2 px-6 text-center">
                 <h3 class="text-gradient-primary text-20 font-bold">نوزاد، کودک و نوجوان</h3>
                 <p class="text-16 text-on-surface-var">سرویس و تخت خواب برای فرزند شما</p>
               </div>
@@ -327,6 +327,58 @@
             </a>
           </li>
         </ul>
+
+        <!--
+          Best sellers (Figma "Frame 1000004338"): the category cards filter the
+          row of product cards under them (tap again for every category).
+          Filled in by assets/js/pages/home.js; the skeleton keeps the space.
+           mobile: 16px padding, category row full bleed, 171px compact cards
+           tablet/desktop: 48px padding, rows 900px wide at most, 376px cards,
+           a blurred white fade on the left while there is more to scroll (desktop)
+        -->
+        <section id="bestsellers" aria-labelledby="bestsellers-title" class="flex flex-col gap-4 p-4 md:gap-0 md:px-12">
+          <h2 id="bestsellers-title" data-reveal class="text-gradient-primary text-center text-20 font-bold">پرفروش ترین محصولات ماسو</h2>
+          <div data-reveal="fade" class="relative -mx-4 md:mx-auto md:w-full md:max-w-[900px]">
+            <ul data-slot="categories" data-rail aria-label="دسته‌بندی‌های پرفروش ترین محصولات" class="no-scrollbar peer flex snap-x scroll-px-6 gap-2 overflow-x-auto overscroll-x-contain p-6">
+              <li class="shrink-0"><div class="flex h-[110px] w-[150px] flex-col items-center gap-4 p-3"><div class="h-[50px] w-[126px] animate-pulse rounded-[6px] bg-skeleton"></div><div class="h-5 w-20 animate-pulse rounded-[6px] bg-skeleton"></div></div></li>
+              <li class="shrink-0"><div class="flex h-[110px] w-[150px] flex-col items-center gap-4 p-3"><div class="h-[50px] w-[126px] animate-pulse rounded-[6px] bg-skeleton"></div><div class="h-5 w-20 animate-pulse rounded-[6px] bg-skeleton"></div></div></li>
+              <li class="shrink-0"><div class="flex h-[110px] w-[150px] flex-col items-center gap-4 p-3"><div class="h-[50px] w-[126px] animate-pulse rounded-[6px] bg-skeleton"></div><div class="h-5 w-20 animate-pulse rounded-[6px] bg-skeleton"></div></div></li>
+              <li class="shrink-0"><div class="flex h-[110px] w-[150px] flex-col items-center gap-4 p-3"><div class="h-[50px] w-[126px] animate-pulse rounded-[6px] bg-skeleton"></div><div class="h-5 w-20 animate-pulse rounded-[6px] bg-skeleton"></div></div></li>
+              <li class="shrink-0"><div class="flex h-[110px] w-[150px] flex-col items-center gap-4 p-3"><div class="h-[50px] w-[126px] animate-pulse rounded-[6px] bg-skeleton"></div><div class="h-5 w-20 animate-pulse rounded-[6px] bg-skeleton"></div></div></li>
+              <li class="shrink-0"><div class="flex h-[110px] w-[150px] flex-col items-center gap-4 p-3"><div class="h-[50px] w-[126px] animate-pulse rounded-[6px] bg-skeleton"></div><div class="h-5 w-20 animate-pulse rounded-[6px] bg-skeleton"></div></div></li>
+            </ul>
+            <div aria-hidden="true" class="pointer-events-none absolute inset-y-0 left-0 hidden w-[192px] bg-linear-to-l from-transparent to-surface opacity-0 backdrop-blur-[4px] transition-opacity duration-300 [mask-image:linear-gradient(to_left,transparent,black)] peer-data-more-end:opacity-100 lg:block"></div>
+          </div>
+          <div class="relative mx-auto w-full max-w-[900px] bg-surface">
+            <div data-slot="products" data-rail aria-live="polite" aria-busy="true" class="no-scrollbar peer flex snap-x scroll-px-2 gap-3 overflow-x-auto overscroll-x-contain px-2 py-8 transition-opacity duration-300">
+            <div aria-hidden="true" class="flex w-[171px] shrink-0 flex-col gap-4 md:w-[376px]">
+              <div class="h-[177px] animate-pulse bg-skeleton md:h-[375px]"></div>
+              <div class="flex flex-col gap-4 md:px-6">
+                <div class="flex items-center justify-between gap-2"><div class="h-[25px] w-20 animate-pulse rounded-[6px] bg-skeleton md:h-[31px] md:w-[150px]"></div><div class="h-5 w-14 animate-pulse rounded-[6px] bg-skeleton"></div></div>
+                <div class="h-10 w-full animate-pulse rounded-[6px] bg-skeleton md:h-[60px]"></div>
+                <div class="h-11 w-[120px] animate-pulse rounded-[6px] bg-skeleton md:w-[150px]"></div>
+              </div>
+            </div>
+            <div aria-hidden="true" class="flex w-[171px] shrink-0 flex-col gap-4 md:w-[376px]">
+              <div class="h-[177px] animate-pulse bg-skeleton md:h-[375px]"></div>
+              <div class="flex flex-col gap-4 md:px-6">
+                <div class="flex items-center justify-between gap-2"><div class="h-[25px] w-20 animate-pulse rounded-[6px] bg-skeleton md:h-[31px] md:w-[150px]"></div><div class="h-5 w-14 animate-pulse rounded-[6px] bg-skeleton"></div></div>
+                <div class="h-10 w-full animate-pulse rounded-[6px] bg-skeleton md:h-[60px]"></div>
+                <div class="h-11 w-[120px] animate-pulse rounded-[6px] bg-skeleton md:w-[150px]"></div>
+              </div>
+            </div>
+            <div aria-hidden="true" class="flex w-[171px] shrink-0 flex-col gap-4 md:w-[376px]">
+              <div class="h-[177px] animate-pulse bg-skeleton md:h-[375px]"></div>
+              <div class="flex flex-col gap-4 md:px-6">
+                <div class="flex items-center justify-between gap-2"><div class="h-[25px] w-20 animate-pulse rounded-[6px] bg-skeleton md:h-[31px] md:w-[150px]"></div><div class="h-5 w-14 animate-pulse rounded-[6px] bg-skeleton"></div></div>
+                <div class="h-10 w-full animate-pulse rounded-[6px] bg-skeleton md:h-[60px]"></div>
+                <div class="h-11 w-[120px] animate-pulse rounded-[6px] bg-skeleton md:w-[150px]"></div>
+              </div>
+            </div>
+            </div>
+            <div aria-hidden="true" class="pointer-events-none absolute inset-y-0 left-0 hidden w-[192px] bg-linear-to-l from-transparent to-surface opacity-0 backdrop-blur-[4px] transition-opacity duration-300 [mask-image:linear-gradient(to_left,transparent,black)] peer-data-more-end:opacity-100 lg:block"></div>
+          </div>
+        </section>
 
         <!--
           515px image banners with centred copy and an outline button
@@ -530,8 +582,9 @@
      Sample data is fetched only while MASO_CONFIG.WP_URL is empty; everything else is
      minified bundles built from assets/js by `npm run build` (?v= changes with every build). -->
 <script src="assets/js/config.js"></script>
-<script>MASO_CONFIG.WP_URL || document.head.append(Object.assign(document.createElement("script"), { id: "maso-mock", src: "assets/js/dist/mock.js?v=db8d9c8cee" }));</script>
-<script src="assets/js/dist/core.js?v=d429790b51" defer></script>
+<script>MASO_CONFIG.WP_URL || document.head.append(Object.assign(document.createElement("script"), { id: "maso-mock", src: "assets/js/dist/mock.js?v=c4d1ce1587" }));</script>
+<script src="assets/js/dist/core.js?v=0995cfd8b4" defer></script>
 <!-- /@include -->
+    <script src="assets/js/dist/home.js?v=c36451a6ca" defer></script>
   </body>
 </html>

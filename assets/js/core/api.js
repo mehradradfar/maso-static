@@ -295,6 +295,16 @@
       return later({ items: items.slice(start, start + PAGE_SIZE).map(toSummary), page: query.page, totalPages, total: items.length }, 60);
     },
 
+    /** Home "پرفروش ترین محصولات": up to 8 best sellers, optionally of one category → ProductSummary[] */
+    async bestsellers(category = "") {
+      if (!USE_MOCK) {
+        const page = await request(`/maso/v1/shop/products${qs({ category, sort: "bestselling", per_page: 8 })}`);
+        return page.items;
+      }
+      const items = MOCK.products.filter((p) => !category || p.categories.includes(category)).sort((a, b) => b.inStock - a.inStock || b.sales - a.sales);
+      return later(items.slice(0, 8).map(toSummary), 60);
+    },
+
     /** Product detail, or null when there is no such product */
     async product(slug) {
       if (USE_MOCK) return later(mockProduct(slug), 0);

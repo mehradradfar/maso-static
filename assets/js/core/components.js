@@ -36,7 +36,7 @@
     return html`
       <div class="${cx("flex shrink-0 flex-col items-start gap-1", cls)}">
         <p class="flex items-center gap-2.5 text-ink">
-          <span class="${size === "md" ? "text-20 font-bold" : size === "card" ? "text-16 font-bold" : "text-16"}">${fmt.price(price)}</span>
+          <span class="${size === "md" ? "text-20 font-bold" : size === "card" ? "text-16 font-bold" : size === "rail" ? "text-13 font-bold md:text-16" : "text-16"}">${fmt.price(price)}</span>
           ${icon("toman")}
         </p>
         ${discount > 0 &&
@@ -84,14 +84,18 @@
    * swatches + price row. Width comes from the grid.
    * variant "rounded" (blog's suggested products): 32px-radius picture, no
    * underline, 12px side padding.
+   * variant "rail" (home best sellers): 376px wide; on phones a compact
+   * 171px card — 177px picture, 16px name, swatches under the divider,
+   * 13px price, no side padding.
    */
   function productCard(product, { index = 0, eager = false, variant = "default" } = {}) {
     const rounded = variant === "rounded";
+    const rail = variant === "rail";
     return html`
-      <article data-reveal style="--reveal-index:${index % 3}" class="group relative flex flex-col gap-4">
+      <article data-reveal style="--reveal-index:${index % 3}" class="${cx("group relative flex flex-col gap-4", rail && "w-[171px] shrink-0 snap-start md:w-[376px]")}">
         <div class="${cx(
           "relative overflow-hidden bg-linear-to-b from-[#677b9c] to-[#e0ebff]",
-          rounded ? "h-[375px] rounded-[32px]" : "h-[244px] border-b-4 border-primary md:h-[375px]",
+          rounded ? "h-[375px] rounded-[32px]" : rail ? "h-[177px] border-b-4 border-primary md:h-[375px]" : "h-[244px] border-b-4 border-primary md:h-[375px]",
         )}">
           ${img(product.image, {
             alt: product.image.alt || product.name,
@@ -101,18 +105,20 @@
           ${!product.inStock &&
           html`<span class="absolute start-4 top-4 rounded-full bg-surface/90 px-3 py-1 text-13 text-ink-var">ناموجود</span>`}
         </div>
-        <div class="${cx("flex flex-col gap-4", rounded ? "px-3" : "px-6")}">
-          <div class="flex items-center justify-between gap-4">
-            <h3 class="text-20 text-ink">
+        <div class="${cx("flex flex-col gap-4", rounded ? "px-3" : rail ? "md:px-6" : "px-6")}">
+          <div class="${cx("flex items-center justify-between", rail ? "gap-2 md:gap-4" : "gap-4")}">
+            <h3 class="${rail ? "min-w-0 truncate text-16 text-ink md:text-20" : "text-20 text-ink"}">
               <!-- The whole card is clickable through this link's ::after -->
               <a href="${url.product(product.slug)}" class="after:absolute after:inset-0">${product.name}</a>
             </h3>
             ${product.capacity && html`<span class="shrink-0 text-13 text-outline">${product.capacity}</span>`}
           </div>
           <hr class="border-0 border-t border-black-10" />
-          <p class="text-13 text-ink-var">${product.shortDescription}</p>
+          ${rail && product.swatches.length ? html`<div class="flex md:hidden">${swatches(product.swatches)}</div>` : ""}
+          <p class="${cx("text-13 text-ink-var", rail && "line-clamp-2 md:line-clamp-none")}">${product.shortDescription}</p>
           <div class="flex items-center justify-between">
-            ${price({ price: product.price, regularPrice: product.regularPrice, size: "card" })} ${swatches(product.swatches)}
+            ${price({ price: product.price, regularPrice: product.regularPrice, size: rail ? "rail" : "card" })}
+            ${rail ? html`<div class="hidden md:flex">${swatches(product.swatches)}</div>` : swatches(product.swatches)}
           </div>
         </div>
       </article>
@@ -161,7 +167,19 @@
   /** Loading placeholder in the style of the Figma skeleton frame */
   const block = (cls) => html`<div class="${cx("animate-pulse rounded-[6px] bg-skeleton", cls)}"></div>`;
 
-  function productCardSkeleton() {
+  function productCardSkeleton({ variant = "default" } = {}) {
+    if (variant === "rail") {
+      return html`
+        <div aria-hidden="true" class="flex w-[171px] shrink-0 flex-col gap-4 md:w-[376px]">
+          <div class="h-[177px] animate-pulse bg-skeleton md:h-[375px]"></div>
+          <div class="flex flex-col gap-4 md:px-6">
+            <div class="flex items-center justify-between gap-2">${block("h-[25px] w-20 md:h-[31px] md:w-[150px]")} ${block("h-5 w-14")}</div>
+            ${block("h-10 w-full md:h-[60px]")}
+            <div class="flex items-center justify-between">${block("h-11 w-[120px] md:w-[150px]")} ${block("hidden h-6 w-20 md:block")}</div>
+          </div>
+        </div>
+      `;
+    }
     return html`
       <div aria-hidden="true" class="flex flex-col gap-4">
         <div class="h-[244px] animate-pulse bg-skeleton md:h-[375px]"></div>
@@ -172,6 +190,25 @@
         </div>
       </div>
     `;
+  }
+
+  /**
+   * Category card of the horizontal rails (shop, home best sellers): 150×110,
+   * 32px radius, 126×50 picture + 13px label; the current one sits on the
+   * light surface. A link by default, a toggle button when `button` is set.
+   */
+  function categoryChip(category, { current = false, href = "", button = false } = {}) {
+    const cls = cx(
+      "flex h-[110px] w-[150px] flex-col items-center gap-4 rounded-[32px] p-3 transition-colors duration-300",
+      current ? "bg-surface-low" : "hover:bg-surface-low",
+    );
+    const body = html`
+      ${img(category.image, { alt: "", width: 126, height: 50, eager: true, cls: "h-[50px] w-[126px] object-contain" })}
+      <span class="text-13 whitespace-nowrap text-ink">${category.name}</span>
+    `;
+    return button
+      ? html`<button type="button" data-category="${category.slug}" aria-pressed="${current ? "true" : "false"}" class="${cls}">${body}</button>`
+      : html`<a href="${href}" ${current ? html`aria-current="page"` : ""} class="${cls}">${body}</a>`;
   }
 
   /**
@@ -281,5 +318,5 @@
     if (!animate) requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove("counter-instant")));
   }
 
-  Maso.ui = { img, price, swatches, swatchDot, productCard, productCardSkeleton, postCard, postCardSkeleton, block, breadcrumbs, jsonLd, counter, syncCounter };
+  Maso.ui = { img, price, swatches, swatchDot, productCard, productCardSkeleton, categoryChip, postCard, postCardSkeleton, block, breadcrumbs, jsonLd, counter, syncCounter };
 })();

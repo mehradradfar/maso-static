@@ -71,8 +71,9 @@ docs/WORDPRESS_API.md  the REST contract for the WordPress developer
 
 * **Fixed content** (home page, header, footer, login, 404…) is written
   straight into the HTML.
-* **Data-driven parts** (product lists, product page, cart, checkout,
-  search) are drawn by the page's script from `Maso.api`, which returns
+* **Data-driven parts** (product lists, the home page's best sellers,
+  product page, cart, checkout, search) are drawn by the page's script from
+  `Maso.api`, which returns
   either the sample data or the WordPress answer — same shapes either way.
 * **Styling** uses utility classes (Tailwind CSS) whose values come from the
   Figma tokens in `assets/css/src/main.css` (`bg-surface-low`, `text-16`,

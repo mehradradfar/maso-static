@@ -100,8 +100,8 @@
     "مبل چوبی هفت نفره‌ای لوکس و بی‌نظیر؛ ساخته شده از چوب مرغوب با طراحی ماندگار برای تجربه‌ای متفاوت و شیک در هر لحظه";
 
   /**
-   * 30 sample products. `categories`, `facets` and `createdAt` are only
-   * used by the sample filtering below; the API returns ProductSummary.
+   * 30 sample products. `categories`, `facets`, `createdAt` and `sales` are
+   * only used by the sample filtering/sorting; the API returns ProductSummary.
    */
   const products = Array.from({ length: 30 }, (_, i) => {
     const price = 1_480_000_000 - i * 37_000_000;
@@ -123,6 +123,7 @@
         space: [["private", "living", "office"][i % 3]],
       },
       createdAt: new Date(Date.UTC(2026, 8, 30 - i)).toISOString(),
+      sales: (i * 37) % 101,
     };
   });
 

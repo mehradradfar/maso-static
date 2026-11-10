@@ -30,22 +30,10 @@
    */
   const categoryRail = (categories, active) => html`
     <div id="category-rail" class="relative min-w-0 flex-1 lg:max-w-[900px]">
-      <ul class="no-scrollbar flex snap-x gap-2 overflow-x-auto overscroll-x-contain p-6">
+      <ul class="no-scrollbar flex snap-x scroll-px-6 gap-2 overflow-x-auto overscroll-x-contain p-6">
         ${categories.map((c) => {
           const current = c.slug === active;
-          return html`<li class="snap-start">
-            <a
-              href="${current ? url.shop() : url.shop(c.slug)}"
-              ${current ? html`aria-current="page"` : ""}
-              class="${cx(
-                "flex h-[110px] w-[150px] flex-col items-center gap-4 rounded-[32px] p-3 transition-colors duration-300",
-                current ? "bg-surface-low" : "hover:bg-surface-low",
-              )}"
-            >
-              ${ui.img(c.image, { alt: "", width: 126, height: 50, eager: true, cls: "h-[50px] w-[126px] object-contain" })}
-              <span class="text-13 whitespace-nowrap text-ink">${c.name}</span>
-            </a>
-          </li>`;
+          return html`<li class="snap-start">${ui.categoryChip(c, { current, href: current ? url.shop() : url.shop(c.slug) })}</li>`;
         })}
       </ul>
       <!-- Scroll hint (desktop) -->

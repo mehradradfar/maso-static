@@ -116,7 +116,9 @@ example in `assets/js/data/mock.js` (and the content of `index.html`). Notes:
 | `GET /maso/v1/shop/products/<slug>` | `ProductDetail`, or **404** |
 
 (`/shop/products/featured`, used by the Next.js version to prerender best
-sellers, is not needed here.)
+sellers, is not needed here: the home page asks for
+`/shop/products?sort=bestselling&per_page=8`, plus `&category=<slug>` when a
+category card above the row is selected.)
 
 ### `GET /maso/v1/shop/products`
 
@@ -125,10 +127,10 @@ Query parameters (the site's URL format is passed through):
 | Param | Example | Meaning |
 | --- | --- | --- |
 | `category` | `beds` | category slug (optional) |
-| `sort` | `newest` (default), `price-desc`, `price-asc` | |
+| `sort` | `newest` (default), `price-desc`, `price-asc`, `bestselling` | `bestselling` (most sold first — WooCommerce `total_sales`) is used by the home page's «پرفروش ترین محصولات» row, with `per_page=8` |
 | `stock` | `1` | only in-stock products |
 | `page` | `2` | 1-based |
-| `per_page` | `12` | always 12 |
+| `per_page` | `12` | 12 (8 for the home page best sellers) |
 | *any facet key* | `wood=walnut,oak&material=solid` | comma-separated facet values (OR inside a facet, AND between facets) |
 
 Facet keys and values are whatever `/shop/facets` returns (e.g. `wood`
